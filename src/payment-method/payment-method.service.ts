@@ -120,7 +120,7 @@ export class PaymentMethodService {
         createPaymentMethodDto,
         paymentGateway,
       );
-      this.paymentMethods.push(paymentMethod);
+      // this.paymentMethods.push(paymentMethod);
       return paymentMethod;
     }
     switch (paymentGateway) {
@@ -149,55 +149,55 @@ export class PaymentMethodService {
     paymentGateway: string,
   ) {
     const { method_key, default_card } = createPaymentMethodDto;
-    const { id: user_id, name, email } = this.authService.me();
+    // const { id: user_id, name, email } = this.authService.me();
     const listofCustomer = await this.stripeService.listAllCustomer();
-    let currentCustomer = listofCustomer.data.find(
-      (customer: StripeCustomer) => customer.email === email,
-    );
-    if (!currentCustomer) {
-      const newCustomer = await this.stripeService.createCustomer({
-        name,
-        email,
-      });
-      currentCustomer = newCustomer;
-    }
-    const attachedPaymentMethod: StripePaymentMethod =
-      await this.stripeService.attachPaymentMethodToCustomer(
-        method_key,
-        currentCustomer.id,
-      );
-    let customerGateway: PaymentGateWay = paymentGateways.find(
-      (pGateway: PaymentGateWay) =>
-        pGateway.user_id === user_id &&
-        pGateway.gateway_name === paymentGateway,
-    );
-    if (!customerGateway) {
-      customerGateway = {
-        id: Number(Date.now()),
-        user_id: user_id,
-        customer_id: currentCustomer['id'],
-        gateway_name: paymentGateway,
-        created_at: new Date(),
-        updated_at: new Date(),
-      };
-      paymentGateways.push(customerGateway);
-    }
-    const paymentMethod: PaymentMethod = {
-      id: Number(Date.now()),
-      method_key: method_key,
-      payment_gateway_id: customerGateway.id,
-      default_card: default_card,
-      fingerprint: attachedPaymentMethod.card.fingerprint,
-      owner_name: attachedPaymentMethod.billing_details.name,
-      last4: attachedPaymentMethod.card.last4,
-      expires: `${attachedPaymentMethod.card.exp_month}/${attachedPaymentMethod.card.exp_year}`,
-      network: attachedPaymentMethod.card.brand,
-      type: attachedPaymentMethod.card.funding,
-      origin: attachedPaymentMethod.card.country,
-      verification_check: attachedPaymentMethod.card.checks.cvc_check,
-      created_at: new Date(),
-      updated_at: new Date(),
-    };
-    return paymentMethod;
+    // let currentCustomer = listofCustomer.data.find(
+    //   (customer: StripeCustomer) => customer.email === email,
+    // );
+    // if (!currentCustomer) {
+    //   const newCustomer = await this.stripeService.createCustomer({
+    //     name,
+    //     email,
+    //   });
+    //   currentCustomer = newCustomer;
+    // }
+    // const attachedPaymentMethod: StripePaymentMethod =
+    //   await this.stripeService.attachPaymentMethodToCustomer(
+    //     method_key,
+    //     currentCustomer.id,
+    //   );
+    // let customerGateway: PaymentGateWay = paymentGateways.find(
+    //   (pGateway: PaymentGateWay) =>
+    //     pGateway.user_id === user_id &&
+    //     pGateway.gateway_name === paymentGateway,
+    // );
+    // if (!customerGateway) {
+    //   customerGateway = {
+    //     id: Number(Date.now()),
+    //     user_id: user_id,
+    //     customer_id: currentCustomer['id'],
+    //     gateway_name: paymentGateway,
+    //     created_at: new Date(),
+    //     updated_at: new Date(),
+    //   };
+    //   paymentGateways.push(customerGateway);
+    // }
+    // const paymentMethod: PaymentMethod = {
+    //   id: Number(Date.now()),
+    //   method_key: method_key,
+    //   payment_gateway_id: customerGateway.id,
+    //   default_card: default_card,
+    //   fingerprint: attachedPaymentMethod.card.fingerprint,
+    //   owner_name: attachedPaymentMethod.billing_details.name,
+    //   last4: attachedPaymentMethod.card.last4,
+    //   expires: `${attachedPaymentMethod.card.exp_month}/${attachedPaymentMethod.card.exp_year}`,
+    //   network: attachedPaymentMethod.card.brand,
+    //   type: attachedPaymentMethod.card.funding,
+    //   origin: attachedPaymentMethod.card.country,
+    //   verification_check: attachedPaymentMethod.card.checks.cvc_check,
+    //   created_at: new Date(),
+    //   updated_at: new Date(),
+    // };
+    // return paymentMethod;
   }
 }

@@ -10,8 +10,38 @@ import { Address } from '../../addresses/schema/address.schema';
 // import {Profile} from '../../profiles/schema/profile.schema'
 export type UserDocument = User &  Document;
 
-@Schema({ timestamps: true })
 
+
+// interface Profile {
+//   bio: string,
+//   contact: string
+// }
+
+
+export class Avatar extends mongoose.Document{
+  @Prop({type: String, required: false})
+  thumbnail?: string;
+  @Prop({type: String, required: false}) 
+  original?: string;
+
+}
+
+
+
+export class Profile extends mongoose.Document{
+  
+  @Prop({type: String, required: false})
+  bio?: string;
+  @Prop({type: String, required: false}) 
+  contact?: string;
+  @Prop({type: Avatar, required: false}) 
+  avatar?: Avatar;
+
+}
+
+
+
+@Schema({ timestamps: true })
  export class User {
 
   @Prop({ required: false, type: String })
@@ -42,8 +72,9 @@ export type UserDocument = User &  Document;
 
   // @Prop({  type: mongoose.Schema.Types.ObjectId, ref: 'Shop' })
   // managed_shop?: Shop;
-  @Prop({ required: false, type: mongoose.Schema.Types.ObjectId, ref: 'Profile'  })
+  // @Prop({ required: false, type: mongoose.Schema.Types.ObjectId, ref: 'Profile'  })
   // @Prop({  type: mongoose.Schema.Types.ObjectId, ref: 'Profile' })
+  @Prop({type: Profile})
   profile?: Profile; 
 
 
@@ -79,8 +110,3 @@ const UserSchema = SchemaFactory.createForClass(User);
 export {UserSchema}
 
 
-
-interface Profile {
-  bio: string,
-  contact: string
-}

@@ -9,6 +9,8 @@ import {
   Param,
   Delete,
   Query,
+  UseInterceptors,
+  UploadedFile,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 // import { CreateUserDto } from './dto/create-user.dto';
@@ -22,6 +24,7 @@ import {  User } from './schema/user.schema';
 import { CreateUserDto } from './dto/create-user.dto';
 import { LocalAuthGuard } from '../auth/local.auth.guard';
 import { AuthenticatedGuard } from '../auth/authenticated.guard';
+import {FileInterceptor} from '@nestjs/platform-express';
 // import { IUser } from '../interface/user.interface';
 
 
@@ -42,13 +45,13 @@ export class UsersController {
     return this.usersService.create(createUserDto);
   }
 
-  @UseGuards(LocalAuthGuard)
-  @Post("/login")
-  login(@Body() req): any {
-    console.log(req);
-    return {User: req.user,
-            msg: 'User logged in'};
-  }
+  // @UseGuards(LocalAuthGuard)
+  // @Post("/login")
+  // login(@Body() req): any {
+  //   console.log(req);
+  //   return {User: req.user,
+  //           msg: 'User logged in'};
+  // }
 
 
   @Get('/logout')
@@ -71,10 +74,12 @@ export class UsersController {
   }
 
   @Put(':id')
-  updateUser(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.usersService.update(id, updateUserDto);
+  @ApiConsumes('multipart/form-data')
+  @UseInterceptors(FileInterceptor('file'))
+  updateUser(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto, @UploadedFile() file: Express.Multer.File) {
+    return this.usersService.update(id, updateUserDto, file);
   }
-
+ 
   @Delete(':id')
   removeUser(@Param('id') id: string) {
     return this.usersService.remove(id);
@@ -94,6 +99,15 @@ export class UsersController {
   makeAdmin(@Param('user_id') id: string) {
     return this.usersService.makeAdmin(id);
   }
+
+  @Post('profile-picture')
+  @ApiConsumes('multipart/form-data')
+  @UseInterceptors(FileInterceptor('file'))
+  profilePicture(@UploadedFile() file: Express.Multer.File):any {
+  //  console.log(file);
+      return this.usersService.profilePicture(file);
+  }
+
 }
 
 

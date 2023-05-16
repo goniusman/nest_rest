@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 // import { plainToClass } from 'class-transformer';
 import { CreateUserDto } from './dto/create-user.dto';
 // import {  UserPaginator } from './dto/get-users.dto';
@@ -9,7 +9,7 @@ import * as bcrypt from 'bcrypt'
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import {  User } from './schema/user.schema';
-
+import { CloudinaryService } from '../cloudinary/cloudinary.service';
 // import { CreateUserDto } from '../dto/create-user.dto';
 // import { IUser } from '../interface/user.interface';
 
@@ -36,6 +36,7 @@ export class UsersService {
   constructor(
     @InjectModel('User')
     private users: Model<User>,
+    private cloudinary: CloudinaryService
     // private readonly configService: ConfigService
   ) {
 
@@ -81,7 +82,7 @@ export class UsersService {
     //   data = fuse.search(text)?.map(({ item }) => item);
     // }
 
-    let userData = await this.users.find();
+    const userData = await this.users.find();
 
     if (!userData || userData.length == 0) {
       throw new NotFoundException('Students data not found!');
@@ -122,6 +123,13 @@ export class UsersService {
     // console.log(id);
     return await this.users.findById(id).exec();
     // return this.users.find((user) => user._id === id);
+  } 
+  
+  
+  async getAllUsr() {
+    // console.log(id);
+    return await this.users.find().exec();
+    // return this.users.find((user) => user._id === id);
   }
 
   async findOne(id: string) {
@@ -130,11 +138,30 @@ export class UsersService {
     // return this.users.find((user) => user._id === id);
   }
 
-  async update(id: string, updateUserDto: UpdateUserDto) {
-    return await this.users.findByIdAndUpdate(id, updateUserDto)
+  async findByEmail(prop: string) { 
+    // console.log(id);
+    return await this.users.findOne({email:prop}).exec();
+    // return this.users.find((user) => user._id === id);
   }
 
-  async remove(id: string) {
+  async update(id: string, updateUserDto: UpdateUserDto, file: Express.Multer.File) {
+    let update;
+    // const cloudinaryUpload =  await this.cloudinary.uploadImage(file).catch((err) => {
+    //   throw new BadRequestException(err);
+    // });
+console.log(typeof updateUserDto);
+console.log(typeof updateUserDto.profile);
+    // updateUserDto.profile.avatar.thumbnail = cloudinaryUpload.url
+      try {
+        update = await this.users.findByIdAndUpdate(id, updateUserDto)
+
+      } catch (error) {
+        console.log(error);
+      }
+    return update;
+  }
+
+  async remove(id: string) { 
     return await this.users.deleteOne({_id: id})
   }
 
@@ -156,5 +183,18 @@ export class UsersService {
     user.is_active = !user.is_active;
     // user.password = '12345'
     return user.save();
+  }
+
+  async profilePicture(file: Express.Multer.File) {
+    const cloudinaryUpload =  await this.cloudinary.uploadImage(file).catch((err) => {
+      throw new BadRequestException(err);
+    });
+
+
+
+    return 'updated'
+
+
+
   }
 }

@@ -1,6 +1,6 @@
 import * as mongoose from 'mongoose';
 import { ApiConsumes, PickType } from '@nestjs/swagger';
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Prop, Schema, SchemaFactory, raw } from '@nestjs/mongoose';
 import {ApiProperty} from '@nestjs/swagger';
 import { IsBoolean, IsDate, IsNotEmpty, IsNumber, IsString, MaxLength } from "class-validator";
 
@@ -24,7 +24,34 @@ enum Permission {
 //   permission: Permission = Permission.CUSTOMER;
 // }
 import { Address } from '../../addresses/schema/address.schema';
+import {Type} from 'class-transformer';
+// import {Profile} from '../entities/profile.entity';
 // import {Profile} from '../schema/profile.schema'
+
+
+
+
+@Schema({_id: false})
+export class Avartar extends mongoose.Document{
+  @Prop({type: String, required: false})
+  thumbnail?: string;
+  @Prop({type: String, required: false}) 
+  original?: string;
+}
+
+
+@Schema({_id: false})
+export class Profile extends mongoose.Document{
+  @Prop({type: String, required: false})
+  bio?: string;
+  @Prop({type: String, required: false}) 
+  contact?: string;
+  @Prop({type: Avartar, required: false}) 
+  avatar?: Avartar;
+}
+
+
+@Schema()
 export class CreateUserDto extends PickType(User, ['email', 'password']) {
 
   @Prop({ required: true })
@@ -68,8 +95,20 @@ export class CreateUserDto extends PickType(User, ['email', 'password']) {
   @Prop({ required: false }) 
   email_verified_at: number = 0;  
 
-  // @Prop({ required: true, type: Object, default: false})
-  // profile: Profile
+  // @Prop(raw({
+  //   bio: {type: String},
+  //   contact: {type: String},
+  //   avatar: {
+  //     thumbnail: {type: String},
+  //     origin: {type: String}
+
+  //   }
+  // }), )
+
+  // @Prop({type: mongoose.Types.ObjectId,ref: 'Profile'})
+  // @Prop(() => Profile)
+  @Prop({type: Profile, default: {}})
+  profile: Profile
   
 
 
@@ -82,10 +121,18 @@ export class CreateUserDto extends PickType(User, ['email', 'password']) {
   
 }
 
+const UserSchema = SchemaFactory.createForClass(User)
+
+export {UserSchema}
 
 
+// UserSchema.methods.validatePassword = async function (password: string): Promise<boolean> {
+//   return bcrypt.compareAsync(password, this.password);
+// };
 
-interface Profile {
-  bio: string,
-  contact: string
-}
+
+// interface Profile {
+//   bio?: string,
+//   contact?: string,
+//   avatar?: any
+// }

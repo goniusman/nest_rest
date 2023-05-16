@@ -27,6 +27,22 @@ import { User } from '../../users/schema/user.schema'
 // import { Social } from '../schema/social.schema'
 import {Attachment} from '../../common/entities/attachment.entity'
 
+
+// interface SocialDto{
+//   type: string;
+//   link: string;
+// }
+
+
+export class SocialDto extends mongoose.Document {
+  @Prop({ default: " " })
+  type: string;
+
+  @Prop({ default: " " })
+  link: string;
+}
+
+
 export class CreateProfileDto extends PickType(Profile, [
   // 'avatar',
   'bio',
@@ -35,12 +51,16 @@ export class CreateProfileDto extends PickType(Profile, [
 ]) {
 
   @ApiProperty()
-  @Prop({ required: true, type: String })
+  @Prop({ type: mongoose.SchemaTypes.ObjectId, ref: 'User',required: true  })
+  user_id: User;
+
+  @ApiProperty()
+  @Prop({ required: false, type: String })
   @IsNotEmpty()
   bio: string = "";
   
   @ApiProperty()
-  @Prop({ required: true, type: String  }) 
+  @Prop({ required: false, type: String  }) 
   @IsNotEmpty()
   contact: string = "";
 
@@ -48,21 +68,15 @@ export class CreateProfileDto extends PickType(Profile, [
   // avatar?: Attachment;
   
   @ApiProperty()
-  @Prop({ type: Object, required: false, default: false })
+  @Prop({ type: SocialDto, required: false, default: [] })
   socials: SocialDto[]; 
 
-  @ApiProperty()
-  @Prop({ type: mongoose.SchemaTypes.ObjectId, ref: 'User',required: true  })
-  customer_id: User;
+
   
 }
 
 
 
-interface SocialDto{
-  type: string;
-  link: string;
-}
 
 
 

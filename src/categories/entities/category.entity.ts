@@ -49,3 +49,5 @@ export class Category {
 const CategorySchema = SchemaFactory.createForClass(Category)
 
 export {CategorySchema}
+
+

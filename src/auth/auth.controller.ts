@@ -1,7 +1,9 @@
-import { Controller, Get, Post, Body } from '@nestjs/common';
+import { Controller, Get, Post, Body, HttpCode, HttpStatus } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import {  Request, UseGuards } from '@nestjs/common';
-import { AuthGuard } from '@nestjs/passport';
+// import { AuthGuard } from '@nestjs/passport';
+
+import { AuthGuard } from './auth.guard';
 
 import {
   ChangePasswordDto,
@@ -21,11 +23,26 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
 
-  @UseGuards(AuthGuard('local'))
-    @Post('auth/login')
+  // @UseGuards(AuthGuard('local'))
+    @HttpCode(HttpStatus.OK)
+    @Post('login')
     async login(@Request() req) {
-        return this.authService.login(req.user);
+        return this.authService.login(req.body);
     }
+
+    @UseGuards(AuthGuard)
+    @Post('token')
+    async token(@Request() req) {
+        return this.authService.token(req.user);
+    }
+    
+    
+    @UseGuards(AuthGuard)
+    @Get('getallusers')
+    async getallusers(@Request() req) {
+        return this.authService.getAllUsr();
+    }
+
 
 
   @Post('register')
