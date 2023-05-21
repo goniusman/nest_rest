@@ -1,9 +1,9 @@
-import { Controller, Get, Post, Body, HttpCode, HttpStatus } from '@nestjs/common';
+import { Controller, Get, Post, Body, HttpCode, HttpStatus, Param, Req } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import {  Request, UseGuards } from '@nestjs/common';
-// import { AuthGuard } from '@nestjs/passport';
+import { AuthGuard } from '@nestjs/passport';
 
-import { AuthGuard } from './auth.guard';
+// import { AuthGuard } from './auth.guard';
 
 import {
   ChangePasswordDto,
@@ -17,38 +17,76 @@ import {
   VerifyForgetPasswordDto,
   VerifyOtpDto,
 } from './dto/create-auth.dto';
+import {CreateUserDto} from 'src/users/dto/create-user.dto';
+
+import { HasRoles } from './has-roles.decorator';
+import { Role } from './role.enum';
+import { RolesGuard } from './roles.guard';
+import { LocalAuthGuard } from './gurd/local-auth.guard'
+import { JwtAuthGuard } from './gurd/jwt-auth.guard'
+import {IGetUserAuthInfoRequest} from 'src/helper/typeDefinition';
+
 
 @Controller()
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
 
-  // @UseGuards(AuthGuard('local'))
-    @HttpCode(HttpStatus.OK)
-    @Post('login')
-    async login(@Request() req) {
-        return this.authService.login(req.body);
+    @Post('register')
+    createAccount(@Body() registerDto: CreateUserDto) {
+      return this.authService.register(registerDto);
     }
 
-    @UseGuards(AuthGuard)
+ 
+    // @UseGuards(LocalAuthGuard)
+    // @HttpCode(HttpStatus.OK)
+    @Post('login')
+    async login(@Request() req) : Promise<any>{
+        return await this.authService.login(req.body);
+    }
+
+    // @UseGuards(AuthGuard)
     @Post('token')
     async token(@Request() req) {
         return this.authService.token(req.user);
     }
     
-    
-    @UseGuards(AuthGuard)
+    @HasRoles(Role.SUPER_ADMIN)
+    @UseGuards(JwtAuthGuard, RolesGuard)
     @Get('getallusers')
     async getallusers(@Request() req) {
         return this.authService.getAllUsr();
     }
 
+    @UseGuards(JwtAuthGuard)
+    @Get('me/:id')
+    me(@Param('id') id?: string) { 
+      return this.authService.me(id);
+    }
+ 
+    @UseGuards(JwtAuthGuard)
+    @Post('change-password')
+    changePassword(@Req() req: IGetUserAuthInfoRequest, @Body() changePasswordDto: ChangePasswordDto) {
+      // const email = req;
+      return this.authService.changePassword(req?.user?.email, changePasswordDto);
+    }
+
+    // @HasRoles(Role.SUPER_ADMIN)
+    // @UseGuards(AuthGuard('jwt'), RolesGuard)
+    // @Get('admin')
+    // onlyAdmin(@Request() req) {
+    //   return req.user;
+    // }
+  
+    // @HasRoles(Role.CUSTOMER)
+    // @UseGuards(AuthGuard('jwt'), RolesGuard)
+    // @Get('user')
+    // onlyUser(@Request() req) {
+    //   return req.user;
+    // }
 
 
-  @Post('register')
-  createAccount(@Body() registerDto: RegisterDto) {
-    return this.authService.register(registerDto);
-  }
+
   
   // @Post('token')
   // login(@Body() loginDto: LoginDto) {
@@ -79,10 +117,7 @@ export class AuthController {
   resetPassword(@Body() resetPasswordDto: ResetPasswordDto) {
     return this.authService.resetPassword(resetPasswordDto);
   }
-  @Post('change-password')
-  changePassword(@Body() changePasswordDto: ChangePasswordDto) {
-    return this.authService.changePassword(changePasswordDto);
-  }
+  
   @Post('logout')
   async logout(): Promise<boolean> {
     return true;
@@ -94,13 +129,10 @@ export class AuthController {
     return this.authService.verifyForgetPasswordToken(verifyForgetPasswordDto);
   }
 
-  @Get('me')
-  me() {
-    return this.authService.me();
-  }
+ 
   @Post('add-points')
   addWalletPoints(@Body() addPointsDto: any) {
-    return this.authService.me();
+    return this.authService.me(); 
   }
   @Post('contact-us')
   contactUs(@Body() addPointsDto: any) {

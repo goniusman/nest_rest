@@ -11,6 +11,7 @@ import {
   Query,
   UseInterceptors,
   UploadedFile,
+  Req,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 // import { CreateUserDto } from './dto/create-user.dto';
@@ -22,8 +23,8 @@ import {ApiConsumes, ApiOkResponse} from '@nestjs/swagger';
 // import { CreateUserDto } from '../dto/create-user.dto';
 import {  User } from './schema/user.schema';
 import { CreateUserDto } from './dto/create-user.dto';
-import { LocalAuthGuard } from '../auth/local.auth.guard';
-import { AuthenticatedGuard } from '../auth/authenticated.guard';
+// import { LocalAuthGuard } from '../auth/local/local.auth.guard';
+// import { AuthenticatedGuard } from '../auth/local/authenticated.guard';
 import {FileInterceptor} from '@nestjs/platform-express';
 // import { IUser } from '../interface/user.interface';
 
@@ -67,22 +68,20 @@ export class UsersController {
     return this.usersService.getUsers(query);
   }
 
-  @UseGuards(AuthenticatedGuard)
+  // @UseGuards(AuthenticatedGuard)
   @Get(':id')
   getUser(@Param('id') id: string) {
     return this.usersService.findOne(id);
   }
 
   @Put(':id')
-  @ApiConsumes('multipart/form-data')
-  @UseInterceptors(FileInterceptor('file'))
-  updateUser(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto, @UploadedFile() file: Express.Multer.File) {
-    return this.usersService.update(id, updateUserDto, file);
+  updateUser(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
+    return this.usersService.update(id, updateUserDto);
   }
  
   @Delete(':id')
-  removeUser(@Param('id') id: string) {
-    return this.usersService.remove(id);
+  async removeUser(@Param('id') id: string) {
+    return await this.usersService.remove(id);
   }
 
   @Post('unblock-user')
@@ -95,18 +94,18 @@ export class UsersController {
     return this.usersService.banUser(id);
   }
 
-  @Post('make-admin')
-  makeAdmin(@Param('user_id') id: string) {
+  @Post('make-admin') 
+  makeAdmin(@Req() req: Request , @Body('user_id') id: string) {
     return this.usersService.makeAdmin(id);
   }
 
-  @Post('profile-picture')
-  @ApiConsumes('multipart/form-data')
-  @UseInterceptors(FileInterceptor('file'))
-  profilePicture(@UploadedFile() file: Express.Multer.File):any {
-  //  console.log(file);
-      return this.usersService.profilePicture(file);
-  }
+  // @Post('profile-picture')
+  // @ApiConsumes('multipart/form-data')
+  // @UseInterceptors(FileInterceptor('file'))
+  // profilePicture(@UploadedFile() file: Express.Multer.File):any {
+  // //  console.log(file);
+  //     return this.usersService.profilePicture(file);
+  // }
 
 }
 

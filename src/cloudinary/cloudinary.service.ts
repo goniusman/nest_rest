@@ -35,11 +35,29 @@ export class CloudinaryService {
 
 
 
-  // async uploadImageToCloudinary(file: Express.Multer.File) {
-  //   return await this.uploadImage(file).catch((err) => {
-  //     throw new BadRequestException(err.message);
-  //   });
-  // }
+  async uploadImageToCloudinary(file: Express.Multer.File) {
 
+    try {
+      return await this.uploadImage(file).catch((err) => {
+      throw new BadRequestException(err.message);
+    });
+    } catch (error) {
+      console.log(error.message);
+    }
+    
+  }
+
+
+
+  async deleteCloudinaryImage(public_id: any, signature:any){
+    try {
+      return  await v2.uploader.destroy(public_id, signature).catch(err=>{
+      throw new BadRequestException(err.message);
+    });
+    } catch (error) {
+      console.log(error.message);
+    }
+    
+  } 
 
 }

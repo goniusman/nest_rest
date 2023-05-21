@@ -8,12 +8,7 @@ import { CreateAddressDto } from 'src/addresses/dto/create-address.dto';
 import { User } from '../schema/user.schema';
 import { CreateProfileDto } from '../../profiles/dto/create-profile.dto';
 
-enum Permission {
-  SUPER_ADMIN = 'Super admin',
-  STORE_OWNER = 'Store owner',
-  STAFF = 'Staff',
-  CUSTOMER = 'Customer',
-}
+
 // export class CreateUserDto extends PickType(User, [
 //   'name',
 //   'email',
@@ -37,6 +32,13 @@ export class Avartar extends mongoose.Document{
   thumbnail?: string;
   @Prop({type: String, required: false}) 
   original?: string;
+}
+
+export enum Permission {
+  SUPER_ADMIN = 'super_admin',
+  STORE_OWNER = 'store_owner',
+  STAFF = 'staff',
+  CUSTOMER = 'customer',
 }
 
 
@@ -70,14 +72,14 @@ export class CreateUserDto extends PickType(User, ['email', 'password']) {
   password: string;
   
   @ApiProperty()
-  @Prop({ required: false }) 
+  @Prop({ required: true, type: [String], enum: Permission, default: [] }) 
   @IsNotEmpty()
-  permission: Permission = Permission.CUSTOMER;
+  permissions: Permission[] = [Permission.STORE_OWNER,Permission.SUPER_ADMIN];
 
   @ApiProperty()
-  @Prop({ required: false }) 
+  @Prop({ required: true })  
   @IsNotEmpty()
-  is_active?: boolean = false;
+  is_active?: boolean = true;
   
   @ApiProperty()
   @Prop({ required: false }) 

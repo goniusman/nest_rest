@@ -19,6 +19,7 @@ import { paginate } from 'src/common/pagination/paginate';
 import {GetUsersDto, UserPaginator} from './dto/get-users.dto';
 import {ApiOkResponse} from '@nestjs/swagger';
 import { ConfigService } from '@nestjs/config';
+import {UploadsService} from 'src/uploads/uploads.service';
 // const users = plainToClass(UserSchema, usersJson);
 
 // const options = {
@@ -27,6 +28,12 @@ import { ConfigService } from '@nestjs/config';
 // };
 // const fuse = new Fuse(users, options);
 
+export enum Permission {
+  SUPER_ADMIN = 'super_admin',
+  STORE_OWNER = 'store_owner',
+  STAFF = 'staff',
+  CUSTOMER = 'customer',
+}
 
 @Injectable()
 export class UsersService { 
@@ -36,7 +43,8 @@ export class UsersService {
   constructor(
     @InjectModel('User')
     private users: Model<User>,
-    private cloudinary: CloudinaryService
+    private cloudinary: CloudinaryService,
+    private uploader: UploadsService
     // private readonly configService: ConfigService
   ) {
 
@@ -121,7 +129,11 @@ export class UsersService {
 
   async getUser(id: string) {
     // console.log(id);
+    // console.log(await this.users.findById(id));
     return await this.users.findById(id).exec();
+    // const user = await this.users.findById(id).exec();
+    //  const {password, ...result} = user
+    //  return result;
     // return this.users.find((user) => user._id === id);
   } 
   
@@ -144,22 +156,49 @@ export class UsersService {
     // return this.users.find((user) => user._id === id);
   }
 
-  async update(id: string, updateUserDto: UpdateUserDto, file: Express.Multer.File) {
-    let update;
-    // const cloudinaryUpload =  await this.cloudinary.uploadImage(file).catch((err) => {
-    //   throw new BadRequestException(err);
-    // });
-console.log(typeof updateUserDto);
-console.log(typeof updateUserDto.profile);
-    // updateUserDto.profile.avatar.thumbnail = cloudinaryUpload.url
-      try {
-        update = await this.users.findByIdAndUpdate(id, updateUserDto)
+  async update(id: string, updateUserDto: UpdateUserDto) {
 
+
+      try {
+
+        const user = await this.findOne(id)
+        const imageId = user?.profile?.avatar?.id
+        if (imageId) {
+         const imageDoc = await this.uploader.findOne(imageId)
+
+         const deletedImageCloud = await this.cloudinary.deleteCloudinaryImage(`${imageDoc.public_id}.jpg`, imageDoc.signature)
+          console.log(deletedImageCloud);
+        }
+
+        return await this.users.findByIdAndUpdate(id, updateUserDto)
+        
       } catch (error) {
         console.log(error);
       }
-    return update;
+ 
   }
+
+
+  async updatePassword(email: string, password: string): Promise<boolean> {
+
+      try {
+        const user = await this.findByEmail(email)
+        const saltOrRounds = 10;
+        const encPassword = await bcrypt.hash(password, saltOrRounds);
+        user.password = encPassword;
+        const update = await this.users.findOneAndUpdate({email}, user)
+        if(!update) {
+          throw new Error('user not updated')
+        }else{
+          return true;
+        }
+
+      } catch (error) {
+        return false;
+      }
+
+  }
+
 
   async remove(id: string) { 
     return await this.users.deleteOne({_id: id})
@@ -167,8 +206,16 @@ console.log(typeof updateUserDto.profile);
 
   async makeAdmin(user_id: string) {
     const user = await this.users.findById({_id: user_id});
-    user.is_active = !user.is_active;
-    return user.save();
+    if(user.permissions.includes(Permission.SUPER_ADMIN)){
+      const deductAdmin = user.permissions.filter(item => {
+        return item != Permission.SUPER_ADMIN
+      })
+     user.permissions = deductAdmin;
+    }else{
+        user.permissions = [...user.permissions, Permission.SUPER_ADMIN];
+    }
+  
+    return await user.save();
   }
 
   async banUser(id: string) {

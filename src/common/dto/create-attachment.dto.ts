@@ -4,11 +4,11 @@ import { Prop } from "@nestjs/mongoose";
 import mongoose, { Types } from "mongoose";
 import { Category } from "src/categories/entities/category.entity";
 import { IsNotEmpty } from "class-validator";
-import { AttachmentDocument } from "../entities/attachment.entity";
+// import { AttachmentDocument } from "../entities/attachment.entity";
 
 
 
-export class CreateAttachmentDto extends PickType(Attachment, ['item_id']) {
+export class CreateAttachmentDto extends PickType(Attachment, ['id']) {
       
   @Prop({ required: false })
   image_dir: string;
@@ -22,6 +22,6 @@ export class CreateAttachmentDto extends PickType(Attachment, ['item_id']) {
   @ApiProperty()
   @IsNotEmpty()
   @Prop({ required: true, type: String })
-  item_id: mongoose.Types.ObjectId;
+  id: string;
 
 }

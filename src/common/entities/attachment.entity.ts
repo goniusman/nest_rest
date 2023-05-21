@@ -7,7 +7,7 @@ import { Transform, Type } from 'class-transformer';
 import { Category } from 'src/categories/entities/category.entity';
 
 
-export type AttachmentDocument = Attachment & Document;
+// export type AttachmentDocument = Attachment & Document;
 @Schema({timestamps:true})
 export class Attachment {
 
@@ -22,7 +22,7 @@ export class Attachment {
 
   @IsNotEmpty()
   @Prop({ required: true, type: String })
-  item_id:  mongoose.Types.ObjectId;
+  id?: string;
 
 }
 

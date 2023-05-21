@@ -343,9 +343,9 @@ export class OrdersService {
     const me = this.authService.me();
     switch (order.payment_gateway) {
       case PaymentGatewayType.STRIPE:
-        const paymentIntentParam =
-          await this.stripeService.makePaymentIntentParam(order, me);
-        return await this.stripeService.createPaymentIntent(paymentIntentParam);
+        // const paymentIntentParam =
+        //   await this.stripeService.makePaymentIntentParam(order, me);
+        // return await this.stripeService.createPaymentIntent(paymentIntentParam);
       case PaymentGatewayType.PAYPAL:
         // here goes PayPal
         return this.paypalService.createPaymentIntent(order);

@@ -39,12 +39,17 @@ export class Profile extends mongoose.Document{
 
 }
 
-
+enum Permission {
+  SUPER_ADMIN = 'super_admin',
+  STORE_OWNER = 'store_owner',
+  STAFF = 'staff',
+  CUSTOMER = 'customer',
+}
 
 @Schema({ timestamps: true })
  export class User {
 
-  @Prop({ required: false, type: String })
+  @Prop({ required: true, type: String })
   name?: string; 
 
   @Prop({ required: true, type: String })
@@ -55,13 +60,17 @@ export class Profile extends mongoose.Document{
   @IsNotEmpty()
   password: string;
 
+  @ApiProperty()
+  @Prop({ required: true, type: [String], enum: Permission, default: [] }) 
+  @IsNotEmpty()
+  permissions: Permission[] = [Permission.STORE_OWNER,Permission.SUPER_ADMIN];
 
   @Prop({ required: false, type: Number })
   email_verified_at?: number;
 
 
-  @Prop({ required: false, type: Boolean })
-  is_active?: boolean;
+  @Prop({ required: true, type: Boolean })
+  is_active?: boolean = true;
 
 
   @Prop({ required: false, type: Number })

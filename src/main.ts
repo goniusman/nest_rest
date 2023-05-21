@@ -4,6 +4,9 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import session from 'express-session';
 import passport from 'passport';
+import {JwtAuthGuard} from './auth/gurd/jwt-auth.guard';
+// import {LocalAuthGuard} from './auth/gurd/local-auth.guard';
+// import {AuthGuard} from './auth/local/auth.guard';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
@@ -11,6 +14,7 @@ async function bootstrap() {
     snapshot: true,
   });
   // const sess = session.Session
+  // app.useGlobalGuards(new JwtAuthGuard())
   app.use(
     session({
       secret: 'keyboard',

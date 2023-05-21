@@ -1,5 +1,5 @@
 
-import { Injectable, NotAcceptableException, UnauthorizedException } from '@nestjs/common';
+import { HttpStatus, Injectable, NotAcceptableException, Req, UnauthorizedException, UseGuards } from '@nestjs/common';
 // import * as bcrypt from '@types/bcrypt'; 
 import * as bcrypt from 'bcrypt';  
 import { JwtService } from '@nestjs/jwt';
@@ -28,6 +28,8 @@ import usersJson from '@db/users.json';
 import {CommonHelper} from 'src/helper/commonHelper';
 import {InjectModel} from '@nestjs/mongoose';
 import {Model} from 'mongoose';
+import {CreateUserDto} from 'src/users/dto/create-user.dto';
+import {JwtAuthGuard} from './gurd/jwt-auth.guard';
 const users = plainToClass(User, usersJson);
 
 @Injectable()
@@ -36,36 +38,120 @@ export class AuthService {
   private readonly _commonHelper = new CommonHelper()
 
   constructor(
-    @InjectModel('User') private _user: Model<User>, 
+    // @InjectModel('User') private _user: Model<User>, 
     private  usersService: UsersService,
      private jwtService: JwtService) { }
     
 
+  async register(createUserInput: CreateUserDto): Promise<any> {
+  // console.log(createUserInput);
 
-  async validateUser(id: string, password: string): Promise<any> {
-    const user = await this.usersService.getUser( id );
-    console.log(user);
+
+  let status : boolean  = true;
+  let message  = "Already registered"
+  let data: any = null;
+  let userModel: any = null; 
+  try {
+    const existCat = await this.usersService.findByEmail(createUserInput.email);
+
+    // console.log(typeof existCat);
+    // console.log( existCat);
+
+    if (!existCat?._id) {
+      userModel = await this.usersService.create(createUserInput);
+      // await userModel.save()
+      status = true;
+      message = "Successfully Created User" 
+      data = userModel
+      console.log(userModel);
+
+      const id = userModel?._id.toString()
+      const permission = userModel?.permission
+      const payload = { username: userModel.name, sub: id };
+      return {
+        token: this.jwtService.sign(payload),
+        permissions: permission,
+        id: id,
+      };
+
+      // return this._commonHelper.respone(status, message, data);
+    }
+  } catch (err) {
+      // this.findAndDelete(userModel?._id);
+      // status = false;
+      // message = err.message;
+      // data = err;
+      // return this._commonHelper.respone(status, message, data);
+      return HttpStatus.BAD_REQUEST
+  }
+
+return this._commonHelper.respone(status, message, data);
+
+
+  // const user: User = {
+  //   id: uuidv4(),
+  //   ...users[0],
+  //   ...createUserInput,
+  //   created_at: new Date(),
+  //   updated_at: new Date(),
+  // };
+  // this.users.push(user);
+
+  // return {
+  //   token: 'jwt token',
+  //   permissions: ['super_admin', 'customer'],
+  // };
+
+  }
+
+  async validatePassword(email: string, password: string): Promise<any> {
+    const user = await this.usersService.findByEmail(email);
+    // console.log(user); 
     if (!user) return null;
     const passwordValid = await bcrypt.compare(password, user.password)
+    return passwordValid;
+    // if (user && passwordValid) {
+    //     return user;
+    // }
+    // return null;
+  } 
+
+  async validateUser(email: string): Promise<boolean> {
+    const user = await this.usersService.findByEmail(email);
+  
     if (!user) {
-        throw new NotAcceptableException('could not find the user');
+        return false;
+    }else{
+      return true;
     }
-    if (user && passwordValid) {
-        return user;
-    }
-    return null;
+
   }     
                 
-  async login(body: any) {
-    const user = await this.usersService.findByEmail(body.email);
-    if (user?.password !== body.password) {
-      throw new UnauthorizedException();
-    }
-      const payload = { email: user.email, subid: user._id };
+  async login(body: any): Promise<any> {
+
+    try {
+       const user = await this.usersService.findByEmail(body.email);
+       const ValidePassword = await this.validatePassword(user?.email , body.password);
+        if (!ValidePassword) {
+              throw new UnauthorizedException();
+          } else{
+            const id = user?._id.toString();
+            const permissions = user?.permissions
+            const payload = { email: user.email, subid: id, permissions: permissions,name: user.name};
+            return {
+                token: await this.jwtService.signAsync(payload),
+                permissions: permissions,
+                id: id
+            };
+          }
+       
+    } catch (error) {
       return {
-          token: await this.jwtService.signAsync(payload),
-          permissions: ['super_admin', 'customer'],
+        success: false,
+        message: error.message
       };
+    }
+   
   }
   
   async token(user: any) {
@@ -79,68 +165,10 @@ export class AuthService {
       return this.usersService.getAllUsr()
   }
 
-  async register(createUserInput: RegisterDto): Promise<any> {
-    // console.log(createUserInput);
-
-
-    let status : boolean  = true;
-    let message  = "Already registered"
-    let data: any = null;
-    let userModel: any = null; 
-    try {
-      const existCat = await this._user.findOne({name:createUserInput.name}).exec();
-
-      // console.log(typeof existCat);
-      // console.log( existCat);
-
-      if (!existCat?._id) {
-        userModel = await new this._user(createUserInput);
-        userModel.save()
-        status = true;
-        message = "Successfully Created User" 
-        data = userModel
-        console.log(userModel);
-
-
-        const payload = { username: userModel.name, sub: userModel._id };
-        return {
-          token: this.jwtService.sign(payload),
-          permissions: ['super_admin', 'customer'],
-        };
-
-        // return this._commonHelper.respone(status, message, data);
-      }
-    } catch (err) {
-        this.findAndDelete(userModel?._id);
-        status = false;
-        message = err.message;
-        data = err;
-        return this._commonHelper.respone(status, message, data);
-    }
- 
-  return this._commonHelper.respone(status, message, data);
-
-
-    // const user: User = {
-    //   id: uuidv4(),
-    //   ...users[0],
-    //   ...createUserInput,
-    //   created_at: new Date(),
-    //   updated_at: new Date(),
-    // };
-    // this.users.push(user);
-
-    // return {
-    //   token: 'jwt token',
-    //   permissions: ['super_admin', 'customer'],
-    // };
-
-
-
-  }
+  
 
   findAndDelete(id: string):any {
-    return this._user.findByIdAndDelete(id).exec()
+    return this.usersService.remove(id)
   }
 
 
@@ -151,16 +179,44 @@ export class AuthService {
   //     permissions: ['super_admin', 'customer'],
   //   };
   // }
-  async changePassword(
+
+  async changePassword(email:string, 
     changePasswordInput: ChangePasswordDto,
   ): Promise<CoreResponse> {
-    console.log(changePasswordInput);
 
-    return {
-      success: true,
-      message: 'Password change successful',
-    };
+    try {
+        const validateUser = await this.validateUser(email);
+      if (!validateUser) {
+        throw new Error("User Not Found")
+      }
+      const validatePassword = await this.validatePassword(email, changePasswordInput.oldPassword)
+      
+      if(!validatePassword){
+        throw new Error("Password did not match")
+      }
+
+      const updatePassword = await this.usersService.updatePassword(email, changePasswordInput.newPassword)
+
+      if(!updatePassword){
+        throw new Error("Password not Changed")
+      }else{
+          return {
+            success: true,
+            message: 'Password change successful',
+          };
+      }
+    } catch (error) {
+      return {
+        success: false,
+        message: error.message,
+        status: 403
+      };
+    }
+   
+
   }
+
+
   async forgetPassword(
     forgetPasswordInput: ForgetPasswordDto,
   ): Promise<CoreResponse> {
@@ -196,6 +252,7 @@ export class AuthService {
     return {
       token: 'jwt token',
       permissions: ['super_admin', 'customer'],
+      id: ""
     };
   }
   async otpLogin(otpLoginDto: OtpLoginDto): Promise<AuthResponse> {
@@ -203,6 +260,7 @@ export class AuthService {
     return {
       token: 'jwt token',
       permissions: ['super_admin', 'customer'],
+      id: ""
     };
   }
   async verifyOtpCode(verifyOtpInput: VerifyOtpDto): Promise<CoreResponse> {
@@ -241,9 +299,12 @@ export class AuthService {
   //   return this.users.find((user) => user.id === getUserArgs.id);
   // }
 
-   me(): any {
+  async me(id:string = "645edc9c9f206888102d1782"):  Promise<any>  {
     // const id: string = "this is test id"
-    return  this.usersService.getUser("645edc9c9f206888102d1782");
+
+    const user = await this.usersService.getUser(id);
+    // const {password, ...result} = user._doc
+    return user
   }
 
   // updateUser(id: number, updateUserInput: UpdateUserInput) {
