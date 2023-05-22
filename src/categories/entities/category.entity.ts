@@ -1,50 +1,53 @@
 import {Prop, Schema, SchemaFactory} from '@nestjs/mongoose';
 import mongoose, { Types } from 'mongoose';
 
-// import { Attachment } from 'src/common/entities/attachment.entity';
-// import { CoreEntity } from 'src/common/entities/core.entity';
+import { Attachment } from 'src/common/entities/attachment.entity';
+import { CoreEntity } from 'src/common/entities/core.entity';
 import { Product } from 'src/products/entities/product.entity';
-// import { Type } from 'src/types/entities/type.entity';
+import { Type } from 'src/types/entities/type.entity';
 
-@Schema({timestamps: true})
+@Schema({ timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' }})
 export class Category {
+
+  @Prop({required: false, type:Number})
   id: number;
 
-  @Prop({required: true})  
+  timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' }
+
+  @Prop({required: true, type:String, description: "name"})  
   name: string;
 
-  @Prop({required: false})  
+  @Prop({required: false, type:String})  
   slug?: string;
 
-  @Prop({required: false})  
+  @Prop({required: false, type:String})  
   details?: string;
 
-  // @Prop({type: mongoose.Schema.Types.ObjectId, ref: 'Category'})  
-  @Prop({ required: false, type: Types.ObjectId, defaultValue: null })
-  parent?: Types.ObjectId | null;
+  @Prop({type: mongoose.Schema.Types.ObjectId, ref: 'Category'})  
+  parent?: Category
 
-  // @Prop({type: [{type: mongoose.Schema.Types.ObjectId, ref: 'Category'}]})
-  // @Prop({ required: false, type: [Types.ObjectId], default:null, defaultValue:null })
-  // children?: Category[] =[];
+  @Prop({type: [{type: mongoose.Schema.Types.ObjectId, ref: 'Category'}], default: []})
+  children?: Category[] =[];
  
+  @Prop({ type: [{type: mongoose.Schema.Types.ObjectId, ref: 'Product'}], default:[] })
+  products?: Product[] = [];
   
-  @Prop({type: [{type: mongoose.Schema.Types.ObjectId, ref: 'Product'}]})
-  products?: Product[];
-   
-  // @Prop({required: false, type:String})  
-  // file?: Express.Multer.File;
-
-  // type?: Type;
+  @Prop({type: mongoose.Schema.Types.ObjectId, ref: 'Type'})  
+  type?: Type;
   
-  // @Prop({required: false})  
-  // icon?: string;
+  @Prop({required: false, type:String})  
+  icon?: string;
 
-  // language: string;
-  // translated_languages: string[];
+  @Prop({required: false, type:String})  
+  language: string;
+
+  @Prop({required: false, type: [String], default:[]})  
+  translated_languages: string[] = [];
+
+  @Prop({required: false, type: Attachment, default:{}})   
+  image?: Attachment;
 
 }
-
-
 
 const CategorySchema = SchemaFactory.createForClass(Category)
 

@@ -1,12 +1,17 @@
+import {Prop, Schema} from '@nestjs/mongoose';
 import { Type, Transform } from 'class-transformer';
 
+@Schema()
 export class CoreEntity {
 
   @Transform(({ value }) => value.toString())
   // _id?: string;
   id?: number;
+  @Prop()
   @Type(() => Date)
   created_at: Date;
+  
+  @Prop()
   @Type(() => Date)
   updated_at: Date;
 }

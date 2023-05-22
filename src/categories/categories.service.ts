@@ -33,20 +33,11 @@ export class CategoriesService {
   //  @Inject(CommonHelper) private readonly commonHelper: CommonHelper
 
     constructor(
-      @InjectModel('Category') private _cat: Model<ICategory>,   
-      private readonly commonService: CommonService,
-      private cloudinary: CloudinaryService
+      @InjectModel('Category') private _cat: Model<Category>
     ) {}
 
 
-    async uploadImageToCloudinary(file: Express.Multer.File) {
-      return await this.cloudinary.uploadImage(file).catch((err) => {
-        throw new BadRequestException(err.message);
-      });
-    }
-  
-
-   async create( createCategoryDto: CreateCategoryDto, file:any ) : Promise<any>{
+   async create( createCategoryDto: CreateCategoryDto ) : Promise<any>{
 
       let status : boolean  = false;
       let message  = ""
@@ -54,14 +45,13 @@ export class CategoriesService {
       let categoryModel: any = null;
       try {
 
-        // const uploadedFile = await this.uploadImageToCloudinary(file)
-        
-        const existCat = this._cat.find(cat => cat.name === createCategoryDto.name).exec()
+        const existCat = await this._cat.findOne({name:createCategoryDto.name}).exec()
 
-        const ca = existCat;
+        // const ca = existCat;
 
         if (!existCat) {
           categoryModel = await new this._cat(createCategoryDto);
+          categoryModel.slug = createCategoryDto.name;
           categoryModel.save()
 
         // console.log(categoryModel);
@@ -86,18 +76,23 @@ export class CategoriesService {
           }
 
           // const attachs = await this.commonService.getAttachments()
-          status = true;
-          message = "Successfully Created category" 
-          data = categoryModel
-          // console.log(categoryModel);
-          return this.respone(status, message, data);
+          // status = true;
+          // message = "Successfully Created category" 
+          // data = categoryModel
+          // // console.log(categoryModel);
+          // return this.respone(status, message, data);
+          return categoryModel;
         }
         
+        return {
+          message: "Already Created Category",
+          status: false,
+        }
     
       } catch (err) {
 
           // console.log(err);
-          this.findanddelete(categoryModel?._id);
+          // this.findanddelete(categoryModel?._id);
           status = false;
           message = err.message;
           data = err;
@@ -119,75 +114,78 @@ export class CategoriesService {
 
 
 
-  async testCreate(file: Express.Multer.File) {
-    return await this.cloudinary.uploadImage(file).catch((err) => {
-      throw new BadRequestException(err);
-    });
-  }
-
-
-  async findAll(): Promise<ICategory[]> {
-    return this._cat.find().exec();
-  }
-
-  async findSubCategories(param): Promise<ICategory[]> {
-    return this._cat.find({parent: param}).exec();
-  }
-
-  findanddelete(id: string):any {
-    return this._cat.findByIdAndDelete(id).exec()
-  }
-
-
-  // getCategories({ limit, page, search, parent }: GetCategoriesDto) {
-  //   if (!page) page = 1;
-  //   const startIndex = (page - 1) * limit;
-  //   const endIndex = page * limit;
-  //   let data: Category[] = this.categories;
-  //   if (search) {
-  //     const parseSearchParams = search.split(';');
-  //     for (const searchParam of parseSearchParams) {
-  //       const [key, value] = searchParam.split(':');
-  //       // data = data.filter((item) => item[key] === value);
-  //       data = fuse.search(value)?.map(({ item }) => item);
-  //     }
-  //   }
-  //   // if (parent === 'null') {
-  //   //   data = data.filter((item) => item.parent === null);
-  //   // }
-  //   // if (text?.replace(/%/g, '')) {
-  //   //   data = fuse.search(text)?.map(({ item }) => item);
-  //   // }
-  //   // if (hasType) {
-  //   //   data = fuse.search(hasType)?.map(({ item }) => item);
-  //   // }
-
-  //   const results = data.slice(startIndex, endIndex);
-  //   const url = `/categories?search=${search}&limit=${limit}&parent=${parent}`;
-  //   return {
-  //     data: results,
-  //     ...paginate(data.length, page, limit, results.length, url),
-  //   };
+  // async testCreate(file: Express.Multer.File) {
+  //   return await this.cloudinary.uploadImage(file).catch((err) => {
+  //     throw new BadRequestException(err);
+  //   });
   // }
 
 
-  
-  
+//  async findAll(): Promise<any[]> {
+//     const cats = await this._cat.find().exec();
+//     return cats
+//   } 
 
-
-  // getCategory(param: string, language: string): Category {
-  //   return this.categories.find(
-  //     (p) => p.id === Number(param) || p.slug === param,
-  //   );
+  // async findSubCategories(param): Promise<Category[]> {
+  //   return this._cat.find({parent: param}).exec();
   // }
 
-  // update(id: number, updateCategoryDto: UpdateCategoryDto) {
-  //   return this.categories[0];
+  // findanddelete(id: string):any {
+  //   return this._cat.findByIdAndDelete(id).exec()
   // }
 
-  // remove(id: number) {
-  //   return `This action removes a #${id} category`;
-  // }
+
+  async getCategories({ limit, page, search, parent }: GetCategoriesDto) {
+    if (!page) page = 1;
+    const startIndex = (page - 1) * limit;
+    const endIndex = page * limit;
+    let data: Category[] = await this._cat.find();
+    if (search) {
+      const parseSearchParams = search.split(';');
+      for (const searchParam of parseSearchParams) {
+        const [key, value] = searchParam.split(':');
+        // data = data.filter((item) => item[key] === value);
+        // data = data.find(value)?.map(({ item }) => item);
+      }
+    }
+    if (parent === 'null') {
+      data = data.filter((item) => item.parent === null);
+    }
+    // if (text?.replace(/%/g, '')) {
+    //   data = fuse.search(text)?.map(({ item }) => item);
+    // }
+    // if (hasType) {
+    //   data = fuse.search(hasType)?.map(({ item }) => item);
+    // }
+
+    const results = data.slice(startIndex, endIndex);
+    const url = `/categories?search=${search}&limit=${limit}&parent=${parent}`;
+    return {
+      data: results,
+      ...paginate(data.length, page, limit, results.length, url),
+    };
+  }
+
+
+  async getCategory(param: string, language: string): Promise< Category> {
+    const category = await this._cat.findById(param).exec();
+    return category;
+    //   (p) => p.id === Number(param) || p.slug === param,
+    // );
+  }
+
+  async update(id: number, updateCategoryDto: UpdateCategoryDto) {
+    return await this._cat.findByIdAndUpdate(id, updateCategoryDto);
+  }
+
+  remove(id: string) {
+    try {
+      
+      return this._cat.findByIdAndDelete(id).exec();
+    } catch (error) {
+      console.error(error);
+    }
+  }
 
 
 
