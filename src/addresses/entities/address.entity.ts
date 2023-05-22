@@ -1,3 +1,4 @@
+import mongoose from 'mongoose';
 import { CoreEntity } from 'src/common/entities/core.entity';
 import { User } from 'src/users/entities/user.entity';
 
@@ -13,7 +14,7 @@ export class Address extends CoreEntity {
   type: AddressType;
   customer: User;
 }
-export class UserAddress {
+export class UserAddress extends mongoose.Document{
   street_address: string;
   country: string;
   city: string;

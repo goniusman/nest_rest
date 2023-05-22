@@ -61,15 +61,15 @@ enum Permission {
   password: string;
 
   @ApiProperty()
-  @Prop({ required: true, type: [String], enum: Permission, default: [] }) 
+  @Prop({ required: true, type: [String], enum: Permission, default: [Permission.STORE_OWNER] }) 
   @IsNotEmpty()
-  permissions: Permission[] = [Permission.STORE_OWNER,Permission.SUPER_ADMIN];
+  permissions: Permission[] = [Permission.STORE_OWNER];
 
   @Prop({ required: false, type: Number })
   email_verified_at?: number;
 
 
-  @Prop({ required: true, type: Boolean })
+  @Prop({ required: false, type: Boolean })
   is_active?: boolean = true;
 
 

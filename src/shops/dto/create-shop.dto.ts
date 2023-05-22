@@ -2,6 +2,7 @@ import { PickType } from '@nestjs/swagger';
 import { Shop } from '../entities/shop.entity';
 
 export class CreateShopDto extends PickType(Shop, [
+  'owner_id',
   'name',
   'address',
   'description',
@@ -10,6 +11,7 @@ export class CreateShopDto extends PickType(Shop, [
   'settings',
   'balance',
 ]) {
+  slug: string;
   categories: number[];
 }
 

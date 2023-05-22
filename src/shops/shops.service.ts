@@ -8,6 +8,9 @@ import Fuse from 'fuse.js';
 import { GetShopsDto } from './dto/get-shops.dto';
 import { paginate } from 'src/common/pagination/paginate';
 import { GetStaffsDto } from './dto/get-staffs.dto';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
+import { UsersService } from 'src/users/users.service';
 
 const shops = plainToClass(Shop, shopsJson);
 const options = {
@@ -20,16 +23,31 @@ const fuse = new Fuse(shops, options);
 export class ShopsService {
   private shops: Shop[] = shops;
 
-  create(createShopDto: CreateShopDto) {
-    return this.shops[0];
+  constructor(
+    @InjectModel('Shop') private shop : Model<Shop>,
+    // private userService: UsersService
+  ) {}
+  
+  async create(createShopDto: CreateShopDto): Promise<any> {
+    // return this.shops[0];
+    try {
+      // const user = await this.userService.getUser(createShopDto.owner_id)
+      // createShopDto.owner = user
+      createShopDto.slug = createShopDto.name
+      const shopCreated = await this.shop.create(createShopDto);
+      return shopCreated;
+    } catch (error) {
+      console.log(error);
+    }
+   
   }
 
-  getShops({ search, limit, page }: GetShopsDto) {
+  async getShops({ search, limit, page }: GetShopsDto) {
     if (!page) page = 1;
 
     const startIndex = (page - 1) * limit;
     const endIndex = page * limit;
-    let data: Shop[] = this.shops;
+    let data: Shop[] = await this.shop.find();
     if (search) {
       const parseSearchParams = search.split(';');
       for (const searchParam of parseSearchParams) {
@@ -66,33 +84,37 @@ export class ShopsService {
     };
   }
 
-  getShop(slug: string): Shop {
-    return this.shops.find((p) => p.slug === slug);
+  async getShop(slug: string): Promise< any> {
+    return await this.shop.findOne({slug});
   }
 
-  update(id: number, updateShopDto: UpdateShopDto) {
-    return this.shops[0];
+  async update(id: string, updateShopDto: UpdateShopDto) {
+    return await this.shop.findByIdAndUpdate(id, updateShopDto);
   }
 
-  approve(id: number) {
+  approve(id: string) {
     return `This action removes a #${id} shop`;
   }
 
-  remove(id: number) {
+  remove(id: string) {
     return `This action removes a #${id} shop`;
   }
 
-  disapproveShop(id: number) {
-    const shop = this.shops.find((s) => s.id === Number(id));
+  async disapproveShop(id: any) {
+    const shop = await this.shop.findById(id);
+    // shop.ApproveShop.admin_commission_rate = approveSho.admin_commission_rate;
     shop.is_active = false;
-
+    await this.shop.findByIdAndUpdate(id, shop);
     return shop;
   }
 
-  approveShop(id: number) {
-    const shop = this.shops.find((s) => s.id === Number(id));
+  async approveShop(approveSho: any) {
+    const shop = await this.shop.findById(approveSho.id);
+    shop.admin_commission_rate = approveSho.admin_commission_rate;
+    // shop.ApproveShop.id = approveSho.id;
     shop.is_active = true;
-
+    await this.shop.findByIdAndUpdate(approveSho.id, shop);
     return shop;
   }
+
 }

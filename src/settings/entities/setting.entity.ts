@@ -1,3 +1,4 @@
+import mongoose from 'mongoose';
 import { Attachment } from 'src/common/entities/attachment.entity';
 import { CoreEntity } from 'src/common/entities/core.entity';
 
@@ -62,12 +63,12 @@ export class ContactDetails {
   website: string;
 }
 
-export class ShopSocials {
+export class ShopSocials extends mongoose.Document {
   icon: string;
   url: string;
 }
 
-export class Location {
+export class Location extends mongoose.Document  {
   lat: number;
   lng: number;
   city?: string;

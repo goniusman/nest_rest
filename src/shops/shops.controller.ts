@@ -7,6 +7,7 @@ import {
   Param,
   Delete,
   Query,
+  Req,
 } from '@nestjs/common';
 import { ShopsService } from './shops.service';
 import { CreateShopDto } from './dto/create-shop.dto';
@@ -36,38 +37,38 @@ export class ShopsController {
 
   @Put(':id')
   update(@Param('id') id: string, @Body() updateShopDto: UpdateShopDto) {
-    return this.shopsService.update(+id, updateShopDto);
+    return this.shopsService.update(id, updateShopDto);
   }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.shopsService.remove(+id);
+    return this.shopsService.remove(id);
   }
 
   @Post('approve')
-  approveShop(@Param('id') id: string) {
-    return this.shopsService.approve(+id);
+  approveShop(@Req() req, @Param('id') id: string) {
+    return this.shopsService.approve(id);
   }
 
   @Post('disapprove')
   disapproveShop(@Param('id') id: string) {
-    return this.shopsService.approve(+id);
+    return this.shopsService.approve(id);
   }
 }
 
 @Controller('staffs')
 export class StaffsController {
   constructor(private readonly shopsService: ShopsService) {}
-
+ 
   @Post()
   create(@Body() createShopDto: CreateShopDto) {
     return this.shopsService.create(createShopDto);
   }
 
-  // @Get()
-  // async getStaffs(@Query() query: GetStaffsDto): Promise<UserPaginator> {
-  //   return this.shopsService.getStaffs(query);
-  // }
+  @Get()
+  async getStaffs(@Query() query: GetStaffsDto): Promise<UserPaginator> {
+    return this.shopsService.getStaffs(query);
+  }
 
   @Get(':slug')
   async getShop(@Param('slug') slug: string) {
@@ -76,12 +77,12 @@ export class StaffsController {
 
   @Put(':id')
   update(@Param('id') id: string, @Body() updateShopDto: UpdateShopDto) {
-    return this.shopsService.update(+id, updateShopDto);
+    return this.shopsService.update(id, updateShopDto);
   }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.shopsService.remove(+id);
+    return this.shopsService.remove(id);
   }
 }
 
@@ -90,7 +91,7 @@ export class DisapproveShopController {
   constructor(private shopsService: ShopsService) {}
 
   @Post()
-  async disapproveShop(@Body('id') id) {
+  async disapproveShop(@Req() req , @Body('id') id) {
     return this.shopsService.disapproveShop(id);
   }
 }
@@ -100,7 +101,7 @@ export class ApproveShopController {
   constructor(private shopsService: ShopsService) {}
 
   @Post()
-  async approveShop(@Body('id') id) {
+  async approveShop(@Req() req, @Body() id) {
     return this.shopsService.approveShop(id);
   }
 }
