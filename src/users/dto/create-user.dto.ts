@@ -63,27 +63,23 @@ export class CreateUserDto extends PickType(User, ['email', 'password']) {
 
   @ApiProperty()
   @Prop({ required: true })
-  @IsNotEmpty()
   email: string;
 
   @ApiProperty()
   @Prop({ required: true }) 
-  @IsNotEmpty()
   password: string;
   
   @ApiProperty()
-  @Prop({ required: true, type: [String], enum: Permission, default: [] }) 
-  @IsNotEmpty()
-  permissions: Permission[] = [Permission.STORE_OWNER,Permission.SUPER_ADMIN];
+  @Prop({ required: true, type: [String], enum: Permission, default: [Permission.SUPER_ADMIN] }) 
+  permissions: Permission[] = [Permission.STORE_OWNER];
 
   @ApiProperty()
-  @Prop({ required: true })  
-  @IsNotEmpty()
+  @Prop({ required: false })  
   is_active?: boolean = true;
   
   @ApiProperty()
   @Prop({ required: false }) 
-  @IsNotEmpty()
+
   shop_id?: number = 0;
 
   // @Prop({ required: false }) 

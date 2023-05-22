@@ -50,7 +50,7 @@ export class AuthService {
   let status : boolean  = true;
   let message  = "Already registered"
   let data: any = null;
-  let userModel: any = null; 
+  let user: any = null; 
   try {
     const existCat = await this.usersService.findByEmail(createUserInput.email);
 
@@ -58,16 +58,17 @@ export class AuthService {
     // console.log( existCat);
 
     if (!existCat?._id) {
-      userModel = await this.usersService.create(createUserInput);
+      user = await this.usersService.create(createUserInput);
       // await userModel.save()
       status = true;
       message = "Successfully Created User" 
-      data = userModel
-      console.log(userModel);
+      data = user
+      console.log(user);
 
-      const id = userModel?._id.toString()
-      const permission = userModel?.permission
-      const payload = { username: userModel.name, sub: id };
+      const id = user?._id.toString()
+      const permission = user?.permissions
+      const payload = { email: user.email, subid: id, permissions: permission,
+        name: user.name };
       return {
         token: this.jwtService.sign(payload),
         permissions: permission,
@@ -82,7 +83,10 @@ export class AuthService {
       // message = err.message;
       // data = err;
       // return this._commonHelper.respone(status, message, data);
-      return HttpStatus.BAD_REQUEST
+      return {
+        message: err.message,
+        status: HttpStatus.BAD_REQUEST
+      }
   }
 
 return this._commonHelper.respone(status, message, data);

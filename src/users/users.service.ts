@@ -57,7 +57,7 @@ export class UsersService {
 
   // @InjectModel('Student') private studentModel:Model<IStudent>
 
-  async create(createUserDto: CreateUserDto): Promise<User> {
+  async create(createUserDto: CreateUserDto): Promise<any> {
 
     ////////
     // const NMAILER_NAME = this.configService.get<string>('NMAILER_USER_NAME')
@@ -127,7 +127,7 @@ export class UsersService {
     // return results
   }
 
-  async getUser(id: string) {
+  async getUser(id: any) {
     // console.log(id);
     // console.log(await this.users.findById(id));
     return await this.users.findById(id).exec();
