@@ -109,7 +109,7 @@ export class CategoriesController {
   }
 
   @Delete(':id')
-  remove(@Req() req: Request, @Param('id') id: string) {
+  remove(@Req() req, @Param('id') id: string) {
     return this.categoriesService.remove(id);
   }
 
