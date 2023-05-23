@@ -44,6 +44,7 @@
     "express-session": "^1.17.3",
     "fuse.js": "^6.6.2",
     "mongoose": "^6.9.2",
+    "mongoose-slug-generator": "^1.0.4",
     "nestjs-stripe": "^1.0.0",
     "passport": "^0.6.0",
     "passport-jwt": "^4.0.1",

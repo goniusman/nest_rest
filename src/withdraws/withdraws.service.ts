@@ -4,29 +4,44 @@ import { ApproveWithdrawDto } from './dto/approve-withdraw.dto';
 import { Withdraw } from './entities/withdraw.entity';
 import { GetWithdrawsDto, WithdrawPaginator } from './dto/get-withdraw.dto';
 import { paginate } from 'src/common/pagination/paginate';
+import {InjectModel} from '@nestjs/mongoose';
+import {Model} from 'mongoose';
 
 @Injectable()
 export class WithdrawsService {
   private withdraws: Withdraw[] = [];
 
-  create(createWithdrawDto: CreateWithdrawDto) {
-    return {
-      id: this.withdraws.length + 1,
-      ...createWithdrawDto,
-    };
+  constructor(@InjectModel('Withdraw') private _withdraw : Model<Withdraw>){}
+
+  
+  async create(createWithdrawDto: CreateWithdrawDto) {
+    try {
+      // const exist = await this._withdraw.findOne(createWithdrawDto.shop_id)
+
+      // if(!exist){
+        const createTag = await this._withdraw.create(createWithdrawDto);
+      // }
+
+        return {
+          ...createWithdrawDto,
+        };
+
+    } catch (error) {
+      console.log(error);
+    }
   }
 
-  getWithdraws({
+  async getWithdraws({
     limit,
     page,
     status,
     shop_id,
-  }: GetWithdrawsDto): WithdrawPaginator {
+  }: GetWithdrawsDto): Promise< WithdrawPaginator> {
     if (!page) page = 1;
 
     const startIndex = (page - 1) * limit;
     const endIndex = page * limit;
-    let data: Withdraw[] = this.withdraws;
+    let data: Withdraw[] = await this._withdraw.find();
     // if (status) {
     //   data = fuse.search(status)?.map(({ item }) => item);
     // }
@@ -43,15 +58,15 @@ export class WithdrawsService {
     };
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} withdraw`;
+  async findOne(id: number) {
+    return await this._withdraw.findById(id);
   }
 
-  update(id: number, updateWithdrawDto: ApproveWithdrawDto) {
-    return this.withdraws[0];
+  async update(id: number, updateWithdrawDto: ApproveWithdrawDto) {
+    return await this._withdraw.findByIdAndUpdate(id, updateWithdrawDto);
   }
 
   remove(id: number) {
-    return `This action removes a #${id} withdraw`;
+    return this._withdraw.findByIdAndDelete(id)
   }
 }

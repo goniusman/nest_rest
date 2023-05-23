@@ -10,7 +10,6 @@ export class CreateManufacturerDto extends OmitType(Manufacturer, [
   'products_count',
   'slug',
   'socials',
-  'type',
   'type_id',
   'website',
   'translated_languages',

@@ -7,6 +7,8 @@ import couponsJson from '@db/coupons.json';
 import Fuse from 'fuse.js';
 import { GetCouponsDto } from './dto/get-coupons.dto';
 import { paginate } from 'src/common/pagination/paginate';
+import {InjectModel} from '@nestjs/mongoose';
+import {Model} from 'mongoose';
 
 const coupons = plainToClass(Coupon, couponsJson);
 const options = {
@@ -18,17 +20,32 @@ const fuse = new Fuse(coupons, options);
 @Injectable()
 export class CouponsService {
   private coupons: Coupon[] = coupons;
+  
+  constructor(@InjectModel('Coupon') private _coupon : Model<Coupon>){}
 
-  create(createCouponDto: CreateCouponDto) {
-    return this.coupons[0];
+  async create(createCouponDto: CreateCouponDto) {
+    try {
+      const exist = await this._coupon.findOne({code: createCouponDto.code})
+
+      if(!exist){
+        const createTag = await this._coupon.create(createCouponDto);
+      }
+
+        return {
+          ...createCouponDto,
+        };
+
+    } catch (error) {
+      console.log(error);
+    }
   }
 
-  getCoupons({ search, limit, page }: GetCouponsDto) {
+  async getCoupons({ search, limit, page }: GetCouponsDto) {
     if (!page) page = 1;
     if (!limit) limit = 12;
     const startIndex = (page - 1) * limit;
     const endIndex = page * limit;
-    let data: Coupon[] = this.coupons;
+    let data: Coupon[] = await this._coupon.find();
     // if (text?.replace(/%/g, '')) {
     //   data = fuse.search(text)?.map(({ item }) => item);
     // }
@@ -61,16 +78,16 @@ export class CouponsService {
     };
   }
 
-  getCoupon(param: string, language: string): Coupon {
-    return this.coupons.find((p) => p.code === param);
+  async getCoupon(param: string, language: string): Promise< Coupon> {
+    return await this._coupon.findOne({code: param})
   }
 
-  update(id: number, updateCouponDto: UpdateCouponDto) {
-    return this.coupons[0];
+  async update(id: number, updateCouponDto: UpdateCouponDto) {
+    return await this._coupon.findByIdAndUpdate(id, updateCouponDto);
   }
 
   remove(id: number) {
-    return `This action removes a #${id} coupon`;
+    return this._coupon.findByIdAndRemove(id)
   }
 
   verifyCoupon(code: string) {
@@ -98,4 +115,6 @@ export class CouponsService {
       },
     };
   }
+
+
 }

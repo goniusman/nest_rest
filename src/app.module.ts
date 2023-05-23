@@ -58,6 +58,12 @@ import { CloudinaryModule } from './cloudinary/cloudinary.module';
     // MongooseModule.forRoot('mongodb://<username>:<password>@localhost:27017',{dbName: 'studentdb'}),
     MongooseModule.forRoot('mongodb://127.0.0.1:27017', {
       dbName: 'pickbazar',
+      connectionFactory: (connection) => {
+        // eslint-disable-next-line @typescript-eslint/no-var-requires
+        connection.plugin(require('mongoose-slug-generator'));
+        return connection;
+      }
+      
     }),
     // MongooseModule.forFeature([{ name: 'User', schema: UserSchema }]),
     StripeModule.forRoot({

@@ -63,7 +63,7 @@ export class AuthService {
       status = true;
       message = "Successfully Created User" 
       data = user
-      console.log(user);
+      // console.log(user);
 
       const id = user?._id.toString()
       const permission = user?.permissions

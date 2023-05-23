@@ -7,6 +7,8 @@ import { Type } from './entities/type.entity';
 import typesJson from '@db/types.json';
 import Fuse from 'fuse.js';
 import { GetTypesDto } from './dto/get-types.dto';
+import {InjectModel} from '@nestjs/mongoose';
+import {Model} from 'mongoose';
 
 const types = plainToClass(Type, typesJson);
 const options = {
@@ -19,8 +21,28 @@ const fuse = new Fuse(types, options);
 export class TypesService {
   private types: Type[] = types;
 
-  getTypes({ text, search }: GetTypesDto) {
-    let data: Type[] = this.types;
+  constructor(@InjectModel('Type') private _type : Model<Type>){}
+
+
+  async create(createTypeDto: CreateTypeDto) {
+    try {
+      // const exist = await this._type.findOne({name: createTypeDto.name})
+
+      // if(!exist){
+        const createTyoe = await this._type.create(createTypeDto);
+      // }
+
+        return {
+          ...createTypeDto,
+        };
+
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  async getTypes({ text, search }: GetTypesDto) {
+    let data: Type[] = await this._type.find();
     if (text?.replace(/%/g, '')) {
       data = fuse.search(text)?.map(({ item }) => item);
     }
@@ -48,27 +70,25 @@ export class TypesService {
     return data;
   }
 
-  getTypeBySlug(slug: string): Type {
-    return this.types.find((p) => p.slug === slug);
+  async getTypeBySlug(slug: string): Promise< Type >{
+    return await this._type.findOne({slug})
   }
 
-  create(createTypeDto: CreateTypeDto) {
-    return this.types[0];
-  }
+  
 
   findAll() {
     return `This action returns all types`;
   }
 
   findOne(id: number) {
-    return `This action returns a #${id} type`;
+    return this._type.findById(id)
   }
 
   update(id: number, updateTypeDto: UpdateTypeDto) {
-    return this.types[0];
+    return this._type.findByIdAndUpdate(id, updateTypeDto)
   }
 
   remove(id: number) {
-    return `This action removes a #${id} type`;
+    return this._type.findByIdAndRemove(id)
   }
 }
