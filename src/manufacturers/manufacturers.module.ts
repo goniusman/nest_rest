@@ -4,8 +4,15 @@ import {
   ManufacturersController,
   TopManufacturersController,
 } from './manufacturers.controller';
+import {MongooseModule} from '@nestjs/mongoose';
+import {ManufacturerSchema} from './entities/manufacturer.entity';
 
 @Module({
+  imports : [
+    MongooseModule.forFeature([
+      {name: 'Manufacturer', schema: ManufacturerSchema}
+    ])
+  ],
   controllers: [ManufacturersController, TopManufacturersController],
   providers: [ManufacturersService],
 })

@@ -9,7 +9,6 @@ export class CreateAuthorDto extends OmitType(Author, [
   'death',
   'image',
   'languages',
-  'name',
   'products_count',
   'quote',
   'slug',

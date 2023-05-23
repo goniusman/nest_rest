@@ -1,14 +1,11 @@
+import {Prop, Schema, SchemaFactory} from '@nestjs/mongoose';
 import mongoose from 'mongoose';
 import { Attachment } from 'src/common/entities/attachment.entity';
 import { CoreEntity } from 'src/common/entities/core.entity';
 
-export class Setting extends CoreEntity {
-  options: SettingsOptions;
-  language: string;
-  translated_languages: string[];
-}
 
-export class SettingsOptions {
+
+export class SettingsOptions extends mongoose.Document{
   siteTitle: string;
   siteSubtitle: string;
   useOtp: boolean;
@@ -28,12 +25,12 @@ export class SettingsOptions {
   maximumQuestionLimit: number;
 }
 
-export class DeliveryTime {
+export class DeliveryTime extends mongoose.Document{
   title: string;
   description: string;
 }
 
-export class SeoSettings {
+export class SeoSettings extends mongoose.Document{
   metaTitle?: string;
   metaDescription?: string;
   ogTitle?: string;
@@ -45,24 +42,24 @@ export class SeoSettings {
   canonicalUrl?: string;
 }
 
-export class GoogleSettings {
+export class GoogleSettings extends mongoose.Document{
   isEnable: boolean;
   tagManagerId: string;
 }
 
-export class FacebookSettings {
+export class FacebookSettings extends mongoose.Document{
   isEnable: boolean;
   appId: string;
   pageId: string;
 }
 
-export class ContactDetails {
+export class ContactDetails extends mongoose.Document {
   socials: ShopSocials[];
   contact: string;
   location: Location;
   website: string;
 }
-
+  
 export class ShopSocials extends mongoose.Document {
   icon: string;
   url: string;
@@ -77,3 +74,22 @@ export class Location extends mongoose.Document  {
   zip?: string;
   formattedAddress: string;
 }
+
+@Schema({timestamps: true})
+export class Setting extends CoreEntity {
+
+  @Prop({type: SettingsOptions, required: false})
+  options: SettingsOptions;
+
+  @Prop({type: String, required: false})
+  language: string;
+
+  @Prop({type: [String], required: false})
+  translated_languages: string[];
+
+}
+
+const SettingSchema = SchemaFactory.createForClass(Setting)
+
+export {SettingSchema}
+

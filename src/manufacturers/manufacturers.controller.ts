@@ -32,7 +32,7 @@ export class ManufacturersController {
     @Query() query: GetManufacturersDto,
   ): Promise<ManufacturerPaginator> {
     return this.manufacturersService.getManufactures(query);
-  }
+  } 
 
   @Get(':slug')
   async getManufactureBySlug(

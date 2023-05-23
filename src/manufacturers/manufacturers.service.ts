@@ -11,6 +11,8 @@ import {
 import { paginate } from '../common/pagination/paginate';
 import { CreateManufacturerDto } from './dto/create-manufacturer.dto';
 import { UpdateManufacturerDto } from './dto/update-manufacturer.dto';
+import {InjectModel} from '@nestjs/mongoose';
+import {Model} from 'mongoose';
 
 const manufacturers = plainToClass(Manufacturer, manufacturersJson);
 
@@ -25,8 +27,26 @@ const fuse = new Fuse(manufacturers, options);
 export class ManufacturersService {
   private manufacturers: Manufacturer[] = manufacturers;
 
-  create(createManufactureDto: CreateManufacturerDto) {
-    return this.manufacturers[0];
+  constructor(@InjectModel('Manufacturer') private _manufacturer: Model<Manufacturer>){}
+
+
+  async create(createManufactureDto: CreateManufacturerDto) {
+    
+    try {
+      const exist = await this._manufacturer.findOne({shop_id: createManufactureDto.shop_id})
+
+      if(!exist){
+        const createTag = await this._manufacturer.create(createManufactureDto);
+      }
+
+        return {
+          id: this._manufacturer.length + 1,
+          ...createManufactureDto,
+        };
+
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   async getManufactures({
@@ -38,7 +58,7 @@ export class ManufacturersService {
     if (!limit) limit = 30;
     const startIndex = (page - 1) * limit;
     const endIndex = page * limit;
-    let data: Manufacturer[] = this.manufacturers;
+    let data: Manufacturer[] = await this._manufacturer.find().exec();
     if (search) {
       console.log('search', search);
       const parseSearchParams = search.split(';');
@@ -63,21 +83,19 @@ export class ManufacturersService {
   }
 
   async getManufacturesBySlug(slug: string): Promise<Manufacturer> {
-    return this.manufacturers.find(
-      (singleManufacture) => singleManufacture.slug === slug,
-    );
+    return await this._manufacturer.findOne({slug});
   }
 
   update(id: number, updateManufacturesDto: UpdateManufacturerDto) {
-    const manufacturer = this.manufacturers.find((p) => p.id === Number(id));
+    const manufacturer = this._manufacturer.findByIdAndUpdate(id, updateManufacturesDto);
 
     // Update author
-    manufacturer.is_approved = updateManufacturesDto.is_approved ?? true;
+    // manufacturer.is_approved = updateManufacturesDto.is_approved ?? true;
 
     return manufacturer;
   }
 
   remove(id: number) {
-    return `This action removes a #${id} product`;
+    return this._manufacturer.findByIdAndDelete(id);
   }
 }

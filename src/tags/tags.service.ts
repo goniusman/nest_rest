@@ -7,6 +7,8 @@ import { Tag } from './entities/tag.entity';
 import tagsJson from '@db/tags.json';
 import { plainToClass } from 'class-transformer';
 import Fuse from 'fuse.js';
+import {InjectModel} from '@nestjs/mongoose';
+import {Model} from 'mongoose';
 
 const tags = plainToClass(Tag, tagsJson);
 
@@ -20,16 +22,33 @@ const fuse = new Fuse(tags, options);
 export class TagsService {
   private tags: Tag[] = tags;
 
-  create(createTagDto: CreateTagDto) {
-    return {
-      id: this.tags.length + 1,
-      ...createTagDto,
-    };
+  constructor(@InjectModel('Tag') private _tag : Model<Tag>){}
+
+  async create(createTagDto: CreateTagDto) {
+
+    try {
+      const exist = await this._tag.findOne({name: createTagDto.name})
+
+      if(!exist){
+        const createTag = await this._tag.create(createTagDto);
+      }
+
+        return {
+          id: this.tags.length + 1,
+          ...createTagDto,
+        };
+
+    } catch (error) {
+      console.log(error);
+    }
+   
   }
 
-  findAll({ page, limit, search }: GetTagsDto) {
-    if (!page) page = 1;
-    let data: Tag[] = this.tags;
+  async findAll({ page, limit, search }: GetTagsDto) {
+
+    try {
+      if (!page) page = 1;
+    let data: Tag[] = await this._tag.find();
 
     if (search) {
       const parseSearchParams = search.split(';');
@@ -56,17 +75,21 @@ export class TagsService {
       data,
       ...paginate(this.tags.length, page, limit, this.tags.length, url),
     };
+    } catch (error) {
+      console.log(error);
+    }
+    
   }
 
-  findOne(param: string, language: string) {
-    return this.tags.find((p) => p.id === Number(param) || p.slug === param);
+  async findOne(param: string, language: string) {
+    return await this._tag.findOne({slug: param});
   }
 
-  update(id: number, updateTagDto: UpdateTagDto) {
-    return this.tags[0];
+  async update(id: string, updateTagDto: UpdateTagDto) {
+    return await this._tag.findByIdAndUpdate(id, updateTagDto);
   }
 
   remove(id: number) {
-    return `This action removes a #${id} tag`;
+    return this._tag.findByIdAndDelete(id)
   }
 }
