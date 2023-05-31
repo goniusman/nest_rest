@@ -21,11 +21,13 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { GetUsersDto } from './dto/get-users.dto';
 import {ApiConsumes, ApiOkResponse} from '@nestjs/swagger';
 // import { CreateUserDto } from '../dto/create-user.dto';
-import {  User } from './schema/user.schema';
+import {  User } from './entities/user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 // import { LocalAuthGuard } from '../auth/local/local.auth.guard';
 // import { AuthenticatedGuard } from '../auth/local/authenticated.guard';
 import {FileInterceptor} from '@nestjs/platform-express';
+import { CreateProfileDto } from './dto/create-profile.dto';
+import { UpdateProfileDto } from './dto/update-profile.dto';
 // import { IUser } from '../interface/user.interface';
 
 
@@ -113,4 +115,22 @@ export class UsersController {
 
 
 
+@Controller('profiles')
+export class ProfilesController {
+  constructor(private readonly usersService: UsersService) {}
 
+  @Post()
+  createProfile(@Body() createProfileDto: CreateProfileDto) {
+    console.log(createProfileDto);
+  }
+
+  @Put(':id')
+  updateProfile(@Body() updateProfileDto: UpdateProfileDto) {
+    console.log(updateProfileDto);
+  }
+
+  // @Delete(':id')
+  // deleteProfile(@Param('id') id: number) {
+  //   return this.usersService.remove(id);
+  // }
+}

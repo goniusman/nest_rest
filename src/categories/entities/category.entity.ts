@@ -51,6 +51,11 @@ export class Category {
 
 const CategorySchema = SchemaFactory.createForClass(Category)
 
+CategorySchema.pre("save", function(next) {
+  this.slug = this.name.split(" ").join("-")
+  next()
+})
+
 export {CategorySchema}
 
 

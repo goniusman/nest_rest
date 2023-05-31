@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, HttpCode, HttpStatus, Param, Req } from '@nestjs/common';
+import { Controller, Get, Post, Body, HttpCode, HttpStatus, Param, Req, Query } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import {  Request, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
@@ -25,6 +25,7 @@ import { RolesGuard } from './roles.guard';
 import { LocalAuthGuard } from './gurd/local-auth.guard'
 import { JwtAuthGuard } from './gurd/jwt-auth.guard'
 import {IGetUserAuthInfoRequest} from 'src/helper/typeDefinition';
+import { query } from 'express';
 
 
 @Controller()
@@ -40,16 +41,16 @@ export class AuthController {
  
     // @UseGuards(LocalAuthGuard)
     // @HttpCode(HttpStatus.OK)
-    @Post('login')
-    async login(@Request() req) : Promise<any>{
-        return await this.authService.login(req.body);
-    }
+    // @Post('login')
+    // async login(@Request() req) : Promise<any>{
+    //     return await this.authService.login(req.body);
+    // }
 
     // @UseGuards(AuthGuard)
-    @Post('token')
-    async token(@Request() req) {
-        return this.authService.token(req.user);
-    }
+    // @Post('token')
+    // async token(@Request() req) {
+    //     return this.authService.token(req.user);
+    // }
     
     @HasRoles(Role.SUPER_ADMIN)
     @UseGuards(JwtAuthGuard, RolesGuard)
@@ -58,11 +59,11 @@ export class AuthController {
         return this.authService.getAllUsr();
     }
 
-    @UseGuards(JwtAuthGuard)
-    @Get('me/:id')
-    me(@Param('id') id?: string) { 
-      return this.authService.me(id);
-    }
+    // @UseGuards(JwtAuthGuard)
+    // @Get('me/:id')
+    // me(@Param('id') id?: string) { 
+    //   return this.authService.me(id);
+    // }
  
     @UseGuards(JwtAuthGuard)
     @Post('change-password')
@@ -89,9 +90,10 @@ export class AuthController {
 
   
   // @Post('token')
-  // login(@Body() loginDto: LoginDto) {
-  //   return this.authService.login(loginDto);
-  // }
+  @Post('login') 
+  login(@Body() loginDto: LoginDto) {
+    return this.authService.login(loginDto);
+  }
 
   @Post('social-login-token')
   socialLogin(@Body() socialLoginDto: SocialLoginDto) {
@@ -141,4 +143,12 @@ export class AuthController {
       message: 'Thank you for contacting us. We will get back to you soon.',
     };
   }
+
+
+  @Get('me/:id')
+  me(@Param('id') id: string) {
+    return this.authService.me(id);
+  }
+
+
 }

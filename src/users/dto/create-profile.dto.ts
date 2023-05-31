@@ -20,10 +20,10 @@ import { IsBoolean, IsDate, IsNotEmpty, IsNumber, IsString, MaxLength } from "cl
 
 import { CreateAddressDto } from 'src/addresses/dto/create-address.dto';
 
-import { Address } from '../../addresses/schema/address.schema';
-import {Profile} from '../schema/profile.schema'
+import { Address } from '../../addresses/entities/address.entity';
+import {Profile} from '../entities/profile.entity'
 
-import { User } from '../../users/schema/user.schema'
+import { User } from '../entities/user.entity'
 // import { Social } from '../schema/social.schema'
 import {Attachment} from '../../common/entities/attachment.entity'
 

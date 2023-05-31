@@ -4,6 +4,8 @@ import { UpdateAttributeDto } from './dto/update-attribute.dto';
 import attributesJson from '@db/attributes.json';
 import { Attribute } from './entities/attribute.entity';
 import { plainToClass } from 'class-transformer';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
 
 const attributes = plainToClass(Attribute, attributesJson);
 
@@ -11,25 +13,31 @@ const attributes = plainToClass(Attribute, attributesJson);
 export class AttributesService {
   private attributes: Attribute[] = attributes;
 
+
+  constructor(@InjectModel('Attribute') private _attr : Model<Attribute>){}
+
   create(createAttributeDto: CreateAttributeDto) {
-    return this.attributes[0];
+    return this._attr.create(createAttributeDto);
+    // return this.attributes[0];
   }
 
   findAll() {
-    return this.attributes;
+    return this._attr.find();
   }
 
   findOne(param: string) {
-    return this.attributes.find(
-      (p) => p.id === Number(param) || p.slug === param,
-    );
+
+    return this._attr.findOne({name: param});
+    // return this.attributes.find(
+    //   (p) => p.id === Number(param) || p.slug === param,
+    // );
   }
 
-  update(id: number, updateAttributeDto: UpdateAttributeDto) {
-    return this.attributes[0];
+  update(id: string, updateAttributeDto: UpdateAttributeDto) {
+    return this._attr.findByIdAndUpdate(id, updateAttributeDto);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} attribute`;
+  remove(id: string) {
+    return this._attr.findByIdAndDelete(id)
   }
 }

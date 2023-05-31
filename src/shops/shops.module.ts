@@ -9,10 +9,12 @@ import {
 import { MongooseModule } from '@nestjs/mongoose';
 import { ShopSchema } from './entities/shop.entity';
 import { UsersService } from 'src/users/users.service';
+import { UsersModule } from 'src/users/users.module';
 
 @Module({
   imports:[
-     MongooseModule.forFeature([{name: 'Shop', schema: ShopSchema}])
+     MongooseModule.forFeature([{name: 'Shop', schema: ShopSchema}]),
+     UsersModule
     ],
   controllers: [
     ShopsController,
@@ -21,5 +23,6 @@ import { UsersService } from 'src/users/users.service';
     ApproveShopController,
   ],
   providers: [ShopsService],
+  exports: [ShopsService],
 })
 export class ShopsModule {}

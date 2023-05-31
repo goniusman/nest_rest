@@ -11,20 +11,20 @@ export class CommonController {
   constructor(private readonly commonService : CommonService) {}
   
 
-  @Post('/attachment')
-  async insertAttachment(@Body() createAttachmentDto: CreateAttachmentDto) : Promise<any> {
-    console.log(createAttachmentDto);
-    return this.commonService.postAttachment(createAttachmentDto)
+  // @Post('/attachment')
+  // async insertAttachment(@Body() createAttachmentDto: CreateAttachmentDto) : Promise<any> {
+  //   console.log(createAttachmentDto);
+  //   return this.commonService.postAttachment(createAttachmentDto)
 
-  }
+  // }
 
 
-  @Get('/attachment')
-  async getAttachments(@Req() request: Request): Promise <GetAttachmentDto[]> {
-    // console.log(request);
-    const attachmets: Array<GetAttachmentDto> = await this.commonService.getAttachments()
-    return attachmets
+  // @Get('/attachment')
+  // async getAttachments(@Req() request: Request): Promise <GetAttachmentDto[]> {
+  //   // console.log(request);
+  //   const attachmets: Array<GetAttachmentDto> = await this.commonService.getAttachments()
+  //   return attachmets
 
-  }
+  // }
 
 }

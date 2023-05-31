@@ -3,13 +3,14 @@ import { UsersService } from './users.service';
 import {  UsersController } from './users.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 import { CloudinaryModule } from '../cloudinary/cloudinary.module';
-import { UserSchema } from './schema/user.schema';
+import { UserSchema } from './entities/user.entity';
 import {UploadsService} from 'src/uploads/uploads.service';
 import {UploadsModule} from 'src/uploads/uploads.module';
-// import { ProfileSchema } from './schema/profile.schema';
+import { ProfileSchema } from './entities/profile.entity';
+
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: 'User', schema: UserSchema }]),
+    MongooseModule.forFeature([{ name: 'User', schema: UserSchema }, {name: 'Profile', schema: ProfileSchema}]),
     CloudinaryModule,
     UploadsModule
   ],

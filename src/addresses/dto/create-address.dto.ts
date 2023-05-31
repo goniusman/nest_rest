@@ -3,16 +3,15 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { PickType, ApiProperty, IntersectionType } from '@nestjs/swagger';
 import { IsBoolean, IsDate, IsNotEmpty, IsNumber, IsString, MaxLength } from "class-validator";
 
-import { Address } from '../schema/address.schema';
-import { User } from '../../users/schema/user.schema';
-import { UserAddress } from '../../addresses/schema/useraddress.Schema';
+import { Address } from '../entities/address.entity';
+import { User } from '../../users/entities/user.entity';
 
 export class CreateAddressDto extends PickType(Address, ['title', 'type']) {
 // export class CreateAddressDto extends IntersectionType(Address,UserAddress) {
 
   @IsNotEmpty()
   @Prop({ required: true })
-  title: string = 'address';
+  title: string = 'address'; 
 
   @IsNotEmpty()
   @Prop({ required: true })

@@ -6,6 +6,8 @@ import { File, Product } from 'src/products/entities/product.entity';
 import { Shop } from 'src/shops/entities/shop.entity';
 import { User } from 'src/users/entities/user.entity';
 import { OrderStatus } from './order-status.entity';
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import mongoose from 'mongoose';
 
 export enum PaymentGatewayType {
   STRIPE = 'STRIPE',
@@ -15,6 +17,7 @@ export enum PaymentGatewayType {
   PAYPAL = 'PAYPAL',
   RAZORPAY = 'RAZORPAY',
 }
+
 export enum OrderStatusType {
   PENDING = 'order-pending',
   PROCESSING = 'order-processing',
@@ -40,40 +43,117 @@ export enum PaymentStatusType {
   DEFAULT_PAYMENT_STATUS = 'payment-pending',
 }
 
+@Schema({timestamps: true})
 export class Order extends CoreEntity {
+
+  @Prop({type: String, required: false})
   tracking_number: string;
+
+  @Prop({type: Number, required: false})
   customer_id: number;
+
+  @Prop({type: String, required: false})
   customer_contact: string;
+
+  @Prop({ required: false, type: mongoose.Schema.Types.ObjectId, ref: 'User', })
   customer: User;
+
+  @Prop({ required: false, type: mongoose.Schema.Types.ObjectId, ref: 'Order', })
   parent_order?: Order;
+
+  @Prop({type: [{type: mongoose.Schema.Types.ObjectId, ref: 'Order'}], default: []})
   children: Order[];
+
+  @Prop({ required: false, type: mongoose.Schema.Types.ObjectId, ref: 'OrderStatus', })
   status: OrderStatus;
+
+  @Prop({ required: false, type: String, enum: OrderStatusType }) 
   order_status: OrderStatusType;
+
+  @Prop({ required: false, type: String, enum: PaymentStatusType }) 
   payment_status: PaymentStatusType;
+
+  @Prop({type: Number, required: false})
   amount: number;
+
+  @Prop({type: Number, required: false})
   sales_tax: number;
+
+  @Prop({type: Number, required: false})
   total: number;
+
+  @Prop({type: Number, required: false})
   paid_total: number;
+
+  @Prop({type: String, required: false})
   payment_id?: string;
+
+  @Prop({ required: false, type: String, enum: PaymentGatewayType }) 
   payment_gateway: PaymentGatewayType;
+
+  @Prop({ required: false, type: mongoose.Schema.Types.ObjectId, ref: 'Coupon', })
   coupon?: Coupon;
+
+  @Prop({ required: false, type: mongoose.Schema.Types.ObjectId, ref: 'Shop', })
   shop: Shop;
+
+  @Prop({type: Number, required: false})
   discount?: number;
+
+  @Prop({type: Number, required: false})
   delivery_fee: number;
+
+  @Prop({type: String, required: false})
   delivery_time: string;
+
+  @Prop({type: [{type: mongoose.Schema.Types.ObjectId, ref: 'Product'}], default: []})
   products: Product[];
+
+  @Prop({ required: false, type: UserAddress })
   billing_address: UserAddress;
+
+  @Prop({ required: false, type: UserAddress })
   shipping_address: UserAddress;
+
+  @Prop({type: String, required: false})
   language: string;
+
+  @Prop({type: String, required: false})
   translated_languages: string[];
+
+  @Prop({ required: false, type: PaymentIntent })
   payment_intent: PaymentIntent;
+
 }
 
+const OrderSchema = SchemaFactory.createForClass(Order)
+
+export {OrderSchema}
+
+@Schema({timestamps: true})
 export class OrderFiles extends CoreEntity {
+
+  @Prop({type: String, required: false})
   purchase_key: string;
+
+  @Prop({type: Number, required: false})
   digital_file_id: number;
+
+  @Prop({type: Number, required: false})
   order_id?: number;
+
+  @Prop({type: Number, required: false})
   customer_id: number;
+
+  @Prop({ required: false, type: mongoose.Schema.Types.ObjectId, ref: 'File', })
   file: File;
+
+  @Prop({ required: false, type: mongoose.Schema.Types.ObjectId, ref: 'Product', })
   fileable: Product;
 }
+
+
+
+const OrderFilesSchema = SchemaFactory.createForClass(OrderFiles)
+
+export {OrderFilesSchema}

@@ -2,8 +2,8 @@ import { SortOrder } from 'src/common/dto/generic-conditions.dto';
 import { PaginationArgs } from 'src/common/dto/pagination-args.dto';
 import { Paginator } from 'src/common/dto/paginator.dto';
 
-// import { Profile } from '../entities/user.entity';
-import {  Profile } from '../schema/profile.schema';
+import { Profile } from '../entities/profile.entity';
+// import {  Profile } from '../../profiles/schema/profile.schema';
 
 
 export class ProfilePaginator extends Paginator<Profile> {

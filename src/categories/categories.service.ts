@@ -51,7 +51,7 @@ export class CategoriesService {
 
         if (!existCat) {
           categoryModel = await new this._cat(createCategoryDto);
-          categoryModel.slug = createCategoryDto.name;
+          // categoryModel.slug = createCategoryDto.name;
           categoryModel.save()
 
         // console.log(categoryModel);

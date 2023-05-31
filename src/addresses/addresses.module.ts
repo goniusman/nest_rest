@@ -3,13 +3,12 @@ import { AddressesService } from './addresses.service';
 import { AddressesController } from './addresses.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 
-import { AddressSchema } from './schema/address.schema';
-import { UserAddressSchema } from './schema/useraddress.Schema';
+import { AddressSchema } from './entities/address.entity';
+
 @Module({
   imports: [
     MongooseModule.forFeature([
-      { name: 'Address', schema: AddressSchema },
-      { name: 'UserAddress', schema: UserAddressSchema },
+      { name: 'Address', schema: AddressSchema }
     ]),
   ],
   controllers: [AddressesController],

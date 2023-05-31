@@ -12,42 +12,40 @@ export class CommonService {
   private readonly _commonHelper : CommonHelper = new CommonHelper();
 
 
-  constructor(@InjectModel('Attachment') private _attachment : Model<Attachment>
- 
-  ){}
+  // constructor(@InjectModel('Attachment') private _attachment : Model<Attachment>){}
 
   
-   async postAttachment(createAttachment: Attachment) : Promise<any> {
-     try {
-      // console.log(createAttachmentDto);
-       const attachment = await new this._attachment(createAttachment)  
+  //  async postAttachment(createAttachment: Attachment) : Promise<any> {
+  //    try {
+  //     // console.log(createAttachmentDto);
+  //      const attachment = await new this._attachment(createAttachment)  
 
-      //  attachment.prod_id = createAttachmentDto.prod_id
-      //  attachment.thumbnail = createAttachmentDto.thumbnail
-      //  attachment.url = createAttachmentDto.url.toString()
-      //  attachment.original = createAttachmentDto.original
-      attachment.save()
-      return this._commonHelper.respone(true, "Success", attachment)
+  //     //  attachment.prod_id = createAttachmentDto.prod_id
+  //     //  attachment.thumbnail = createAttachmentDto.thumbnail
+  //     //  attachment.url = createAttachmentDto.url.toString()
+  //     //  attachment.original = createAttachmentDto.original
+  //     attachment.save()
+  //     return this._commonHelper.respone(true, "Success", attachment)
 
-    } catch (error) {
-      console.log(error.message);
+  //   } catch (error) {
+  //     console.log(error.message);
 
-      return this._commonHelper.respone(true, "Success", error)
+  //     return this._commonHelper.respone(true, "Success", error)
 
-    }
-  }
+  //   }
+  // }
 
 
-  async getAttachments() : Promise<GetAttachmentDto[]>  {
-    try {
+//   async getAttachments() : Promise<GetAttachmentDto[]>  {
+//     try {
 
-      const attachment: Array<GetAttachmentDto> = await this._attachment.find()
-      return attachment;
+//       const attachment: Array<GetAttachmentDto> = await this._attachment.find()
+//       return attachment;
 
-   } catch (error) {
-     return error.message;
-   }
- }
+//    } catch (error) {
+//      return error.message;
+//    }
+//  }
 
 
 

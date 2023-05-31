@@ -7,7 +7,7 @@ import paymentGatewayJson from 'src/db/pickbazar/payment-gateway.json';
 import { Order } from 'src/orders/entities/order.entity';
 import { PaymentGateWay } from 'src/payment-method/entities/payment-gateway.entity';
 // import { User } from 'src/users/entities/user.entity';
-import { User } from 'src/users/schema/user.schema';
+import { User } from 'src/users/entities/user.entity';
 import Stripe from 'stripe';
 import {
   CardElementDto,

@@ -45,9 +45,9 @@ export class Type extends CoreEntity {
 
   @Prop({type: String, required: false})
   language: string;
-
-  @Prop({type: [String], required: false})
-  translated_languages: string[];
+ 
+  @Prop({type: [String], required: false, default: ["en"]})
+  translated_languages: string[] = ["en"];
 }
 
 

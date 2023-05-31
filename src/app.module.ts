@@ -30,7 +30,7 @@ import { TaxesModule } from './taxes/taxes.module';
 import { TypesModule } from './types/types.module';
 import { UploadsModule } from './uploads/uploads.module';
 import { UsersModule } from './users/users.module';
-import { ProfilesModule } from './profiles/profiles.module';
+// import { ProfilesModule } from './profiles/profiles.module';
 import { WebHookModule } from './web-hook/web-hook.module';
 import { WishlistsModule } from './wishlists/wishlists.module';
 import { WithdrawsModule } from './withdraws/withdraws.module';
@@ -52,7 +52,7 @@ import { CloudinaryModule } from './cloudinary/cloudinary.module';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [config, database, mailer]
+      load: [config, database, mailer] 
     }),
     // MongooseModule.forRoot(process.env.MONGODB_URI),
     // MongooseModule.forRoot('mongodb://<username>:<password>@localhost:27017',{dbName: 'studentdb'}),
@@ -70,14 +70,14 @@ import { CloudinaryModule } from './cloudinary/cloudinary.module';
       apiKey: process.env.STRIPE_API_KEY,
       apiVersion: '2022-11-15',
     }),
-    MulterModule.register({
-      dest: './files',
-    }),
-    ServeStaticModule.forRoot({
-      rootPath: join(__dirname, '..', 'files')
-    }),
+    // MulterModule.register({
+    //   dest: './files',
+    // }),
+    // ServeStaticModule.forRoot({
+    //   rootPath: join(__dirname, '..', 'files')
+    // }),
     UsersModule,
-    ProfilesModule,
+    // ProfilesModule,
     CommonModule,
     ProductsModule,
     OrdersModule,
@@ -114,8 +114,11 @@ import { CloudinaryModule } from './cloudinary/cloudinary.module';
   controllers: [],
   providers: [],
 })
-export class AppModule implements NestModule {
-  configure(consumer: MiddlewareConsumer): void {
-    // consumer.apply(cors()).forRoutes('*')
-  }
-}
+
+export class AppModule {}
+
+// export class AppModule implements NestModule {
+//   configure(consumer: MiddlewareConsumer): void {
+//     consumer.apply(cors()).forRoutes('*')
+//   }
+// }

@@ -8,7 +8,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import * as bcrypt from 'bcrypt'
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
-import {  User } from './schema/user.schema';
+import {  User } from './entities/user.entity';
 import { CloudinaryService } from '../cloudinary/cloudinary.service';
 // import { CreateUserDto } from '../dto/create-user.dto';
 // import { IUser } from '../interface/user.interface';
@@ -130,11 +130,27 @@ export class UsersService {
   async getUser(id: any) {
     // console.log(id);
     // console.log(await this.users.findById(id));
-    return await this.users.findById(id).exec();
+    // return await this.users.findOne({
+    //   select:{
+    //     name: true,
+    //     permissions: true,
+    //     profile: true,
+    //     shops: true,
+    //     // _id: true,
+    //     email: true,
+    //     is_active: true,
+    //     password: false,
+    //    },
+    //   where:{email: 'kamal@gmail.com'}}).exec();
     // const user = await this.users.findById(id).exec();
     //  const {password, ...result} = user
     //  return result;
     // return this.users.find((user) => user._id === id);
+
+    // return await this.users.findById(id).exec();
+    const user = await this.users.findOne({_id: id}).exec();
+    return user;
+
   } 
   
   
@@ -178,6 +194,16 @@ export class UsersService {
  
   }
 
+  async updateShop(userId: any, shop:any): Promise<any> {
+
+    try {
+      const user = await this.findOne(userId)
+      user.shops.push(shop)
+      return this.users.findByIdAndUpdate(userId, user)
+    } catch (err) {
+      console.log(err);
+    }
+  }
 
   async updatePassword(email: string, password: string): Promise<boolean> {
 

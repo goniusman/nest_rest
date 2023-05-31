@@ -8,9 +8,17 @@ import {
   SetDefaultCartController,
 } from './payment-method.controller';
 import { PaymentMethodService } from './payment-method.service';
+import { MongooseModule } from '@nestjs/mongoose';
+import { PaymentMethodSchema } from './entities/payment-method.entity';
+import { PaymentGateWaySchema } from './entities/payment-gateway.entity';
 
 @Module({
-  imports: [AuthModule, PaymentModule, SettingsModule],
+  imports: [
+    MongooseModule.forFeature([
+      {name: 'PaymentMethod', schema: PaymentMethodSchema},
+      {name: 'PaymentGateWay', schema: PaymentGateWaySchema}
+    ]),
+    AuthModule, PaymentModule, SettingsModule],
   controllers: [
     PaymentMethodController,
     SetDefaultCartController,

@@ -11,19 +11,19 @@ import {JwtAuthGuard} from './auth/gurd/jwt-auth.guard';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
     cors: true,
-    snapshot: true,
+    // snapshot: true,
   });
   // const sess = session.Session
   // app.useGlobalGuards(new JwtAuthGuard())
-  app.use(
-    session({
-      secret: 'keyboard',
-      resave: false,
-      saveUninitialized: false,
-    }),
-  );
-  app.use(passport.initialize());
-  app.use(passport.session());
+  // app.use(
+  //   session({
+  //     secret: 'keyboard',
+  //     resave: false,
+  //     saveUninitialized: false,
+  //   }),
+  // // );
+  // app.use(passport.initialize());
+  // app.use(passport.session());
 
   app.setGlobalPrefix('api');
   app.useGlobalPipes(new ValidationPipe());

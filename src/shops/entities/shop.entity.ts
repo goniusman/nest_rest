@@ -4,7 +4,7 @@ import { UserAddress } from 'src/addresses/entities/address.entity';
 import { Attachment } from 'src/common/entities/attachment.entity';
 import { CoreEntity } from 'src/common/entities/core.entity';
 import { Location, ShopSocials } from 'src/settings/entities/setting.entity';
-import { User } from 'src/users/schema/user.schema'
+import { User } from 'src/users/entities/user.entity'
 
 
 
@@ -45,13 +45,13 @@ export class ShopSettings extends mongoose.Document {
 @Schema({timestamps:true})
 export class Shop extends CoreEntity {
 
-  @Prop({ required: false, type: mongoose.Schema.Types.ObjectId, ref: 'User', })
+  @Prop({ required: true, type: mongoose.Schema.Types.ObjectId, ref: 'User', })
   owner_id: User;
 
-  // @Prop({type: mongoose.Schema.Types.ObjectId, ref: 'User', required: false, default: {}})
+  // @Prop({type: User, required: false, default: {}})
   // owner: User;
 
-  @Prop({type: [{type: mongoose.Schema.Types.ObjectId, ref: 'User'}]})
+  @Prop({type: [{type: mongoose.Schema.Types.ObjectId, ref: 'User'}], default: []})
   staffs?: User[];
 
   @Prop({ required: false, type: Boolean })
@@ -78,16 +78,22 @@ export class Shop extends CoreEntity {
   @Prop({ required: true, type: String })
   description?: string;
 
-  @Prop({ required: true, type: Attachment })
+  @Prop({ required: false, type: Attachment })
   cover_image: Attachment;
 
-  @Prop({ required: true, type: Attachment })
+  @Prop({ required: false, type: Attachment })
   logo?: Attachment;
 
-  @Prop({type: UserAddress, required: true})
-  address: UserAddress;
+  @Prop(raw({
+    street_address: {type: String},
+    country: {type: String},
+    city: {type: String},
+    state: {type: String},
+    zip: {type: String},
+  }))
+  address: Record<string , any>;
 
-  @Prop({type: ShopSettings, required: true})
+  @Prop({type: ShopSettings, required: false})
   settings?: ShopSettings;
 
   // @Prop(raw({
@@ -103,5 +109,12 @@ export class Shop extends CoreEntity {
 
 
 const ShopSchema = SchemaFactory.createForClass(Shop)
+
+
+
+ShopSchema.pre("save", function(next) {
+  this.slug = this.name.split(" ").join("-")
+  next()
+})
 
 export {ShopSchema}

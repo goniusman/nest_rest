@@ -8,7 +8,7 @@ import { Category } from 'src/categories/entities/category.entity';
 
 
 // export type AttachmentDocument = Attachment & Document;
-@Schema({timestamps:true})
+// @Schema({timestamps:true})
 export class Attachment {
 
   @Prop({type: String, defaultValue:null, required: false})
@@ -27,6 +27,6 @@ export class Attachment {
 }
 
  
-const AttachmentSchema = SchemaFactory.createForClass(Attachment)
+// const AttachmentSchema = SchemaFactory.createForClass(Attachment)
 
-export {AttachmentSchema}
+// export {AttachmentSchema}

@@ -306,12 +306,12 @@ export class OrdersService {
       order_id: order.id,
       tracking_number: order.tracking_number,
       payment_gateway: order.payment_gateway.toString().toLowerCase(),
-      payment_intent_info: {
-        client_secret,
-        payment_id,
-        redirect_url,
-        is_redirect,
-      },
+      // payment_intent_info: {
+      //   client_secret,
+      //   payment_id,
+      //   redirect_url,
+      //   is_redirect,
+      // },
     };
 
     /**

@@ -25,17 +25,24 @@ export class ShopsService {
 
   constructor(
     @InjectModel('Shop') private shop : Model<Shop>,
-    // private userService: UsersService
+    private userService: UsersService
   ) {}
   
   async create(createShopDto: CreateShopDto): Promise<any> {
-    // return this.shops[0];
+
     try {
+
       // const user = await this.userService.getUser(createShopDto.owner_id)
       // createShopDto.owner = user
-      createShopDto.slug = createShopDto.name
+      // createShopDto.slug = createShopDto.name
       const shopCreated = await this.shop.create(createShopDto);
-      return shopCreated;
+      // user.shops.push(shopCreated._id)
+      const updateShop = await this.userService.updateShop(createShopDto.owner_id, shopCreated._id)
+      if (updateShop) {
+          return shopCreated;
+      }
+
+
     } catch (error) {
       console.log(error);
     }
@@ -87,6 +94,12 @@ export class ShopsService {
   async getShop(slug: string): Promise< any> {
     return await this.shop.findOne({slug});
   }
+
+   getShopById(id: any){
+    console.log(id);
+    return  this.shop.findById(id);
+  }
+
 
   async update(id: string, updateShopDto: UpdateShopDto) {
     return await this.shop.findByIdAndUpdate(id, updateShopDto);

@@ -23,13 +23,15 @@ import {
 import { v4 as uuidv4 } from 'uuid';
 import { plainToClass } from 'class-transformer';
 // import { User } from 'src/users/entities/user.entity';
-import { User } from 'src/users/schema/user.schema';
+import { User } from 'src/users/entities/user.entity';
 import usersJson from '@db/users.json';
 import {CommonHelper} from 'src/helper/commonHelper';
 import {InjectModel} from '@nestjs/mongoose';
 import {Model} from 'mongoose';
 import {CreateUserDto} from 'src/users/dto/create-user.dto';
 import {JwtAuthGuard} from './gurd/jwt-auth.guard';
+import { ShopsService } from 'src/shops/shops.service';
+import { AnyARecord } from 'dns';
 const users = plainToClass(User, usersJson);
 
 @Injectable()
@@ -39,8 +41,9 @@ export class AuthService {
 
   constructor(
     // @InjectModel('User') private _user: Model<User>, 
-    private  usersService: UsersService,
-     private jwtService: JwtService) { }
+    private usersService: UsersService,
+     private jwtService: JwtService,
+    private shopService: ShopsService) { }
     
 
   async register(createUserInput: CreateUserDto): Promise<any> {
@@ -181,6 +184,7 @@ return this._commonHelper.respone(status, message, data);
   //   return {
   //     token: 'jwt token',
   //     permissions: ['super_admin', 'customer'],
+  //     id: ""
   //   };
   // }
 
@@ -305,11 +309,53 @@ return this._commonHelper.respone(status, message, data);
 
   async me(id:string = "645edc9c9f206888102d1782"):  Promise<any>  {
     // const id: string = "this is test id"
+    try {
+      const user = await this.usersService.getUser(id);
+        // const {password, ...result} = user._doc
+        const ids = user?.shop_id;
+        let managedshop: any = null
+        if(ids) {
+            managedshop = await this.shopService.getShopById(ids)
+          //  user.shops.push(shop) ;
+          //  user.managed_shop = shop
+        }
 
-    const user = await this.usersService.getUser(id);
-    // const {password, ...result} = user._doc
-    return user
+        let shops = []
+
+        for (const item of user.shops) {
+          shops.push(await this.shopService.getShopById(item)) 
+        }
+
+        // user.anos = shops;
+        // console.log(shops);
+
+        // Object.assign(user)
+        // let {_doc,  ...result} = user;
+        // const shops = await this.shopService.getShopById('646b0397286b0a9d91f39ca8');
+      //  console.log(shops);
+        const result = {
+          name: user.name,
+          email: user.email,
+          shops: shops,
+          shop_id: user.shop_id,
+          managed_shop: managedshop,
+          is_active: user.is_active,
+          address: user.address,
+          profile: user.profile,
+          orders: user.orders
+        }
+        return result;
+
+    } catch (error) {
+      console.log(error);
+    }
+    
   }
+
+  // me(): User {
+  //   return this.users[0];
+  // }
+
 
   // updateUser(id: number, updateUserInput: UpdateUserInput) {
   //   return `This action updates a #${id} user`;

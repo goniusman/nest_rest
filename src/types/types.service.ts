@@ -42,6 +42,7 @@ export class TypesService {
   }
 
   async getTypes({ text, search }: GetTypesDto) {
+    // let data: Type[] = await this.types;
     let data: Type[] = await this._type.find();
     if (text?.replace(/%/g, '')) {
       data = fuse.search(text)?.map(({ item }) => item);
@@ -74,21 +75,17 @@ export class TypesService {
     return await this._type.findOne({slug})
   }
 
-  
-
-  findAll() {
-    return `This action returns all types`;
-  }
 
   findOne(id: number) {
     return this._type.findById(id)
   }
 
-  update(id: number, updateTypeDto: UpdateTypeDto) {
+  update(id: string, updateTypeDto: UpdateTypeDto) {
     return this._type.findByIdAndUpdate(id, updateTypeDto)
   }
 
-  remove(id: number) {
+  remove(id: string) {
     return this._type.findByIdAndRemove(id)
   }
+
 }

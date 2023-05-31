@@ -35,11 +35,11 @@ export class AttributesController {
     @Param('id') id: string,
     @Body() updateAttributeDto: UpdateAttributeDto,
   ) {
-    return this.attributesService.update(+id, updateAttributeDto);
+    return this.attributesService.update(id, updateAttributeDto);
   }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.attributesService.remove(+id);
+    return this.attributesService.remove(id);
   }
 }

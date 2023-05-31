@@ -7,6 +7,8 @@ import { Shop } from 'src/shops/entities/shop.entity';
 import { Tag } from 'src/tags/entities/tag.entity';
 import { Type } from 'src/types/entities/type.entity';
 import { Review } from '../../reviews/entities/review.entity';
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import mongoose from 'mongoose';
 
 enum ProductStatus {
   PUBLISH = 'publish',
@@ -18,52 +20,14 @@ enum ProductType {
   VARIABLE = 'variable',
 }
 
-export class Product extends CoreEntity {
-  name: string;
-  slug: string;
-  type: Type;
-  type_id: number;
-  product_type: ProductType;
-  categories: Category[];
-  tags?: Tag[];
-  variations?: AttributeValue[];
-  variation_options?: Variation[];
-  pivot?: OrderProductPivot;
-  orders?: Order[];
-  shop: Shop;
-  shop_id: number;
-  related_products?: Product[];
-  description: string;
-  in_stock: boolean;
-  is_taxable: boolean;
-  sale_price?: number;
-  max_price?: number;
-  min_price?: number;
-  sku?: string;
-  gallery?: Attachment[];
-  image?: Attachment;
-  status: ProductStatus;
-  height?: string;
-  length?: string;
-  width?: string;
-  price?: number;
-  quantity: number;
-  unit: string;
-  ratings: number;
-  in_wishlist: boolean;
-  my_review?: Review[];
-  language?: string;
-  translated_languages?: string[];
-}
-
-export class OrderProductPivot {
+export class OrderProductPivot extends mongoose.Document{
   variation_option_id?: number;
   order_quantity: number;
   unit_price: number;
   subtotal: number;
 }
 
-export class Variation {
+export class Variation extends mongoose.Document {
   id: number;
   title: string;
   price: number;
@@ -71,16 +35,138 @@ export class Variation {
   is_disable: boolean;
   sale_price?: number;
   quantity: number;
-  options: VariationOption[];
+  options: VariationOption[] = [];
 }
 
-export class VariationOption {
+export class VariationOption extends mongoose.Document {
   name: string;
   value: string;
 }
 
+ 
+
+@Schema({timestamps:true})
+export class Product extends CoreEntity {
+
+  @Prop({ required: true, type: String })
+  name: string;
+
+  @Prop({ required: false, type: String })
+  slug: string;
+
+  @Prop({  type: mongoose.Schema.Types.ObjectId, ref: 'Type' , required: false})
+  type: Type;
+
+  @Prop({ required: false, type: Number })
+  type_id: number;
+
+  @Prop({ required: false, type: [String] , enum: ProductType })
+  product_type: ProductType;
+
+  @Prop({type: [{type: mongoose.Schema.Types.ObjectId, ref: 'Category'}], default: []})
+  categories: Category[];
+
+  @Prop({type: [{type: mongoose.Schema.Types.ObjectId, ref: 'Tag'}], default: []})
+  tags?: Tag[];
+
+  @Prop({type: [{type: mongoose.Schema.Types.ObjectId, ref: 'AttributeValue'}], default: []})
+  variations?: AttributeValue[];
+
+  @Prop({ required: false, type: Variation, default: [] })
+  variation_options?: Variation[] = [];
+
+  @Prop({ required: false, type: OrderProductPivot, default: {} })
+  pivot?: OrderProductPivot;
+
+  @Prop({type: [{type: mongoose.Schema.Types.ObjectId, ref: 'Order'}], default: []})
+  orders?: Order[];
+
+  @Prop({  type: mongoose.Schema.Types.ObjectId, ref: 'Shop' , required: false})
+  shop: Shop;
+
+  @Prop({ required: false, type: Number })
+  shop_id: number;
+
+  @Prop({type: [{type: mongoose.Schema.Types.ObjectId, ref: 'Product'}], default: []})
+  related_products?: Product[];
+
+  @Prop({ required: false, type: String })
+  description: string;
+
+  @Prop({ required: false, type: Boolean})
+  in_stock: boolean;
+
+  @Prop({ required: false, type: Boolean })
+  is_taxable: boolean;
+
+  @Prop({ required: false, type: Number })
+  sale_price?: number;
+
+  @Prop({ required: false, type: Number })
+  max_price?: number;
+
+  @Prop({ required: false, type: Number })
+  min_price?: number;
+
+  @Prop({ required: false, type: String })
+  sku?: string;
+
+  @Prop({type: Attachment, default: []})
+  gallery?: Attachment[] = [];
+
+  @Prop({  type: Attachment, required: false})
+  image?: Attachment;
+
+  @Prop({ required: false, type: [String] , enum: ProductStatus })
+  status: ProductStatus;
+
+  @Prop({ required: false, type: String })
+  height?: string;
+
+  @Prop({ required: false, type: String })
+  length?: string;
+
+  @Prop({ required: false, type: String })
+  width?: string;
+
+  @Prop({ required: false, type: Number })
+  price?: number;
+
+  @Prop({ required: false, type: Number })
+  quantity: number;
+
+  @Prop({ required: false, type: String })
+  unit: string;
+
+  @Prop({ required: false, type: Number })
+  ratings: number;
+  in_wishlist: boolean;
+
+  @Prop({type: [{type: mongoose.Schema.Types.ObjectId, ref: 'Review'}], default: []})
+  my_review?: Review[];
+
+  @Prop({ required: false, type: String })
+  language?: string;
+
+  @Prop({type: [String], default: [], required: false})
+  translated_languages?: string[];
+
+}
+
+
+const ProductSchema = SchemaFactory.createForClass(Product)
+
+export {ProductSchema}
+
 export class File extends CoreEntity {
+
+  @Prop({type: Number, required: false})
   attachment_id: number;
+
+  @Prop({type: String, required: false})
   url: string;
+
+  @Prop({type: Number, required: false})
   fileable_id: number;
+
 }
