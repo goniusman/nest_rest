@@ -7,6 +7,7 @@ import {
   Post,
   Put,
   Query,
+  UseInterceptors,
 } from '@nestjs/common';
 import { AuthorsService } from './authors.service';
 import { AuthorPaginator, GetAuthorDto } from './dto/get-author.dto';
@@ -14,7 +15,9 @@ import { GetTopAuthorsDto } from './dto/get-top-authors.dto';
 import { Author } from './entities/author.entity';
 import { UpdateAuthorDto } from './dto/update-author.dto';
 import { CreateAuthorDto } from './dto/create-author.dto';
+import { TransformInterceptor } from 'src/helper/respones';
 
+// @UseInterceptors(TransformInterceptor)
 @Controller('authors')
 export class AuthorsController {
   constructor(private readonly authorsService: AuthorsService) {}

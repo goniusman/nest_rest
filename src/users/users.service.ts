@@ -4,11 +4,11 @@ import { BadRequestException, Injectable, NotFoundException } from '@nestjs/comm
 import { CreateUserDto } from './dto/create-user.dto';
 // import {  UserPaginator } from './dto/get-users.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-// import Fuse from 'fuse.js';
+import Fuse from 'fuse.js';
 import * as bcrypt from 'bcrypt'
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
-import {  User } from './entities/user.entity';
+import {  User, UserDocument } from './entities/user.entity';
 import { CloudinaryService } from '../cloudinary/cloudinary.service';
 // import { CreateUserDto } from '../dto/create-user.dto';
 // import { IUser } from '../interface/user.interface';
@@ -22,11 +22,10 @@ import { ConfigService } from '@nestjs/config';
 import {UploadsService} from 'src/uploads/uploads.service';
 // const users = plainToClass(UserSchema, usersJson);
 
-// const options = {
-//   keys: ['name', 'type.slug', 'categories.slug', 'status'],
-//   threshold: 0.3,
-// };
-// const fuse = new Fuse(users, options);
+const options = {
+  keys: ['name', 'type.slug', 'categories.slug', 'status'],
+  threshold: 0.3,
+};
 
 export enum Permission {
   SUPER_ADMIN = 'super_admin',
@@ -41,8 +40,8 @@ export class UsersService {
 
   private NAME : string;
   constructor(
-    @InjectModel('User')
-    private users: Model<User>,
+    @InjectModel(User.name)
+    private users: Model<UserDocument>,
     private cloudinary: CloudinaryService,
     private uploader: UploadsService
     // private readonly configService: ConfigService
@@ -80,18 +79,22 @@ export class UsersService {
   }
 
   async getUsers({ text, limit, page, search }:GetUsersDto): Promise<UserPaginator> {
-    console.log(text);
+    // console.log(text);
     if (!page) page = 1;
     if (!limit) limit = 30;
     const startIndex = (page - 1) * limit;
     const endIndex = page * limit;
     // let data: IUser[] = this.users;
-    // if (text?.replace(/%/g, '')) {
-    //   data = fuse.search(text)?.map(({ item }) => item);
-    // }
 
-    const userData = await this.users.find();
 
+    let userData = await this.users.find();
+    const fuse = new Fuse(userData, options);
+
+    if (text?.replace(/%/g, '')) {
+      userData = fuse.search(text)?.map(({ item }) => item);
+    }
+
+ 
     if (!userData || userData.length == 0) {
       throw new NotFoundException('Students data not found!');
     }
@@ -160,7 +163,7 @@ export class UsersService {
     // return this.users.find((user) => user._id === id);
   }
 
-  async findOne(id: string) {
+  async findById(id: string) {
     // console.log(id);
     return await this.users.findById(id).exec();
     // return this.users.find((user) => user._id === id);
@@ -177,7 +180,7 @@ export class UsersService {
 
       try {
 
-        const user = await this.findOne(id)
+        const user = await this.findById(id)
         const imageId = user?.profile?.avatar?.id
         if (imageId) {
          const imageDoc = await this.uploader.findOne(imageId)
@@ -197,7 +200,7 @@ export class UsersService {
   async updateShop(userId: any, shop:any): Promise<any> {
 
     try {
-      const user = await this.findOne(userId)
+      const user = await this.findById(userId)
       user.shops.push(shop)
       return this.users.findByIdAndUpdate(userId, user)
     } catch (err) {

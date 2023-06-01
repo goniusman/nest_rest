@@ -5,8 +5,9 @@ import { Shop } from 'src/shops/entities/shop.entity';
 import { Profile } from 'src/users/entities/profile.entity';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose from 'mongoose';
+import { Exclude, Transform } from 'class-transformer';
  
-
+export type UserDocument = User & Document;
 
 enum Permission {
   SUPER_ADMIN = 'super_admin',
@@ -19,13 +20,18 @@ enum Permission {
 @Schema({ timestamps: true })
 export class User extends CoreEntity {
 
+  // @Transform(({ value }) => value.toString())
+  // _id: string;
+
+
   @Prop({ required: true, type: String })
   name?: string; 
 
-  @Prop({ required: true, type: String })
+  @Prop({ required: true, type: String, unique: true })
   email: string;
 
   @Prop({ required: true, type: String }) 
+  @Exclude()
   password: string;
 
   @Prop({ required: false, type: String })

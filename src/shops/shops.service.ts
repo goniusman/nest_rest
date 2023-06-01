@@ -17,7 +17,7 @@ const options = {
   keys: ['name', 'type.slug', 'is_active'],
   threshold: 0.3,
 };
-const fuse = new Fuse(shops, options);
+
 
 @Injectable()
 export class ShopsService {
@@ -50,11 +50,18 @@ export class ShopsService {
   }
 
   async getShops({ search, limit, page }: GetShopsDto) {
+   
+
+
     if (!page) page = 1;
 
     const startIndex = (page - 1) * limit;
     const endIndex = page * limit;
-    let data: Shop[] = await this.shop.find();
+
+    
+    let data: Shop[] = await this.shop.find().populate('owner_id');
+    // console.log(data);
+    const fuse = new Fuse(data, options);
     if (search) {
       const parseSearchParams = search.split(';');
       for (const searchParam of parseSearchParams) {
@@ -66,6 +73,13 @@ export class ShopsService {
     // if (text?.replace(/%/g, '')) {
     //   data = fuse.search(text)?.map(({ item }) => item);
     // }
+
+
+for (const item of data) {
+  // const owner = await this.userService.findById(item.owner_id)
+}
+
+
     const results = data.slice(startIndex, endIndex);
     const url = `/shops?search=${search}&limit=${limit}`;
 
