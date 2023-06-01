@@ -75,7 +75,7 @@ export class AuthorsService {
     return await this._author.find().limit(limit);
   }
 
-  async update(id: number, updateAuthorDto: UpdateAuthorDto) {
+  async update(id: string, updateAuthorDto: UpdateAuthorDto) {
 
     try {
       const author = await this._author.findById(id);
@@ -83,13 +83,16 @@ export class AuthorsService {
     author.is_approved = updateAuthorDto.is_approved ?? true;
     await this._author.findByIdAndUpdate(id, updateAuthorDto)
     return author;
-    } catch (error) {
+    } catch (error) { 
       console.log(error);
     }
     
   }
 
-  remove(id: number) {
+
+
+
+  remove(id: string) {
     return  this._author.findByIdAndDelete(id)
   }
 }

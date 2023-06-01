@@ -4,9 +4,12 @@ import { TagsController } from './tags.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 import { TagSchema } from './entities/tag.entity';
 
+import {TypesService} from 'src/types/types.service';
+
 @Module({
   imports: [
-    MongooseModule.forFeature([{name: 'Tag', schema: TagSchema}])
+    MongooseModule.forFeature([{name: 'Tag', schema: TagSchema}]),
+    // TypesService
   ],
   controllers: [TagsController],
   providers: [TagsService],

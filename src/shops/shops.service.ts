@@ -96,7 +96,7 @@ export class ShopsService {
   }
 
    getShopById(id: any){
-    console.log(id);
+    // console.log(id);
     return  this.shop.findById(id);
   }
 

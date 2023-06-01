@@ -69,8 +69,8 @@ export class Product extends CoreEntity {
   @Prop({type: [{type: mongoose.Schema.Types.ObjectId, ref: 'Tag'}], default: []})
   tags?: Tag[];
 
-  @Prop({type: [{type: mongoose.Schema.Types.ObjectId, ref: 'AttributeValue'}], default: []})
-  variations?: AttributeValue[];
+  @Prop({type: AttributeValue, default: []})
+  variations?: AttributeValue[] = [];
 
   @Prop({ required: false, type: Variation, default: [] })
   variation_options?: Variation[] = [];
@@ -148,8 +148,8 @@ export class Product extends CoreEntity {
   @Prop({ required: false, type: String })
   language?: string;
 
-  @Prop({type: [String], default: [], required: false})
-  translated_languages?: string[];
+  @Prop({type: [String], default: ["en"], required: false})
+  translated_languages?: string[] = ["en"];
 
 }
 

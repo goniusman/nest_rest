@@ -3,6 +3,7 @@ import { PaginationArgs } from 'src/common/dto/pagination-args.dto';
 import { Paginator } from 'src/common/dto/paginator.dto';
 
 import { Tag } from '../entities/tag.entity';
+import {Type} from '@nestjs/common';
 
 export class TagPaginator extends Paginator<Tag> {
   data: Tag[];
@@ -16,6 +17,7 @@ export class GetTagsDto extends PaginationArgs {
   hasType?: string;
   language?: string;
   search?: string;
+  type: Type;
 }
 
 export enum QueryTagsOrderByColumn {

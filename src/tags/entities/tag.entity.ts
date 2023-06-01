@@ -25,6 +25,9 @@ export class Tag extends CoreEntity {
   @Prop({type: Attachment, required: false})
   image: Attachment;
 
+  @Prop({type: Type, required: false})
+  type?: Type;
+
   @Prop({type: String, required: false})
   icon: string;
 
@@ -38,7 +41,7 @@ export class Tag extends CoreEntity {
   language: string;
 
   @Prop({type: [String], required: false, default:[]})
-  translated_languages: string[];
+  translated_languages: string[] = ['en'];
 
 }
 

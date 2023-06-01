@@ -46,7 +46,7 @@ export class Author extends CoreEntity {
   language?: string;
 
   @Prop({type: [String], required: false,})
-  translated_languages?: string[];
+  translated_languages?: string[] = ["en"];
 }
 
 const AuthorSchema = SchemaFactory.createForClass(Author)

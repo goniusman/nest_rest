@@ -76,7 +76,7 @@ export class TypesService {
   }
 
 
-  findOne(id: number) {
+  findOne(id: string) {
     return this._type.findById(id)
   }
 

@@ -8,6 +8,8 @@ import { paginate } from 'src/common/pagination/paginate';
 import productsJson from '@db/products.json';
 import Fuse from 'fuse.js';
 import { GetPopularProductsDto } from './dto/get-popular-products.dto';
+import {InjectModel} from '@nestjs/mongoose';
+import {Model} from 'mongoose';
 
 const products = plainToClass(Product, productsJson);
 
@@ -30,8 +32,10 @@ const fuse = new Fuse(products, options);
 export class ProductsService {
   private products: any = products;
 
+  constructor(@InjectModel('Product') private _product : Model<Product>) {}
+
   create(createProductDto: CreateProductDto) {
-    return this.products[0];
+    return this._product.create(createProductDto)
   }
 
   getProducts({ limit, page, search }: GetProductsDto): ProductPaginator {
@@ -40,6 +44,7 @@ export class ProductsService {
     const startIndex = (page - 1) * limit;
     const endIndex = page * limit;
     let data: Product[] = this.products;
+    // let data: Product[] = this._product.find();
     if (search) {
       const parseSearchParams = search.split(';');
       const searchText: any = [];

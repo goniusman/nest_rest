@@ -10,6 +10,8 @@ import Fuse from 'fuse.js';
 import {InjectModel} from '@nestjs/mongoose';
 import {Model} from 'mongoose';
 
+import {TypesService} from 'src/types/types.service';
+
 const tags = plainToClass(Tag, tagsJson);
 
 const options = {
@@ -22,7 +24,10 @@ const fuse = new Fuse(tags, options);
 export class TagsService {
   private tags: Tag[] = tags;
 
-  constructor(@InjectModel('Tag') private _tag : Model<Tag>){}
+  constructor(
+    @InjectModel('Tag') private _tag : Model<Tag>,
+    // private _typeService: TypesService
+      ){}
 
   async create(createTagDto: CreateTagDto) {
 
@@ -49,6 +54,19 @@ export class TagsService {
     try {
       if (!page) page = 1;
     let data: Tag[] = await this._tag.find();
+
+
+    // let tags : Tag[] = [];
+    // for (const tag of data) {
+    //   let { type_id, ...tagss} = tag
+    //   let type = this._typeService.findOne(type_id.toString())
+    //   tags.type = type
+    //   tags.push(tagss);
+    // }
+    // // return tags;
+
+
+
 
     if (search) {
       const parseSearchParams = search.split(';');
@@ -85,11 +103,13 @@ export class TagsService {
     return await this._tag.findOne({slug: param});
   }
 
+
+
   async update(id: string, updateTagDto: UpdateTagDto) {
     return await this._tag.findByIdAndUpdate(id, updateTagDto);
   }
 
-  remove(id: number) {
+  remove(id: string) {
     return this._tag.findByIdAndDelete(id)
   }
 }
