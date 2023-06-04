@@ -34,7 +34,10 @@ export class TaxesService {
   }
 
   findAll() {
-    return this._tax.find();
+    const taxes = this._tax.find();
+    const te = "dsdf"
+    console.log(te);
+    return taxes;
   }
 
   async findOne(id: number) {

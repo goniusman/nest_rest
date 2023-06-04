@@ -29,7 +29,7 @@ export class AttributesController {
   findOne(@Param('param') param: string) {
     return this.attributesService.findOne(param);
   }
-
+ 
   @Put(':id')
   update(
     @Param('id') id: string,

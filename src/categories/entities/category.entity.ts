@@ -12,12 +12,12 @@ export class Category {
   @Prop({required: false, type:Number})
   id: number;
 
-  timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' }
+  // timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' }
 
   @Prop({required: true, type:String, description: "name"})  
   name: string;
 
-  @Prop({required: false, type:String})  
+  @Prop({required: false, type:String, unique:true})  
   slug?: string;
 
   @Prop({required: false, type:String})  
@@ -41,7 +41,7 @@ export class Category {
   @Prop({required: false, type:String})  
   language: string;
 
-  @Prop({required: false, type: [String], default:[]})  
+  @Prop({required: false, type: [String], default:["en"]})  
   translated_languages: string[] = [];
 
   @Prop({required: false, type: Attachment, default:{}})   

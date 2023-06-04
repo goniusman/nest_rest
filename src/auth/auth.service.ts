@@ -55,19 +55,14 @@ export class AuthService {
   let data: any = null;
   let user: any = null; 
   try {
-    const existCat = await this.usersService.findByEmail(createUserInput.email);
-
-    // console.log(typeof existCat);
-    // console.log( existCat);
-
-    if (!existCat?._id) {
+ 
       user = await this.usersService.create(createUserInput);
       // await userModel.save()
       status = true;
       message = "Successfully Created User" 
       data = user
       // console.log(user);
-
+ 
       const id = user?._id.toString()
       const permission = user?.permissions
       const payload = { email: user.email, subid: id, permissions: permission,
@@ -79,7 +74,7 @@ export class AuthService {
       };
 
       // return this._commonHelper.respone(status, message, data);
-    }
+    
   } catch (err) {
       // this.findAndDelete(userModel?._id);
       // status = false;
@@ -312,19 +307,19 @@ return this._commonHelper.respone(status, message, data);
     try {
       const user = await this.usersService.getUser(id);
         // const {password, ...result} = user._doc
-        const ids = user?.shop_id;
-        let managedshop: any = null
-        if(ids) {
-            managedshop = await this.shopService.getShopById(ids)
-          //  user.shops.push(shop) ;
-          //  user.managed_shop = shop
-        }
+        // const ids = user?.shop_id;
+        // let managedshop: any = null
+        // if(ids) {
+        //     managedshop = await this.shopService.getShopById(ids)
+        //   //  user.shops.push(shop) ;
+        //   //  user.managed_shop = shop
+        // }
 
-        let shops = []
+        // let shops = []
 
-        for (const item of user.shops) {
-          shops.push(await this.shopService.getShopById(item)) 
-        }
+        // for (const item of user.shops) {
+        //   shops.push(await this.shopService.getShopById(item)) 
+        // }
 
         // user.anos = shops;
         // console.log(shops);
@@ -336,15 +331,15 @@ return this._commonHelper.respone(status, message, data);
         const result = {
           name: user.name,
           email: user.email,
-          shops: shops,
-          shop_id: user.shop_id,
-          managed_shop: managedshop,
+          shops: user?.shops,
+          shop_id: user?.managed_shop?._id,
+          managed_shop: user?.managed_shop,
           is_active: user.is_active,
-          address: user.address,
-          profile: user.profile,
-          orders: user.orders
+          address: user?.address,
+          profile: user?.profile,
+          orders: user?.orders
         }
-        return result;
+        return user;
 
     } catch (error) {
       console.log(error);

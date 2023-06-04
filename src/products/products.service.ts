@@ -26,7 +26,7 @@ const options = {
   ],
   threshold: 0.3,
 };
-const fuse = new Fuse(products, options);
+
 
 @Injectable()
 export class ProductsService {
@@ -38,13 +38,14 @@ export class ProductsService {
     return this._product.create(createProductDto)
   }
 
-  getProducts({ limit, page, search }: GetProductsDto): ProductPaginator {
+  async getProducts({ limit, page, search }: GetProductsDto): Promise<ProductPaginator> {
     if (!page) page = 1;
     if (!limit) limit = 30;
     const startIndex = (page - 1) * limit;
     const endIndex = page * limit;
-    let data: Product[] = this.products;
-    // let data: Product[] = this._product.find();
+    // let data: Product[] = this.products;
+    let data: Product[] = await this._product.find();
+    const fuse = new Fuse(data, options);
     if (search) {
       const parseSearchParams = search.split(';');
       const searchText: any = [];
@@ -56,6 +57,8 @@ export class ProductsService {
             [key]: value,
           });
         }
+
+      
       }
 
       data = fuse
@@ -63,6 +66,9 @@ export class ProductsService {
           $and: searchText,
         })
         ?.map(({ item }) => item);
+    
+      data = await this._product.find({shop_id: searchText[0].shop_id}).populate('type_id')
+
     }
 
     const results = data.slice(startIndex, endIndex);
@@ -73,30 +79,44 @@ export class ProductsService {
     };
   }
 
-  getProductBySlug(slug: string): Product {
-    const product = this.products.find((p) => p.slug === slug);
-    const related_products = this.products
-      .filter((p) => p.type.slug === product.type.slug)
-      .slice(0, 20);
+  async getProductBySlug(slug: string): Promise< Product > {
+    // const product = this.products.find((p) => p.slug === slug);
+    const test = await this._product.findOne({slug:slug})
+    // let product
+    // if(test && test?._doc){
+     let product = await test?._doc
+    // }
+
+    // const related_products = this.products
+    //   .filter((p) => p.type.slug === product.type.slug)
+    //   .slice(0, 20);
+    const related_products = await this._product.find({
+      type_id: product?.type_id
+    })
+    
+    // return product;
+
     return {
-      ...product,
-      related_products,
+     ...product,
+     related_products
     };
+    
   }
 
-  getPopularProducts({ limit, type_slug }: GetPopularProductsDto): Product[] {
-    let data: any = this.products;
-    if (type_slug) {
-      data = fuse.search(type_slug)?.map(({ item }) => item);
-    }
-    return data?.slice(0, limit);
+  async getPopularProducts({ limit, type_slug }: GetPopularProductsDto): Promise< Product[]> {
+    let data: any = await this._product.find({type: {slug: type_slug}}).populate('type_id').limit(limit);
+    // const fuse = new Fuse(data, options);
+    // if (type_slug) {
+    //   data = fuse.search(type_slug)?.map(({ item }) => item);
+    // }
+    return data;
   }
 
-  update(id: number, updateProductDto: UpdateProductDto) {
-    return this.products[0];
+  update(id: string, updateProductDto: UpdateProductDto) {
+    return this._product.findByIdAndUpdate(id, updateProductDto);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} product`;
+  remove(id: string) {
+    return this._product.findByIdAndDelete(id);
   }
 }

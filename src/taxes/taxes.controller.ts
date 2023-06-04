@@ -20,7 +20,7 @@ export class TaxesController {
   @Post()
   create(@Body() createTaxDto: CreateTaxDto) {
     return this.taxesService.create(createTaxDto);
-  }
+  } 
 
   @Get()
   findAll(@Query() getTaxesDto: GetTaxesDto) {

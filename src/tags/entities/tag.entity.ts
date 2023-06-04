@@ -25,14 +25,14 @@ export class Tag extends CoreEntity {
   @Prop({type: Attachment, required: false})
   image: Attachment;
 
-  @Prop({type: Type, required: false})
+  @Prop({type: mongoose.Schema.Types.ObjectId, ref: 'Type', required: false})
   type?: Type;
 
   @Prop({type: String, required: false})
   icon: string;
 
-  @Prop({type: mongoose.Schema.Types.ObjectId, ref: 'Type', required: false})
-  type_id: Type;
+  // @Prop({type: mongoose.Schema.Types.ObjectId, ref: 'Type', required: false})
+  // type_id: Type;
 
   @Prop({type: [{type: mongoose.Schema.Types.ObjectId, ref: 'Product'}], required: false, default:[]})
   products: Product[] = [];
@@ -40,7 +40,7 @@ export class Tag extends CoreEntity {
   @Prop({type: String, required: false})
   language: string;
 
-  @Prop({type: [String], required: false, default:[]})
+  @Prop({type: [String], required: false, default:["en"]})
   translated_languages: string[] = ['en'];
 
 }

@@ -15,6 +15,7 @@ import { UpdateShopDto } from './dto/update-shop.dto';
 import { GetShopsDto, ShopPaginator } from './dto/get-shops.dto';
 import { GetStaffsDto } from './dto/get-staffs.dto';
 import { UserPaginator } from 'src/users/dto/get-users.dto';
+import {CreateUserDto} from 'src/users/dto/create-user.dto';
 
 @Controller('shops')
 export class ShopsController {
@@ -59,10 +60,10 @@ export class ShopsController {
 @Controller('staffs')
 export class StaffsController {
   constructor(private readonly shopsService: ShopsService) {}
- 
+  
   @Post()
-  create(@Body() createShopDto: CreateShopDto) {
-    return this.shopsService.create(createShopDto);
+  create(@Body() createUserDto) {
+    return this.shopsService.createStaff(createUserDto);
   }
 
   @Get()

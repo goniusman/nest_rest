@@ -33,17 +33,18 @@ export class ManufacturersService {
   async create(createManufactureDto: CreateManufacturerDto) {
     
     try {
-      const exist = await this._manufacturer.findOne({shop_id: createManufactureDto.shop_id})
+      // const exist = await this._manufacturer.findOne({shop_id: createManufactureDto.shop_id})
 
-      if(!exist){
-        const createTag = await this._manufacturer.create(createManufactureDto);
-      }
+      // if(!exist){
+        const createMenufac = await this._manufacturer.create(createManufactureDto);
+      // }
 
-        return {
-          id: this._manufacturer.length + 1,
-          ...createManufactureDto,
-        };
-
+        // return {
+        //   id: this._manufacturer.length + 1,
+        //   ...createManufactureDto,
+        // };
+      return createMenufac
+      
     } catch (error) {
       console.log(error);
     }
@@ -95,7 +96,7 @@ export class ManufacturersService {
     return manufacturer;
   }
 
-  remove(id: number) {
+  remove(id: string) {
     return this._manufacturer.findByIdAndDelete(id);
   }
 }

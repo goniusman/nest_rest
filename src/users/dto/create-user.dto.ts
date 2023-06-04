@@ -20,19 +20,6 @@ import { CreateProfileDto } from './create-profile.dto';
 // }
 import { Address } from '../../addresses/entities/address.entity';
 import {Type} from 'class-transformer';
-// import {Profile} from '../entities/profile.entity';
-// import {Profile} from '../schema/profile.schema'
-
-
-
-
-@Schema({_id: false})
-export class Avartar extends mongoose.Document{
-  @Prop({type: String, required: false})
-  thumbnail?: string;
-  @Prop({type: String, required: false}) 
-  original?: string;
-}
 
 export enum Permission {
   SUPER_ADMIN = 'super_admin',
@@ -41,96 +28,8 @@ export enum Permission {
   CUSTOMER = 'customer',
 }
 
-
-@Schema({_id: false})
-export class Profile extends mongoose.Document{
-  @Prop({type: String, required: false})
-  bio?: string;
-  @Prop({type: String, required: false}) 
-  contact?: string;
-  @Prop({type: Avartar, required: false}) 
-  avatar?: Avartar;
-}
-
-
-@Schema()
 export class CreateUserDto extends PickType(User, ['email', 'password']) {
-
-  @Prop({ required: true })
-  @ApiProperty()
-  @IsNotEmpty()
   name?: string; 
-
-  @ApiProperty()
-  @Prop({ required: true })
-  email: string;
-
-  @ApiProperty()
-  @Prop({ required: true }) 
-  password: string;
-  
-  @ApiProperty()
-  @Prop({ required: true, type: [String], enum: Permission, default: [Permission.SUPER_ADMIN] }) 
-  permissions: Permission[] = [Permission.STORE_OWNER];
-
-  @ApiProperty()
-  @Prop({ required: false })  
-  is_active?: boolean = true;
-  
-  @ApiProperty()
-  @Prop({ required: false }) 
-
-  shop_id?: number = 0;
-
-  // @Prop({ required: false }) 
-  // @Prop({  type: mongoose.Schema.Types.ObjectId, ref: 'Profile' })
-  // profile?: CreateProfileDto; 
-
-  // @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Address' }] })
-  address?: CreateAddressDto;
-  
-  // @ApiProperty()
-  @Prop({ required: false }) 
-  email_verified_at: number = 0;  
-
-  // @Prop(raw({
-  //   bio: {type: String},
-  //   contact: {type: String},
-  //   avatar: {
-  //     thumbnail: {type: String},
-  //     origin: {type: String}
-
-  //   }
-  // }), )
-
-  // @Prop({type: mongoose.Types.ObjectId,ref: 'Profile'})
-  // @Prop(() => Profile)
-  @Prop({type: Profile, default: {}})
-  profile: Profile
-  
-
-
-  // @Prop({ required: true }) 
-  // @Prop({  type: mongoose.Schema.Types.ObjectId, ref: 'Profile', required:false })
-  // profile?: CreateProfileDto; 
-
-  // // @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Address' }] })
-  // address: Address[] = [];
-  
+  permissions: Permission[] = [Permission.CUSTOMER];
+  shop_id?: string;
 }
-
-const UserSchema = SchemaFactory.createForClass(User)
-
-export {UserSchema}
-
-
-// UserSchema.methods.validatePassword = async function (password: string): Promise<boolean> {
-//   return bcrypt.compareAsync(password, this.password);
-// };
-
-
-// interface Profile {
-//   bio?: string,
-//   contact?: string,
-//   avatar?: any
-// }

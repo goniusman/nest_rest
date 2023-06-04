@@ -139,7 +139,7 @@ export class CategoriesService {
     if (!page) page = 1;
     const startIndex = (page - 1) * limit;
     const endIndex = page * limit;
-    let data: Category[] = await this._cat.find();
+    let data: Category[] = await this._cat.find().populate('type');
     if (search) {
       const parseSearchParams = search.split(';');
       for (const searchParam of parseSearchParams) {
@@ -168,13 +168,13 @@ export class CategoriesService {
 
 
   async getCategory(param: string, language: string): Promise< Category> {
-    const category = await this._cat.findById(param).exec();
+    const category = (await this._cat.findById(param).exec()).populate('type');
     return category;
     //   (p) => p.id === Number(param) || p.slug === param,
     // );
   }
 
-  async update(id: number, updateCategoryDto: UpdateCategoryDto) {
+  async update(id: string, updateCategoryDto: UpdateCategoryDto) {
     return await this._cat.findByIdAndUpdate(id, updateCategoryDto);
   }
 

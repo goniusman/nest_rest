@@ -32,11 +32,11 @@ export class Manufacturer extends CoreEntity {
   @Prop({type: ShopSocials, required:false, default: {}})
   socials?: ShopSocials;
 
-  @Prop({type: String, required:false})
-  type_id: string;
+  @Prop({type: mongoose.Schema.Types.ObjectId, ref: 'Type', required:false})
+  type_id: Type;
 
-  // @Prop({type: mongoose.Schema.Types.ObjectId, ref: 'Type', required:false})
-  // type_id?: string;
+  @Prop({type: mongoose.Schema.Types.ObjectId, ref: 'Shop', required:false})
+  shop_id?: string;
 
   @Prop({type: String, required:false})
   website?: string;

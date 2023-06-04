@@ -10,5 +10,6 @@ export class GetWithdrawsDto extends PaginationArgs {
   orderBy?: string;
   sortedBy?: string;
   status?: string;
-  shop_id?: number;
+  shop_id?: any;
+  search?: any
 }

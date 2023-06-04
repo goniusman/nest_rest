@@ -36,6 +36,7 @@ export class WithdrawsService {
     page,
     status,
     shop_id,
+    search
   }: GetWithdrawsDto): Promise< WithdrawPaginator> {
     if (!page) page = 1;
 
@@ -46,8 +47,9 @@ export class WithdrawsService {
     //   data = fuse.search(status)?.map(({ item }) => item);
     // }
 
-    if (shop_id) {
-      data = this.withdraws.filter((p) => p.shop_id === shop_id);
+    if (search) {
+      let shopSearch = search.split(':')[1]
+      data = await this._withdraw.find({shop_id: shopSearch}).populate('shop_id');
     }
     const results = data.slice(startIndex, endIndex);
     const url = `/withdraws?limit=${limit}`;

@@ -43,24 +43,25 @@ export class VariationOption extends mongoose.Document {
   value: string;
 }
 
- 
+
 
 @Schema({timestamps:true})
 export class Product extends CoreEntity {
-
+ 
+  _doc?: any;
   @Prop({ required: true, type: String })
   name: string;
 
-  @Prop({ required: false, type: String })
+  @Prop({ required: false, type: String, unique:true})
   slug: string;
 
   @Prop({  type: mongoose.Schema.Types.ObjectId, ref: 'Type' , required: false})
-  type: Type;
+  type_id: Type;
 
-  @Prop({ required: false, type: Number })
-  type_id: number;
+  // @Prop({ required: false, type: mongoose.Schema.Types.ObjectId, ref: 'Type' })
+  // type_id: number;
 
-  @Prop({ required: false, type: [String] , enum: ProductType })
+  @Prop({ required: false, type: String , enum: ProductType })
   product_type: ProductType;
 
   @Prop({type: [{type: mongoose.Schema.Types.ObjectId, ref: 'Category'}], default: []})
@@ -69,11 +70,11 @@ export class Product extends CoreEntity {
   @Prop({type: [{type: mongoose.Schema.Types.ObjectId, ref: 'Tag'}], default: []})
   tags?: Tag[];
 
-  @Prop({type: AttributeValue, default: []})
-  variations?: AttributeValue[] = [];
+  @Prop({type: mongoose.Schema.Types.Array, default: []})
+  variations?: AttributeValue[];
 
-  @Prop({ required: false, type: Variation, default: [] })
-  variation_options?: Variation[] = [];
+  @Prop({ required: false, type: mongoose.Schema.Types.Array, default: [] })
+  variation_options?: Variation[];
 
   @Prop({ required: false, type: OrderProductPivot, default: {} })
   pivot?: OrderProductPivot;
@@ -84,11 +85,11 @@ export class Product extends CoreEntity {
   @Prop({  type: mongoose.Schema.Types.ObjectId, ref: 'Shop' , required: false})
   shop: Shop;
 
-  @Prop({ required: false, type: Number })
-  shop_id: number;
+  @Prop({ required: false, type: mongoose.Schema.Types.ObjectId, ref: 'Shop' })
+  shop_id: string;
 
-  @Prop({type: [{type: mongoose.Schema.Types.ObjectId, ref: 'Product'}], default: []})
-  related_products?: Product[];
+  @Prop({type: [{type: mongoose.Schema.Types.ObjectId, ref: 'Product'}], default: [], required:false})
+  related_products?: Product[] = [];
 
   @Prop({ required: false, type: String })
   description: string;
@@ -111,13 +112,13 @@ export class Product extends CoreEntity {
   @Prop({ required: false, type: String })
   sku?: string;
 
-  @Prop({type: Attachment, default: []})
+  @Prop({type: mongoose.Schema.Types.Array, default: []})
   gallery?: Attachment[] = [];
 
   @Prop({  type: Attachment, required: false})
   image?: Attachment;
 
-  @Prop({ required: false, type: [String] , enum: ProductStatus })
+  @Prop({ required: false, type: String , enum: ProductStatus })
   status: ProductStatus;
 
   @Prop({ required: false, type: String })
@@ -140,6 +141,8 @@ export class Product extends CoreEntity {
 
   @Prop({ required: false, type: Number })
   ratings: number;
+
+  @Prop({ required: false, type: Boolean })
   in_wishlist: boolean;
 
   @Prop({type: [{type: mongoose.Schema.Types.ObjectId, ref: 'Review'}], default: []})
@@ -155,6 +158,13 @@ export class Product extends CoreEntity {
 
 
 const ProductSchema = SchemaFactory.createForClass(Product)
+
+
+ProductSchema.pre("save", function(next) {
+  this.slug = this.name.split(" ").join("-")
+  next()
+})
+
 
 export {ProductSchema}
 

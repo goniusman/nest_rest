@@ -36,5 +36,14 @@ export class Tax extends CoreEntity {
 
 const TaxSchema = SchemaFactory.createForClass(Tax)
 
+// TaxSchema.set('toJSON', {
+//   virtuals: true
+// });
+
+
+// TaxSchema.virtual('id').get(function(){
+//   return this._id.toHexString();
+// });
+
 
 export {TaxSchema}

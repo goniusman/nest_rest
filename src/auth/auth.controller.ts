@@ -89,8 +89,8 @@ export class AuthController {
 
 
   
-  // @Post('token')
-  @Post('login') 
+  @Post('token')
+  // @Post('login') 
   login(@Body() loginDto: LoginDto) {
     return this.authService.login(loginDto);
   }

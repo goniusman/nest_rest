@@ -51,7 +51,7 @@ export class ManufacturersController {
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.manufacturersService.remove(+id);
+    return this.manufacturersService.remove(id);
   }
 }
 

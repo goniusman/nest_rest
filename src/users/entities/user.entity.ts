@@ -2,7 +2,7 @@ import { Address } from 'src/addresses/entities/address.entity';
 import { CoreEntity } from 'src/common/entities/core.entity';
 import { Order } from 'src/orders/entities/order.entity';
 import { Shop } from 'src/shops/entities/shop.entity';
-import { Profile } from 'src/users/entities/profile.entity';
+// import { Profile } from 'src/users/entities/profile.entity';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose from 'mongoose';
 import { Exclude, Transform } from 'class-transformer';
@@ -17,12 +17,21 @@ enum Permission {
 }
 
 
+export class Avartar extends mongoose.Document{
+  thumbnail?: string;
+  original?: string;
+  id?: string;
+}
+
+export class Profile extends mongoose.Document{
+  bio?: string;
+  contact?: string;
+  avatar?: Avartar;
+}
+
+
 @Schema({ timestamps: true })
 export class User extends CoreEntity {
-
-  // @Transform(({ value }) => value.toString())
-  // _id: string;
-
 
   @Prop({ required: true, type: String })
   name?: string; 
@@ -34,28 +43,28 @@ export class User extends CoreEntity {
   @Exclude()
   password: string;
 
-  @Prop({ required: false, type: String })
-  email_verified_at: string; 
+  @Prop({ required: false, type: Number })
+  email_verified_at: number; 
 
   @Prop({ required: true, type: [String], enum: Permission, default: [] }) 
   permissions: Permission[] = [];
 
   @Prop({ required: false, type: Profile, default: {}})
-  profile?: Profile;
-  
-  @Prop({ required: false, type: String })
-  shop_id?: string;
+  profile?: Profile; 
   
   @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Shop' }], required: false, default: [] })
   shops?: Shop[];
 
+  @Prop({ type:  mongoose.Schema.Types.ObjectId, ref: 'Shop', required: false })
+  shop_id?: Shop;
+
   @Prop({  type: mongoose.Schema.Types.ObjectId, ref: 'Shop' , required: false})
   managed_shop?: Shop;
 
-  @Prop({ required: false, type: Boolean })
+  @Prop({ required: false, type: Boolean, default: true})
   is_active?: boolean = true;
 
-  @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Address' }], default: [] })
+  @Prop({ type: mongoose.Schema.Types.Array, default: [] })
   address?: Address[] = [];
 
   @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Order' }], default:[] })

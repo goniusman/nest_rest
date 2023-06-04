@@ -22,12 +22,12 @@ export class AttributesService {
   }
 
   findAll() {
-    return this._attr.find();
+    return this._attr.find().populate('shop');
   }
 
   findOne(param: string) {
 
-    return this._attr.findOne({name: param});
+    return this._attr.findOne({slug: param});
     // return this.attributes.find(
     //   (p) => p.id === Number(param) || p.slug === param,
     // );
@@ -35,7 +35,7 @@ export class AttributesService {
 
   update(id: string, updateAttributeDto: UpdateAttributeDto) {
     return this._attr.findByIdAndUpdate(id, updateAttributeDto);
-  }
+  } 
 
   remove(id: string) {
     return this._attr.findByIdAndDelete(id)

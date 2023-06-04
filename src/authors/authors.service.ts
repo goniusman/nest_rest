@@ -54,7 +54,9 @@ export class AuthorsService {
       const parseSearchParams = search.split(';');
       for (const searchParam of parseSearchParams) {
         const [key, value] = searchParam.split(':');
-        data = fuse.search(value)?.map(({ item }) => item);
+       // data = fuse.search(value)?.map(({ item }) => item);
+      //  let boll : boolean = value == '1' ? true : false;
+       data = await this._author.find({ is_approved: true}).exec()
       }
     }
 

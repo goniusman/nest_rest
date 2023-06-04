@@ -56,7 +56,7 @@ export class UsersService {
 
   // @InjectModel('Student') private studentModel:Model<IStudent>
 
-  async create(createUserDto: CreateUserDto): Promise<any> {
+  async create(createUserDto): Promise<any> {
 
     ////////
     // const NMAILER_NAME = this.configService.get<string>('NMAILER_USER_NAME')
@@ -130,7 +130,7 @@ export class UsersService {
     // return results
   }
 
-  async getUser(id: any) {
+  async getUser(id: any): Promise<any> {
     // console.log(id);
     // console.log(await this.users.findById(id));
     // return await this.users.findOne({
@@ -151,7 +151,7 @@ export class UsersService {
     // return this.users.find((user) => user._id === id);
 
     // return await this.users.findById(id).exec();
-    const user = await this.users.findOne({_id: id}).exec();
+    const user = await (await this.users.findOne({_id: id})).populate('shops');
     return user;
 
   } 
@@ -160,6 +160,13 @@ export class UsersService {
   async getAllUsr() {
     // console.log(id);
     return await this.users.find().exec();
+    // return this.users.find((user) => user._id === id);
+  }
+
+
+  async getAllStaff(id) {
+    // console.log(id);
+    return await this.users.find({shop_id: id}).exec();
     // return this.users.find((user) => user._id === id);
   }
 
@@ -175,7 +182,7 @@ export class UsersService {
     // return this.users.find((user) => user._id === id);
   }
 
-  async update(id: string, updateUserDto: UpdateUserDto) {
+  async update(id: string, updateUserDto:any) {
 
 
       try {
@@ -184,13 +191,20 @@ export class UsersService {
         const imageId = user?.profile?.avatar?.id
         if (imageId) {
          const imageDoc = await this.uploader.findOne(imageId)
-
-         const deletedImageCloud = await this.cloudinary.deleteCloudinaryImage(`${imageDoc.public_id}.jpg`, imageDoc.signature)
+         const deletedImageCloud = await 
+           this.cloudinary.deleteCloudinaryImage(`${imageDoc.public_id}.jpg`, imageDoc.signature)
           console.log(deletedImageCloud);
         }
 
-        return await this.users.findByIdAndUpdate(id, updateUserDto)
+        if(updateUserDto?.address ){
+          user?.address.push(updateUserDto?.address[0])
+          return await this.users.findByIdAndUpdate(id, user)
+        }else{
+           return await this.users.findByIdAndUpdate(id, updateUserDto)
         
+        }
+
+     
       } catch (error) {
         console.log(error);
       }

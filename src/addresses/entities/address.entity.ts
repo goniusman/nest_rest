@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import mongoose from 'mongoose';
+import mongoose, {ObjectId, Types} from 'mongoose';
 import { CoreEntity } from 'src/common/entities/core.entity';
 import { User } from 'src/users/entities/user.entity';
 
@@ -19,7 +19,10 @@ export class UserAddress extends mongoose.Document{
 
 
 @Schema({ timestamps: true })
-export class Address extends CoreEntity {
+export class Address extends mongoose.Document{
+
+  @Prop({ required: true, type: mongoose.Schema.Types.ObjectId, default: Types.ObjectId })
+  _id: Types.ObjectId
 
   @Prop({ required: true, type: String })
   title: string;
@@ -30,15 +33,15 @@ export class Address extends CoreEntity {
   @Prop({ required: false, type: UserAddress, default: {} })
   address: UserAddress;
 
-  @Prop({ required: false, type: [String] , enum: AddressType })
+  @Prop({ required: false, type: String , enum: AddressType })
   type: AddressType;
 
-  @Prop({  type: mongoose.Schema.Types.ObjectId, ref: 'User' , required: false})
-  customer: User;
+  // @Prop({  type: mongoose.Schema.Types.ObjectId, ref: 'User' , required: true})
+  // customer: User;
 
 }
 
 
-const AddressSchema = SchemaFactory.createForClass(Address)
+// const AddressSchema = SchemaFactory.createForClass(Address)
 
-export {AddressSchema}
+// export {AddressSchema}

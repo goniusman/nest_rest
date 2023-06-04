@@ -11,6 +11,7 @@ import { GetStaffsDto } from './dto/get-staffs.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { UsersService } from 'src/users/users.service';
+import {CreateUserDto, Permission} from 'src/users/dto/create-user.dto';
 
 const shops = plainToClass(Shop, shopsJson);
 const options = {
@@ -47,6 +48,11 @@ export class ShopsService {
       console.log(error);
     }
    
+  }
+
+  async createStaff(staff: CreateUserDto){
+    staff.permissions = [Permission.STAFF]
+    return await this.userService.create(staff)
   }
 
   async getShops({ search, limit, page }: GetShopsDto) {
@@ -89,19 +95,19 @@ for (const item of data) {
     };
   }
 
-  getStaffs({ shop_id, limit, page }: GetStaffsDto) {
+  async getStaffs({ shop_id, limit, page }: GetStaffsDto) {
     const startIndex = (page - 1) * limit;
     const endIndex = page * limit;
-    let staffs: Shop['staffs'] = [];
+    let staffs = await this.userService.getAllUsr();
     if (shop_id) {
-      staffs = this.shops.find((p) => p.id === Number(shop_id))?.staffs ?? [];
+      staffs = await this.userService.getAllStaff(shop_id);
     }
-    const results = staffs?.slice(startIndex, endIndex);
+    // const results = staffs?.limit( endIndex);
     const url = `/staffs?limit=${limit}`;
 
     return {
-      data: results,
-      ...paginate(staffs?.length, page, limit, results?.length, url),
+      data: staffs,
+      ...paginate(staffs?.length, page, limit, staffs?.length, url),
     };
   }
 

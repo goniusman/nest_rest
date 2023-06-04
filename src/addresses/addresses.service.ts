@@ -10,27 +10,27 @@ export class AddressesService {
 
   constructor(
     @InjectModel('Address')
-    private users: Model<Address>,
+    private _address: Model<Address>,
   ) {}
 
   async create(createAddressDto: CreateAddressDto) {
     
-    return 'This action adds a new address';
+    return await this._address.create(createAddressDto)
   }
 
-  findAll() {
-    return `This action returns all addresses`;
+  async findAll() {
+    return await this._address.find().populate('customer')
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} address`;
+  async findOne(id: string) {
+    return await this._address.findById(id).populate('customer')
   }
 
-  update(id: number, updateAddressDto: UpdateAddressDto) {
-    return `This action updates a #${id} address`;
+  async update(id: string, updateAddressDto: UpdateAddressDto) {
+    return await this._address.findByIdAndUpdate(id, updateAddressDto).populate('customer')
   }
 
-  remove(id: number) {
-    return [];
+  remove(id: string) {
+    return this._address.findByIdAndDelete(id)
   }
 }

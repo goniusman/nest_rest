@@ -18,7 +18,6 @@ const options = {
   keys: ['name'],
   threshold: 0.3,
 };
-const fuse = new Fuse(tags, options);
 
 @Injectable()
 export class TagsService {
@@ -53,27 +52,18 @@ export class TagsService {
 
     try {
       if (!page) page = 1;
-    let data: Tag[] = await this._tag.find();
-
-
-    // let tags : Tag[] = [];
-    // for (const tag of data) {
-    //   let { type_id, ...tagss} = tag
-    //   let type = this._typeService.findOne(type_id.toString())
-    //   tags.type = type
-    //   tags.push(tagss);
-    // }
-    // // return tags;
-
-
+    let data: Tag[] = await this._tag.find().populate('type');
+    const fuse = new Fuse(data, options);
 
 
     if (search) {
       const parseSearchParams = search.split(';');
       const searchText: any = [];
+      let searcValue: string;
       for (const searchParam of parseSearchParams) {
         const [key, value] = searchParam.split(':');
         // TODO: Temp Solution
+        searcValue = value
         if (key !== 'slug') {
           searchText.push({
             [key]: value,
@@ -86,6 +76,9 @@ export class TagsService {
           $and: searchText,
         })
         ?.map(({ item }) => item);
+
+
+        data = await this._tag.find({ "type.slug": searcValue}).populate('type').exec()
     }
 
     const url = `/tags?limit=${limit}`;

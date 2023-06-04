@@ -3,7 +3,7 @@ import { Attribute } from '../entities/attribute.entity';
 
 export class CreateAttributeDto extends PickType(Attribute, [
   'name',
-  'shop_id',
+  'shop',
   'language',
 ]) {
   values: AttributeValueDto[];

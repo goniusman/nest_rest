@@ -13,8 +13,8 @@ export class Attribute extends CoreEntity {
   @Prop({ required: false })   
   name: string;
 
-  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Shop', required: false })  
-  shop_id: Shop; 
+  // @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Shop', required: false })  
+  // shop_id: Shop; 
 
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Shop', required: false })   
   shop: Shop;
@@ -22,14 +22,14 @@ export class Attribute extends CoreEntity {
   @Prop({ required: false })   
   slug: string;
 
-  @Prop({ required: false, type: AttributeValue, default: [] })   
-  values: AttributeValue[] = [];
+  @Prop({ required: false, type: mongoose.Schema.Types.Array, default: [] })   
+  values: AttributeValue[];
 
   @Prop({ required: false })    
   language: string;
 
   @Prop({ required: false, default: ["en"] })    
-  translated_languages: string[] = [];
+  translated_languages: string[];
 
 }
 

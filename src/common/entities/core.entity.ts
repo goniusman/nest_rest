@@ -4,6 +4,26 @@ import { Type, Transform } from 'class-transformer';
 @Schema({timestamps:true})
 export class CoreEntity {
 
+
+  // constructor(sche: any) {
+  //     super(sche);
+  //     this.set('toJSON', {
+  //     virtuals: true,
+  //     transform: (doc, converted) => {
+  //         delete converted._id;
+  //     }
+  //     });
+  // }
+  // @Prop({
+  //   type: mongoose.Types.ObjectId,
+  //   required: true,
+  //   default: mongoose.Types.ObjectId,
+  // })
+  // nonce: mongoose.Types.ObjectId;
+
+
+
+
   @Transform(({ value }) => value.toString())
   // _id?: string;
   id?: number;
