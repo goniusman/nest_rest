@@ -53,6 +53,7 @@ import { CloudinaryModule } from './cloudinary/cloudinary.module';
     ConfigModule.forRoot({
       isGlobal: true,
       load: [config, database, mailer] 
+      
     }),
     // MongooseModule.forRoot(process.env.MONGODB_URI),
     // MongooseModule.forRoot('mongodb://<username>:<password>@localhost:27017',{dbName: 'studentdb'}),
@@ -63,7 +64,7 @@ import { CloudinaryModule } from './cloudinary/cloudinary.module';
         connection.plugin(require('mongoose-slug-generator'));
         return connection;
       }
-      
+       
     }),
     // MongooseModule.forFeature([{ name: 'User', schema: UserSchema }]),
     StripeModule.forRoot({

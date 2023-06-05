@@ -1,7 +1,7 @@
 
 import { HttpStatus, Injectable, NotAcceptableException, Req, UnauthorizedException, UseGuards } from '@nestjs/common';
 // import * as bcrypt from '@types/bcrypt'; 
-import * as bcrypt from 'bcrypt';  
+import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 
 import { UsersService } from '../users/users.service';
@@ -25,13 +25,14 @@ import { plainToClass } from 'class-transformer';
 // import { User } from 'src/users/entities/user.entity';
 import { User } from 'src/users/entities/user.entity';
 import usersJson from '@db/users.json';
-import {CommonHelper} from 'src/helper/commonHelper';
-import {InjectModel} from '@nestjs/mongoose';
-import {Model} from 'mongoose';
-import {CreateUserDto} from 'src/users/dto/create-user.dto';
-import {JwtAuthGuard} from './gurd/jwt-auth.guard';
+import { CommonHelper } from 'src/helper/commonHelper';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
+import { CreateUserDto } from 'src/users/dto/create-user.dto';
+import { JwtAuthGuard } from './gurd/jwt-auth.guard';
 import { ShopsService } from 'src/shops/shops.service';
 import { AnyARecord } from 'dns';
+import { LocalAuthGuard } from './gurd/local-auth.guard';
 const users = plainToClass(User, usersJson);
 
 @Injectable()
@@ -42,31 +43,33 @@ export class AuthService {
   constructor(
     // @InjectModel('User') private _user: Model<User>, 
     private usersService: UsersService,
-     private jwtService: JwtService,
+    private jwtService: JwtService,
     private shopService: ShopsService) { }
-    
+
 
   async register(createUserInput: CreateUserDto): Promise<any> {
-  // console.log(createUserInput);
+    // console.log(createUserInput);
 
 
-  let status : boolean  = true;
-  let message  = "Already registered"
-  let data: any = null;
-  let user: any = null; 
-  try {
- 
+    let status: boolean = true;
+    let message = "Already registered"
+    let data: any = null;
+    let user: any = null;
+    try {
+
       user = await this.usersService.create(createUserInput);
       // await userModel.save()
       status = true;
-      message = "Successfully Created User" 
+      message = "Successfully Created User"
       data = user
       // console.log(user);
- 
+
       const id = user?._id.toString()
       const permission = user?.permissions
-      const payload = { email: user.email, subid: id, permissions: permission,
-        name: user.name };
+      const payload = {
+        email: user.email, subid: id, permissions: permission,
+        name: user.name
+      };
       return {
         token: this.jwtService.sign(payload),
         permissions: permission,
@@ -74,8 +77,8 @@ export class AuthService {
       };
 
       // return this._commonHelper.respone(status, message, data);
-    
-  } catch (err) {
+
+    } catch (err) {
       // this.findAndDelete(userModel?._id);
       // status = false;
       // message = err.message;
@@ -85,24 +88,24 @@ export class AuthService {
         message: err.message,
         status: HttpStatus.BAD_REQUEST
       }
-  }
+    }
 
-return this._commonHelper.respone(status, message, data);
+    // return this._commonHelper.respone(status, message, data);
 
 
-  // const user: User = {
-  //   id: uuidv4(),
-  //   ...users[0],
-  //   ...createUserInput,
-  //   created_at: new Date(),
-  //   updated_at: new Date(),
-  // };
-  // this.users.push(user);
+    // const user: User = {
+    //   id: uuidv4(),
+    //   ...users[0],
+    //   ...createUserInput,
+    //   created_at: new Date(),
+    //   updated_at: new Date(),
+    // };
+    // this.users.push(user);
 
-  // return {
-  //   token: 'jwt token',
-  //   permissions: ['super_admin', 'customer'],
-  // };
+    // return {
+    //   token: 'jwt token',
+    //   permissions: ['super_admin', 'customer'],
+    // };
 
   }
 
@@ -111,65 +114,68 @@ return this._commonHelper.respone(status, message, data);
     // console.log(user); 
     if (!user) return null;
     const passwordValid = await bcrypt.compare(password, user.password)
-    return passwordValid;
-    // if (user && passwordValid) {
-    //     return user;
-    // }
-    // return null;
-  } 
+    // return passwordValid;
+    if (user && passwordValid) {
+      user.password = undefined;
+      return user;
+    }
+     throw new Error(`Invalid Credentials`);
+  }
 
   async validateUser(email: string): Promise<boolean> {
     const user = await this.usersService.findByEmail(email);
-  
+
     if (!user) {
-        return false;
-    }else{
+      return false;
+    } else {
       return true;
     }
 
-  }     
-                
+  }
+
+
+
   async login(body: any): Promise<any> {
 
     try {
-       const user = await this.usersService.findByEmail(body.email);
-       const ValidePassword = await this.validatePassword(user?.email , body.password);
-        if (!ValidePassword) {
-              throw new UnauthorizedException();
-          } else{
-            const id = user?._id.toString();
-            const permissions = user?.permissions
-            const payload = { email: user.email, subid: id, permissions: permissions,name: user.name};
-            return {
-                token: await this.jwtService.signAsync(payload),
-                permissions: permissions,
-                id: id
-            };
-          }
-       
+      const user = await this.usersService.findByEmail(body.email);
+      const ValidePassword = await this.validatePassword(user?.email, body.password);
+      if (!ValidePassword) {
+        throw new UnauthorizedException();
+      } else {
+        const id = user?._id.toString();
+        const permissions = user?.permissions
+        const payload = { email: user.email, subid: id, permissions: permissions, name: user.name };
+        return {
+          token: await this.jwtService.signAsync(payload),
+          permissions: permissions,
+          id: id
+        };
+      }
+
     } catch (error) {
       return {
         success: false,
         message: error.message
       };
     }
-   
+
   }
-  
+
   async token(user: any) {
-      const payload = { username: user.name, sub: user._id };
-      return {
-          access_token: this.jwtService.sign(payload),
-      };
+    const payload = { username: user.name, sub: user._id };
+    return {
+      access_token: this.jwtService.sign(payload),
+    };
   }
-  
+
   async getAllUsr() {
-      return this.usersService.getAllUsr()
+    return this.usersService.getAllUsr()
   }
 
-  
 
-  findAndDelete(id: string):any {
+
+  findAndDelete(id: string): any {
     return this.usersService.remove(id)
   }
 
@@ -183,30 +189,30 @@ return this._commonHelper.respone(status, message, data);
   //   };
   // }
 
-  async changePassword(email:string, 
+  async changePassword(email: string,
     changePasswordInput: ChangePasswordDto,
   ): Promise<CoreResponse> {
 
     try {
-        const validateUser = await this.validateUser(email);
+      const validateUser = await this.validateUser(email);
       if (!validateUser) {
         throw new Error("User Not Found")
       }
       const validatePassword = await this.validatePassword(email, changePasswordInput.oldPassword)
-      
-      if(!validatePassword){
+
+      if (!validatePassword) {
         throw new Error("Password did not match")
       }
 
       const updatePassword = await this.usersService.updatePassword(email, changePasswordInput.newPassword)
 
-      if(!updatePassword){
+      if (!updatePassword) {
         throw new Error("Password not Changed")
-      }else{
-          return {
-            success: true,
-            message: 'Password change successful',
-          };
+      } else {
+        return {
+          success: true,
+          message: 'Password change successful',
+        };
       }
     } catch (error) {
       return {
@@ -215,7 +221,7 @@ return this._commonHelper.respone(status, message, data);
         status: 403
       };
     }
-   
+
 
   }
 
@@ -302,49 +308,49 @@ return this._commonHelper.respone(status, message, data);
   //   return this.users.find((user) => user.id === getUserArgs.id);
   // }
 
-  async me(id:string = "645edc9c9f206888102d1782"):  Promise<any>  {
+  public async me(id: string = "645edc9c9f206888102d1782"): Promise<any> {
     // const id: string = "this is test id"
     try {
       const user = await this.usersService.getUser(id);
-        // const {password, ...result} = user._doc
-        // const ids = user?.shop_id;
-        // let managedshop: any = null
-        // if(ids) {
-        //     managedshop = await this.shopService.getShopById(ids)
-        //   //  user.shops.push(shop) ;
-        //   //  user.managed_shop = shop
-        // }
+      // const {password, ...result} = user._doc
+      // const ids = user?.shop_id;
+      // let managedshop: any = null
+      // if(ids) {
+      //     managedshop = await this.shopService.getShopById(ids)
+      //   //  user.shops.push(shop) ;
+      //   //  user.managed_shop = shop
+      // }
 
-        // let shops = []
+      // let shops = []
 
-        // for (const item of user.shops) {
-        //   shops.push(await this.shopService.getShopById(item)) 
-        // }
+      // for (const item of user.shops) {
+      //   shops.push(await this.shopService.getShopById(item)) 
+      // }
 
-        // user.anos = shops;
-        // console.log(shops);
+      // user.anos = shops;
+      // console.log(shops);
 
-        // Object.assign(user)
-        // let {_doc,  ...result} = user;
-        // const shops = await this.shopService.getShopById('646b0397286b0a9d91f39ca8');
+      // Object.assign(user)
+      // let {_doc,  ...result} = user;
+      // const shops = await this.shopService.getShopById('646b0397286b0a9d91f39ca8');
       //  console.log(shops);
-        const result = {
-          name: user.name,
-          email: user.email,
-          shops: user?.shops,
-          shop_id: user?.managed_shop?._id,
-          managed_shop: user?.managed_shop,
-          is_active: user.is_active,
-          address: user?.address,
-          profile: user?.profile,
-          orders: user?.orders
-        }
-        return user;
+      const result = {
+        name: user.name,
+        email: user.email,
+        shops: user?.shops,
+        shop_id: user?.managed_shop?._id,
+        managed_shop: user?.managed_shop,
+        is_active: user.is_active,
+        address: user?.address,
+        profile: user?.profile,
+        orders: user?.orders
+      }
+      return user;
 
     } catch (error) {
       console.log(error);
     }
-    
+
   }
 
   // me(): User {

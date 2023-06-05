@@ -63,12 +63,15 @@ export class UsersService {
     // console.log(NMAILER_NAME);
   // async create(createUserDto: CreateUserDto) {
     // return this.users[0];
-    let {password} = createUserDto
+
     const saltOrRounds = 10;
-    password = await bcrypt.hash(password, saltOrRounds);
-    createUserDto.password = password;
+    const hashPassword = await bcrypt.hash(createUserDto.password, saltOrRounds);
+    // createUserDto.password = password;
     // console.log(createUserDto);
-    const newStudent = await new this.users(createUserDto);
+    const newStudent = await new this.users({
+      ...createUserDto,
+       password: hashPassword
+      });
 
     return newStudent.save();
 
