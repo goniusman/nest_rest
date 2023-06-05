@@ -7,13 +7,16 @@ import {
   Param,
   Delete,
   Query,
+  UseInterceptors,
 } from '@nestjs/common';
 import { TaxesService } from './taxes.service';
 import { CreateTaxDto } from './dto/create-tax.dto';
 import { UpdateTaxDto } from './dto/update-tax.dto';
 import { GetTaxesDto } from './dto/get-taxes.dto';
+import { TransformInterceptor } from 'src/utils/Response.Interceptor';
 
 @Controller('taxes')
+// @UseInterceptors(TransformInterceptor)
 export class TaxesController {
   constructor(private readonly taxesService: TaxesService) {}
 

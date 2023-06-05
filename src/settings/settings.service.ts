@@ -30,7 +30,7 @@ export class SettingsService {
   }
 
   findAll() {
-    return this._setting.find({_id: "647c953c3e50a977804b0dd3"});
+    return this._setting.find();
   }
 
   async update(id, updateSettingDto) {

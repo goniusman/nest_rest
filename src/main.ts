@@ -1,12 +1,16 @@
 import { ValidationPipe } from '@nestjs/common';
-import { NestFactory } from '@nestjs/core';
+import { HttpAdapterHost, NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
-import session from 'express-session';
-import passport from 'passport';
-import {JwtAuthGuard} from './auth/gurd/jwt-auth.guard';
+// import session from 'express-session';
+// import passport from 'passport';
+// import {JwtAuthGuard} from './auth/gurd/jwt-auth.guard';
 // import {LocalAuthGuard} from './auth/gurd/local-auth.guard';
 // import {AuthGuard} from './auth/local/auth.guard';
+
+
+import { ExceptionsLoggerFilter } from './utils/Exeption/exceptionsLogger.filter';
+
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
@@ -25,8 +29,16 @@ async function bootstrap() {
   // app.use(passport.initialize());
   // app.use(passport.session());
 
+  ///// exception handler
+  // const { httpAdapter } = app.get(HttpAdapterHost);
+  // app.useGlobalFilters(new ExceptionsLoggerFilter(httpAdapter));
+
+  
   app.setGlobalPrefix('api');
+
+
   app.useGlobalPipes(new ValidationPipe());
+
   const config = new DocumentBuilder()
     .setTitle('Marvel')
     .setDescription('Marvel Mock API')

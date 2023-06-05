@@ -28,10 +28,11 @@ import { CreateUserDto } from './dto/create-user.dto';
 import {FileInterceptor} from '@nestjs/platform-express';
 import { CreateProfileDto } from './dto/create-profile.dto';
 import { UpdateProfileDto } from './dto/update-profile.dto';
-import { HasRoles } from 'src/auth/has-roles.decorator';
-import { Role } from 'src/auth/role.enum';
+import { HasRoles } from 'src/auth/gurd/has-roles.decorator';
+import { Role } from 'src/auth/gurd/role.enum';
 import { AuthGuard } from '@nestjs/passport';
-import { RolesGuard } from 'src/auth/roles.guard';
+import { RolesGuard } from 'src/auth/gurd/roles.guard';
+import { JwtAuthGuard } from 'src/auth/gurd/jwt-auth.guard';
 // import { IUser } from '../interface/user.interface';
 
 
@@ -69,9 +70,9 @@ export class UsersController {
 
 
 
-  @HasRoles(Role.CUSTOMER)
-  @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Get()
+  @HasRoles(Role.CUSTOMER, Role.STORE_OWNER)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   getAllUsers(@Query() query: any) {
     return this.usersService.getUsers(query);
   }

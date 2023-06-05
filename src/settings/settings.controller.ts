@@ -22,7 +22,7 @@ export class SettingsController {
   }
 
   @Get()
-  findAll(@Req() req: Request) {
+  findAll() {
     return this.settingsService.findAll();
   }
 

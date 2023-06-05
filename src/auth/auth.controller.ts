@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, HttpCode, HttpStatus, Param, Req, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, HttpCode, HttpStatus, Param, Req, Query, UseInterceptors } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { Request, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
@@ -19,16 +19,18 @@ import {
 } from './dto/create-auth.dto';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
 
-import { HasRoles } from './has-roles.decorator';
-import { Role } from './role.enum';
-import { RolesGuard } from './roles.guard';
-import { LocalAuthGuard } from './gurd/local-auth.guard'
+import { HasRoles } from './gurd/has-roles.decorator';
+import { Role } from './gurd/role.enum';
+import { RolesGuard } from './gurd/roles.guard';
+import { LocalAuthGuard } from './local/local.auth.guard'
 import { JwtAuthGuard } from './gurd/jwt-auth.guard'
 import { IGetUserAuthInfoRequest } from 'src/helper/typeDefinition';
 import { query } from 'express';
+import { TransformInterceptor } from 'src/utils/Response.Interceptor';
 
 
 @Controller()
+// @UseInterceptors(TransformInterceptor)
 export class AuthController {
   constructor(private readonly authService: AuthService) { }
 

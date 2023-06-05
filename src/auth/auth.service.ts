@@ -1,5 +1,5 @@
 
-import { HttpStatus, Injectable, NotAcceptableException, Req, UnauthorizedException, UseGuards } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, NotAcceptableException, Req, UnauthorizedException, UseGuards, UseInterceptors } from '@nestjs/common';
 // import * as bcrypt from '@types/bcrypt'; 
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
@@ -32,10 +32,12 @@ import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { JwtAuthGuard } from './gurd/jwt-auth.guard';
 import { ShopsService } from 'src/shops/shops.service';
 import { AnyARecord } from 'dns';
-import { LocalAuthGuard } from './gurd/local-auth.guard';
+import { LocalAuthGuard } from './local/local.auth.guard';
+import { TransformInterceptor } from 'src/utils/Response.Interceptor';
 const users = plainToClass(User, usersJson);
 
 @Injectable()
+// @UseInterceptors(TransformInterceptor)
 export class AuthService {
   private users: User[] = users;
   private readonly _commonHelper = new CommonHelper()
@@ -67,7 +69,7 @@ export class AuthService {
       const id = user?._id.toString()
       const permission = user?.permissions
       const payload = {
-        email: user.email, subid: id, permissions: permission,
+        email: user.email, id, permissions: permission,
         name: user.name
       };
       return {
@@ -119,7 +121,7 @@ export class AuthService {
       user.password = undefined;
       return user;
     }
-     throw new Error(`Invalid Credentials`);
+     throw new HttpException("Password Not Correct", HttpStatus.BAD_REQUEST) 
   }
 
   async validateUser(email: string): Promise<boolean> {
@@ -145,7 +147,7 @@ export class AuthService {
       } else {
         const id = user?._id.toString();
         const permissions = user?.permissions
-        const payload = { email: user.email, subid: id, permissions: permissions, name: user.name };
+        const payload = { email: user.email, id, permissions: permissions, name: user.name };
         return {
           token: await this.jwtService.signAsync(payload),
           permissions: permissions,
@@ -154,10 +156,7 @@ export class AuthService {
       }
 
     } catch (error) {
-      return {
-        success: false,
-        message: error.message
-      };
+      throw new HttpException("Execption sadfsda", HttpStatus.BAD_REQUEST)
     }
 
   }

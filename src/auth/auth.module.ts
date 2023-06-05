@@ -5,14 +5,14 @@ import { MongooseModule } from "@nestjs/mongoose"
 
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
-import { JwtStrategy } from './jwt.strategy';
+import { JwtStrategy } from './gurd/jwt.strategy';
 import { UsersModule } from "../users/users.module";
 // import { UsersService } from "../users/users.service";
 import { UserSchema } from "../users/entities/user.entity"
 import { LocalStrategy } from './local/local.strategy';
 // import { SessionSerializer } from "./local/session.serializer"
 // import {CommonModule} from 'src/common/common.module';
-import {jwtConstants} from './constants'
+import {jwtConstants} from './gurd/constants'
 import { ShopsModule } from 'src/shops/shops.module';
 
 @Module({
