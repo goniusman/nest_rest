@@ -30,18 +30,15 @@ export class SettingsService {
   }
 
   findAll() {
-    return this.settings;
+    return this._setting.find({_id: "647c953c3e50a977804b0dd3"});
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} setting`;
-  }
-
-  update(id: number, updateSettingDto: UpdateSettingDto) {
-    return this._setting.findByIdAndUpdate(id, updateSettingDto)
+  async update(id, updateSettingDto) {
+    return await this._setting.findByIdAndUpdate(id, updateSettingDto)
   }
 
   remove(id: number) {
     return `This action removes a #${id} setting`;
   }
+
 }

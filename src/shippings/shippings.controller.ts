@@ -29,7 +29,7 @@ export class ShippingsController {
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.shippingsService.findOne(+id);
+    return this.shippingsService.findOne(id);
   }
 
   @Put(':id')
@@ -37,11 +37,11 @@ export class ShippingsController {
     @Param('id') id: string,
     @Body() updateShippingDto: UpdateShippingDto,
   ) {
-    return this.shippingsService.update(+id, updateShippingDto);
+    return this.shippingsService.update(id, updateShippingDto);
   }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.shippingsService.remove(+id);
+    return this.shippingsService.remove(id);
   }
 }

@@ -1,8 +1,10 @@
 import {Prop, Schema, SchemaFactory} from '@nestjs/mongoose';
 import mongoose from 'mongoose';
+import {type} from 'os';
 import { Attachment } from 'src/common/entities/attachment.entity';
 import { CoreEntity } from 'src/common/entities/core.entity';
 
+export type SettingDocument = Setting & Document
 
 
 export class SettingsOptions extends mongoose.Document{
@@ -76,7 +78,7 @@ export class Location extends mongoose.Document  {
 }
 
 @Schema({timestamps: true})
-export class Setting extends CoreEntity {
+export class Setting  {
 
   @Prop({type: SettingsOptions, required: false})
   options: SettingsOptions;
