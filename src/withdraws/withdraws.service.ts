@@ -42,7 +42,7 @@ export class WithdrawsService {
 
     const startIndex = (page - 1) * limit;
     const endIndex = page * limit;
-    let data: Withdraw[] = await this._withdraw.find();
+    let data: Withdraw[] = await this._withdraw.find().populate('shop_id');
     // if (status) {
     //   data = fuse.search(status)?.map(({ item }) => item);
     // }
@@ -60,15 +60,15 @@ export class WithdrawsService {
     };
   }
 
-  async findOne(id: number) {
+  async findOne(id: string) {
     return await this._withdraw.findById(id);
   }
 
-  async update(id: number, updateWithdrawDto: ApproveWithdrawDto) {
+  async update(id: string, updateWithdrawDto: ApproveWithdrawDto) {
     return await this._withdraw.findByIdAndUpdate(id, updateWithdrawDto);
   }
 
-  remove(id: number) {
+  remove(id: string) {
     return this._withdraw.findByIdAndDelete(id)
   }
 }

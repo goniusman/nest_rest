@@ -35,17 +35,17 @@ export class ShippingsService {
 
   getShippings({}: GetShippingsDto) {
     return this._shiping.find();
-  }
+  } 
 
-  findOne(id: number) {
+  findOne(id: string) {
     return this._shiping.findById(id);
   }
 
-  update(id: number, updateShippingDto: UpdateShippingDto) {
+  update(id: string, updateShippingDto: UpdateShippingDto) {
     return this._shiping.findByIdAndUpdate(id, updateShippingDto)
   }
 
-  remove(id: number) {
+  remove(id: string) {
     return this._shiping.findByIdAndDelete(id)
   }
 }

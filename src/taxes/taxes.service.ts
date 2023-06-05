@@ -35,20 +35,20 @@ export class TaxesService {
 
   findAll() {
     const taxes = this._tax.find();
-    const te = "dsdf"
-    console.log(te);
+    // const te = "dsdf"
+    // console.log(te);
     return taxes;
   }
 
-  async findOne(id: number) {
+  async findOne(id: string) {
     return await this._tax.findById(id);
   }
 
-  update(id: number, updateTaxDto: UpdateTaxDto) {
+  update(id: string, updateTaxDto: UpdateTaxDto) {
     return this._tax.findByIdAndUpdate(id, updateTaxDto);
   }
 
-  remove(id: number) {
+  remove(id: string) {
     return this._tax.findByIdAndDelete(id)
   }
 }

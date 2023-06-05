@@ -28,18 +28,18 @@ export class WithdrawsController {
 
   @Get(':id')
   withdraw(@Param('id') id: string) {
-    return this.withdrawsService.findOne(+id);
+    return this.withdrawsService.findOne(id);
   }
   @Post(':id/approve')
   approveWithdraw(
     @Param('id') id: string,
     @Body() updateWithdrawDto: ApproveWithdrawDto,
   ) {
-    return this.withdrawsService.update(+id, updateWithdrawDto);
+    return this.withdrawsService.update(id, updateWithdrawDto);
   }
 
   @Delete(':id')
-  deleteWithdraw(@Param('id') id: number) {
-    return this.withdrawsService.remove(+id);
+  deleteWithdraw(@Param('id') id: string) {
+    return this.withdrawsService.remove(id);
   }
 }

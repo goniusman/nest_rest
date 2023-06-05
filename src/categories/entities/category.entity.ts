@@ -7,7 +7,7 @@ import { Product } from 'src/products/entities/product.entity';
 import { Type } from 'src/types/entities/type.entity';
 
 @Schema({ timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' }})
-export class Category {
+export class Category extends CoreEntity {
 
   @Prop({required: false, type:Number})
   id: number;
