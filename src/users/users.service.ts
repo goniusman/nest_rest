@@ -56,7 +56,7 @@ export class UsersService {
 
   // @InjectModel('Student') private studentModel:Model<IStudent>
 
-  async create(createUserDto): Promise<any> {
+  async create(createUserDto: CreateUserDto): Promise<any> {
 
     ////////
     // const NMAILER_NAME = this.configService.get<string>('NMAILER_USER_NAME')
@@ -64,16 +64,17 @@ export class UsersService {
   // async create(createUserDto: CreateUserDto) {
     // return this.users[0];
 
-    const saltOrRounds = 10;
+   const saltOrRounds = 10;
     const hashPassword = await bcrypt.hash(createUserDto.password, saltOrRounds);
-    // createUserDto.password = password;
-    // console.log(createUserDto);
+
     const newStudent = await new this.users({
       ...createUserDto,
        password: hashPassword
       });
 
     return newStudent.save();
+
+   
 
     //  return {
     //   msg: "user created successfully",
@@ -154,7 +155,8 @@ export class UsersService {
     // return this.users.find((user) => user._id === id);
 
     // return await this.users.findById(id).exec();
-    const user = await (await this.users.findOne({_id: id})).populate('shops');
+    const user = (await (await (await this.users.findOne({_id: id})).populate('shops')).populate('managed_shop')).populate('shop_id')
+    
     return user;
 
   } 

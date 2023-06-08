@@ -15,32 +15,32 @@ export class CreateCategoryDto extends PickType(Category, [
   'language',
 ]) {
 
-  @IsString()
-  @IsNotEmpty()
-  @ApiProperty({ required: true, type: String})
-  name: string;
-
+  // @IsString()
   // @IsNotEmpty()
-  // @ApiProperty({ required: false, type: String})
-  // slug?: string;
+  // @ApiProperty({ required: true, type: String})
+  // name: string;
 
-  // @IsNotEmpty()
-  @ApiProperty({type: Category})  
-  parent?: Category;
+  // // @IsNotEmpty()
+  // // @ApiProperty({ required: false, type: String})
+  // // slug?: string;
 
-  // @ApiProperty({type: [{type: Category}], default:[]})
-  children?: Category[] = []; 
+  // // @IsNotEmpty()
+  // @ApiProperty({type: Category})  
+  // parent?: Category;
 
-  @ApiProperty({required: false})
-  details?: string;
+  // // @ApiProperty({type: [{type: Category}], default:[]})
+  // children?: Category[] = []; 
 
-  // @ApiProperty({required: false, type:Attachment })  
-  image?: Attachment;
+  // @ApiProperty({required: false})
+  // details?: string;
 
-  // @ApiProperty({required: false, type:Product, default:[] })  
-  products?: Product[] = [];
+  // // @ApiProperty({required: false, type:Attachment })  
+  // image?: Attachment;
 
-  // @ApiProperty({required: false, type:String })  
-  icon?: string;
+  // // @ApiProperty({required: false, type:Product, default:[] })  
+  // products?: Product[] = [];
+
+  // // @ApiProperty({required: false, type:String })  
+  // icon?: string;
 
 }

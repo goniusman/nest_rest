@@ -12,5 +12,6 @@ import {AuthorSchema} from './entities/author.entity';
   ],
   controllers: [AuthorsController, TopAuthors],
   providers: [AuthorsService],
+  exports: [AuthorsService]
 })
 export class AuthorsModule {}

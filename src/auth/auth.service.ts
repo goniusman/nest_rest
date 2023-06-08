@@ -1,5 +1,5 @@
 
-import { HttpException, HttpStatus, Injectable, NotAcceptableException, Req, UnauthorizedException, UseGuards, UseInterceptors } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, NotAcceptableException, NotFoundException, Req, UnauthorizedException, UseGuards, UseInterceptors } from '@nestjs/common';
 // import * as bcrypt from '@types/bcrypt'; 
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
@@ -33,7 +33,7 @@ import { JwtAuthGuard } from './gurd/jwt-auth.guard';
 import { ShopsService } from 'src/shops/shops.service';
 import { AnyARecord } from 'dns';
 import { LocalAuthGuard } from './local/local.auth.guard';
-import { TransformInterceptor } from 'src/utils/Response.Interceptor';
+// import { TransformInterceptor } from 'src/utils/Response.Interceptor';
 const users = plainToClass(User, usersJson);
 
 @Injectable()
@@ -50,22 +50,10 @@ export class AuthService {
 
 
   async register(createUserInput: CreateUserDto): Promise<any> {
-    // console.log(createUserInput);
 
-
-    let status: boolean = true;
-    let message = "Already registered"
-    let data: any = null;
-    let user: any = null;
     try {
 
-      user = await this.usersService.create(createUserInput);
-      // await userModel.save()
-      status = true;
-      message = "Successfully Created User"
-      data = user
-      // console.log(user);
-
+      const user = await this.usersService.create(createUserInput);
       const id = user?._id.toString()
       const permission = user?.permissions
       const payload = {
@@ -78,7 +66,6 @@ export class AuthService {
         id: id,
       };
 
-      // return this._commonHelper.respone(status, message, data);
 
     } catch (err) {
       // this.findAndDelete(userModel?._id);
@@ -86,10 +73,11 @@ export class AuthService {
       // message = err.message;
       // data = err;
       // return this._commonHelper.respone(status, message, data);
-      return {
-        message: err.message,
-        status: HttpStatus.BAD_REQUEST
-      }
+      // return {
+      //   message: err.message,
+      //   status: HttpStatus.BAD_REQUEST
+      // }
+      throw new HttpException(err.message, HttpStatus.BAD_REQUEST)
     }
 
     // return this._commonHelper.respone(status, message, data);
@@ -114,14 +102,14 @@ export class AuthService {
   async validatePassword(email: string, password: string): Promise<any> {
     const user = await this.usersService.findByEmail(email);
     // console.log(user); 
-    if (!user) return null;
+    if (!user) throw new NotFoundException("User not found", { cause: new Error(), description: 'There are no user. please register!' });
     const passwordValid = await bcrypt.compare(password, user.password)
     // return passwordValid;
     if (user && passwordValid) {
       user.password = undefined;
       return user;
     }
-     throw new HttpException("Password Not Correct", HttpStatus.BAD_REQUEST) 
+    throw new HttpException("Password Not Correct", HttpStatus.BAD_REQUEST)
   }
 
   async validateUser(email: string): Promise<boolean> {
@@ -156,7 +144,7 @@ export class AuthService {
       }
 
     } catch (error) {
-      throw new HttpException("Execption sadfsda", HttpStatus.BAD_REQUEST)
+      throw new HttpException(error.message, HttpStatus.BAD_REQUEST)
     }
 
   }
@@ -334,17 +322,19 @@ export class AuthService {
       // const shops = await this.shopService.getShopById('646b0397286b0a9d91f39ca8');
       //  console.log(shops);
       const result = {
+        _id: user._id.toString(),
         name: user.name,
         email: user.email,
         shops: user?.shops,
-        shop_id: user?.managed_shop?._id,
+        shop_id: user?.shop_id?._id,
         managed_shop: user?.managed_shop,
         is_active: user.is_active,
         address: user?.address,
         profile: user?.profile,
-        orders: user?.orders
+        orders: user?.orders,
+
       }
-      return user;
+      return result;
 
     } catch (error) {
       console.log(error);

@@ -9,6 +9,8 @@ import { Type } from 'src/types/entities/type.entity';
 import { Review } from '../../reviews/entities/review.entity';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose from 'mongoose';
+import { Author } from 'src/authors/entities/author.entity';
+import { Manufacturer } from 'src/manufacturers/entities/manufacturer.entity';
 
 enum ProductStatus {
   PUBLISH = 'publish',
@@ -58,8 +60,11 @@ export class Product extends CoreEntity {
   @Prop({  type: mongoose.Schema.Types.ObjectId, ref: 'Type' , required: false})
   type_id: Type;
 
-  // @Prop({ required: false, type: mongoose.Schema.Types.ObjectId, ref: 'Type' })
-  // type_id: number;
+  @Prop({ required: false, type: mongoose.Schema.Types.ObjectId, ref: 'Author' })
+  author_id: Author; 
+  
+  @Prop({ required: false, type: mongoose.Schema.Types.ObjectId, ref: 'Manufacturer' })
+  manufacturer_id: Manufacturer;
 
   @Prop({ required: false, type: String , enum: ProductType })
   product_type: ProductType;
@@ -82,11 +87,11 @@ export class Product extends CoreEntity {
   @Prop({type: [{type: mongoose.Schema.Types.ObjectId, ref: 'Order'}], default: []})
   orders?: Order[];
 
-  @Prop({  type: mongoose.Schema.Types.ObjectId, ref: 'Shop' , required: false})
-  shop: Shop;
+  // @Prop({  type: mongoose.Schema.Types.ObjectId, ref: 'Shop' , required: false})
+  // shop: Shop;
 
   @Prop({ required: false, type: mongoose.Schema.Types.ObjectId, ref: 'Shop' })
-  shop_id: string;
+  shop_id: Shop;
 
   @Prop({type: [{type: mongoose.Schema.Types.ObjectId, ref: 'Product'}], default: [], required:false})
   related_products?: Product[] = [];

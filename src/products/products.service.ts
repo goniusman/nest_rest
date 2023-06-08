@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { plainToClass } from 'class-transformer';
 import { CreateProductDto } from './dto/create-product.dto';
 import { GetProductsDto, ProductPaginator } from './dto/get-products.dto';
@@ -8,8 +8,10 @@ import { paginate } from 'src/common/pagination/paginate';
 import productsJson from '@db/products.json';
 import Fuse from 'fuse.js';
 import { GetPopularProductsDto } from './dto/get-popular-products.dto';
-import {InjectModel} from '@nestjs/mongoose';
-import {Model} from 'mongoose';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
+import { AuthorsService } from 'src/authors/authors.service';
+import { ManufacturersService } from 'src/manufacturers/manufacturers.service';
 
 const products = plainToClass(Product, productsJson);
 
@@ -32,10 +34,33 @@ const options = {
 export class ProductsService {
   private products: any = products;
 
-  constructor(@InjectModel('Product') private _product : Model<Product>) {}
+  constructor(
+    @InjectModel('Product') private _product: Model<Product>,
+    private authorService: AuthorsService,
+    private manufacturerService: ManufacturersService
 
-  create(createProductDto: CreateProductDto) {
-    return this._product.create(createProductDto)
+  ) { }
+
+  async create(createProductDto: CreateProductDto) {
+    try {
+
+
+      const createdProduct = await this._product.create(createProductDto)
+
+      if (createdProduct?._id) {
+        const author = await this.authorService.getAuthorById(createProductDto.author_id);
+        author.products_count.push(createdProduct._id.toString())
+        this.authorService.updateAuthor(author?._id.toString(), author)
+
+        const manufacturer = await this.manufacturerService.getManufacturesById(createProductDto.manufacturer_id);
+        manufacturer.products_count.push(createdProduct._id.toString())
+
+        this.manufacturerService.update(manufacturer?._id.toString(), manufacturer)
+      }
+
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+    }
   }
 
   async getProducts({ limit, page, search }: GetProductsDto): Promise<ProductPaginator> {
@@ -44,7 +69,7 @@ export class ProductsService {
     const startIndex = (page - 1) * limit;
     const endIndex = page * limit;
     // let data: Product[] = this.products;
-    let data: Product[] = await this._product.find();
+    let data: Product[] = await this._product.find().populate('shop_id').populate('type_id').populate('manufacturer_id');
     const fuse = new Fuse(data, options);
     if (search) {
       const parseSearchParams = search.split(';');
@@ -58,7 +83,7 @@ export class ProductsService {
           });
         }
 
-      
+
       }
 
       data = fuse
@@ -66,25 +91,28 @@ export class ProductsService {
           $and: searchText,
         })
         ?.map(({ item }) => item);
-    
-      data = await this._product.find({shop_id: searchText[0].shop_id}).populate('type_id')
 
+      data = await this._product.find({ shop_id: searchText[0].shop_id }).populate('type_id').populate('shop_id').populate('manufacturer_id')
     }
 
     const results = data.slice(startIndex, endIndex);
     const url = `/products?search=${search}&limit=${limit}`;
     return {
       data: results,
-      ...paginate(data.length, page, limit, results.length, url),
+      ...paginate(data.length, page, limit, data.length, url),
     };
   }
 
-  async getProductBySlug(slug: string): Promise< Product > {
+  async getProductBySlug(slug: string): Promise<Product> {
     // const product = this.products.find((p) => p.slug === slug);
-    const test = await this._product.findOne({slug:slug})
+    const test = await this._product.findOne({ slug: slug }).populate('shop_id').populate('type_id');
     // let product
     // if(test && test?._doc){
+<<<<<<< Updated upstream
      const product = await test?._doc
+=======
+    let product = await test?._doc
+>>>>>>> Stashed changes
     // }
 
     // const related_products = this.products
@@ -93,18 +121,23 @@ export class ProductsService {
     const related_products = await this._product.find({
       type_id: product?.type_id
     })
-    
+
     // return product;
 
     return {
-     ...product,
-     related_products
+      ...product,
+      related_products
     };
-    
+
   }
 
+<<<<<<< Updated upstream
   async getPopularProducts({ limit, type_slug }: GetPopularProductsDto): Promise< Product[]> {
     const data: any = await this._product.find({type: {slug: type_slug}}).populate('type_id').limit(limit);
+=======
+  async getPopularProducts({ limit, type_slug }: GetPopularProductsDto): Promise<Product[]> {
+    let data: any = await this._product.find({ type: { slug: type_slug } }).populate('type_id').limit(limit);
+>>>>>>> Stashed changes
     // const fuse = new Fuse(data, options);
     // if (type_slug) {
     //   data = fuse.search(type_slug)?.map(({ item }) => item);
@@ -119,4 +152,6 @@ export class ProductsService {
   remove(id: string) {
     return this._product.findByIdAndDelete(id);
   }
+
+
 }

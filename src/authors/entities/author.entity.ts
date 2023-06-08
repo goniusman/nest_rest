@@ -2,9 +2,19 @@ import { CoreEntity } from '../../common/entities/core.entity';
 import { Attachment } from '../../common/entities/attachment.entity';
 import { ShopSocials } from '../../settings/entities/setting.entity';
 import {Prop, Schema, SchemaFactory} from '@nestjs/mongoose';
+import { Product } from 'src/products/entities/product.entity';
+import mongoose from 'mongoose';
+
+
+export type AuthorDocument = Author & Document
+
 
 @Schema({timestamps: true})
 export class Author extends CoreEntity {
+  
+   _id(_id: any, author: Author) {
+    throw new Error('Method not implemented.');
+  }
 
   @Prop({type: String, required: false,})
   bio?: string;
@@ -30,8 +40,8 @@ export class Author extends CoreEntity {
   @Prop({type: String, required: true,})
   name: string;
 
-  @Prop({type: Number, required: false,})
-  products_count?: number;
+  @Prop({type: [{type:mongoose.Schema.Types.ObjectId, ref:'Product'}], required: false, default: []})
+  products_count?: string[] = [];
 
   @Prop({type: String, required: false,})
   quote?: string;
@@ -45,7 +55,7 @@ export class Author extends CoreEntity {
   @Prop({type: String, required: false,})
   language?: string;
 
-  @Prop({type: [String], required: false,})
+  @Prop({type: [String], required: false, default:['en']})
   translated_languages?: string[] = ["en"];
 }
 

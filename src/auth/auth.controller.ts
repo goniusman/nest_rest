@@ -26,7 +26,7 @@ import { LocalAuthGuard } from './local/local.auth.guard'
 import { JwtAuthGuard } from './gurd/jwt-auth.guard'
 import { IGetUserAuthInfoRequest } from 'src/helper/typeDefinition';
 import { query } from 'express';
-import { TransformInterceptor } from 'src/utils/Response.Interceptor';
+// import { TransformInterceptor } from 'src/utils/Response.Interceptor';
 
 
 @Controller()

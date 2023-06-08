@@ -25,7 +25,7 @@ export class CoreEntity {
 
 
   @Transform(({ value }) => value.toString())
-  // _id?: string;
+  // _id?: any;
   id?: number;
   
   @Prop({type: Date, required: false})

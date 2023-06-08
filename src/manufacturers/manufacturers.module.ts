@@ -15,5 +15,6 @@ import {ManufacturerSchema} from './entities/manufacturer.entity';
   ],
   controllers: [ManufacturersController, TopManufacturersController],
   providers: [ManufacturersService],
+  exports: [ManufacturersService]
 })
 export class ManufacturersModule {}

@@ -46,7 +46,7 @@ export class ManufacturersController {
     @Param('id') id: string,
     @Body() updateManufacturerDto: UpdateManufacturerDto,
   ) {
-    return this.manufacturersService.update(+id, updateManufacturerDto);
+    return this.manufacturersService.update(id, updateManufacturerDto);
   }
 
   @Delete(':id')

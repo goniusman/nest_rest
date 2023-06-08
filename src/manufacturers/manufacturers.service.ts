@@ -85,9 +85,13 @@ export class ManufacturersService {
 
   async getManufacturesBySlug(slug: string): Promise<Manufacturer> {
     return await this._manufacturer.findOne({slug});
+  } 
+  
+  async getManufacturesById(id: any): Promise<Manufacturer> {
+    return await this._manufacturer.findById(id);
   }
 
-  update(id: number, updateManufacturesDto: UpdateManufacturerDto) {
+  update(id: string, updateManufacturesDto: UpdateManufacturerDto) {
     const manufacturer = this._manufacturer.findByIdAndUpdate(id, updateManufacturesDto);
 
     // Update author

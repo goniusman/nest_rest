@@ -30,6 +30,6 @@ export enum Permission {
 
 export class CreateUserDto extends PickType(User, ['email', 'password']) {
   name?: string; 
-  permissions: Permission[] = [Permission.CUSTOMER];
+  permissions: any;
   shop_id?: string;
 }

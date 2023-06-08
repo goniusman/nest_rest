@@ -84,7 +84,7 @@ export class TagsService {
     const url = `/tags?limit=${limit}`;
     return {
       data,
-      ...paginate(this.tags.length, page, limit, this.tags.length, url),
+      ...paginate(data.length, page, limit, data.length, url),
     };
     } catch (error) {
       console.log(error);

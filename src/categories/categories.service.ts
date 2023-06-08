@@ -162,7 +162,7 @@ export class CategoriesService {
     const url = `/categories?search=${search}&limit=${limit}&parent=${parent}`;
     return {
       data: results,
-      ...paginate(data.length, page, limit, results.length, url),
+      ...paginate(data.length, page, limit, data.length, url),
     };
   }
 

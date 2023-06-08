@@ -39,14 +39,14 @@ export class User extends CoreEntity {
   @Prop({ required: true, type: String, unique: true })
   email: string;
 
-  @Prop({ required: true, type: String }) 
+  @Prop({ required: true, type: String, minlength: 6 }) 
   @Exclude()
   password: string;
 
   @Prop({ required: false, type: Number })
   email_verified_at: number; 
 
-  @Prop({ required: true, type: [String], enum: Permission, default: [] }) 
+  @Prop({ required: true, type: [String], enum: Permission, default: [Permission.CUSTOMER] }) 
   permissions: Permission[] = [];
 
   @Prop({ required: false, type: Profile, default: {}})

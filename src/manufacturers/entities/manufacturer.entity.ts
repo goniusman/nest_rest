@@ -7,6 +7,11 @@ import mongoose from 'mongoose';
 
 @Schema({timestamps:true})
 export class Manufacturer extends CoreEntity {
+  // [x: string]: any;
+
+  _id(_id: any, manufacturer: Manufacturer) {
+    throw new Error('Method not implemented.');
+  }
 
   @Prop({type: Attachment, required:false})
   cover_image?: Attachment;
@@ -23,8 +28,8 @@ export class Manufacturer extends CoreEntity {
   @Prop({type: String, required:true})
   name: string;
 
-  @Prop({type: Number, required:false})
-  products_count?: number;
+  @Prop({type: [String], required:false})
+  products_count?: string[];
 
   @Prop({type: String, required:false, slug: 'name'})
   slug?: string;
