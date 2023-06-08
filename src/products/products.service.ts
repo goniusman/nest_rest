@@ -84,7 +84,7 @@ export class ProductsService {
     const test = await this._product.findOne({slug:slug})
     // let product
     // if(test && test?._doc){
-     let product = await test?._doc
+     const product = await test?._doc
     // }
 
     // const related_products = this.products
@@ -104,7 +104,7 @@ export class ProductsService {
   }
 
   async getPopularProducts({ limit, type_slug }: GetPopularProductsDto): Promise< Product[]> {
-    let data: any = await this._product.find({type: {slug: type_slug}}).populate('type_id').limit(limit);
+    const data: any = await this._product.find({type: {slug: type_slug}}).populate('type_id').limit(limit);
     // const fuse = new Fuse(data, options);
     // if (type_slug) {
     //   data = fuse.search(type_slug)?.map(({ item }) => item);
