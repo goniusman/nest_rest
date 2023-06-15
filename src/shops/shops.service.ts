@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { plainToClass } from 'class-transformer';
 import { CreateShopDto } from './dto/create-shop.dto';
 import { UpdateShopDto } from './dto/update-shop.dto';
@@ -11,7 +11,7 @@ import { GetStaffsDto } from './dto/get-staffs.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { UsersService } from 'src/users/users.service';
-import {CreateUserDto, Permission} from 'src/users/dto/create-user.dto';
+import { CreateUserDto, Permission } from 'src/users/dto/create-user.dto';
 
 const shops = plainToClass(Shop, shopsJson);
 const options = {
@@ -25,10 +25,10 @@ export class ShopsService {
   private shops: Shop[] = shops;
 
   constructor(
-    @InjectModel('Shop') private shop : Model<Shop>,
+    @InjectModel('Shop') private _shop: Model<Shop>,
     private userService: UsersService
-  ) {}
-  
+  ) { }
+
   async create(createShopDto: CreateShopDto): Promise<any> {
 
     try {
@@ -36,27 +36,45 @@ export class ShopsService {
       // const user = await this.userService.getUser(createShopDto.owner_id)
       // createShopDto.owner = user
       // createShopDto.slug = createShopDto.name
-      const shopCreated = await this.shop.create(createShopDto);
+      const shopCreated = await this._shop.create(createShopDto);
       // user.shops.push(shopCreated._id)
       const updateShop = await this.userService.updateShop(createShopDto.owner_id, shopCreated._id)
       if (updateShop) {
-          return shopCreated;
+        return shopCreated;
       }
 
 
     } catch (error) {
       console.log(error);
     }
-   
+
   }
 
-  async createStaff(staff: CreateUserDto){
-    staff.permissions = [Permission.STAFF]
-    return await this.userService.create(staff)
+  async createStaff(staff: CreateUserDto) {
+    try {
+
+      staff.permissions = [Permission.STAFF]
+      staff.managed_shop = staff.shop_id;
+      const createdStaff = await this.userService.create(staff)
+
+      const shop = await this.getShopById(staff.shop_id).exec()
+      shop.staffs.push(createdStaff._id)
+      await this.update(shop._id.toString(), shop)
+      
+      return createdStaff
+
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.BAD_REQUEST)
+    }
+
   }
 
   async getShops({ search, limit, page }: GetShopsDto) {
-   
+
+
+    // this._shop.aggregate([{ $lookup: {
+    //   from: 
+    // }}])
 
 
     if (!page) page = 1;
@@ -64,8 +82,7 @@ export class ShopsService {
     const startIndex = (page - 1) * limit;
     const endIndex = page * limit;
 
-    
-    let data: Shop[] = await this.shop.find().populate('owner_id');
+    let data: Shop[] = await this._shop.find().populate('owner_id');
     // console.log(data);
     const fuse = new Fuse(data, options);
     if (search) {
@@ -81,9 +98,9 @@ export class ShopsService {
     // }
 
 
-for (const item of data) {
-  // const owner = await this.userService.findById(item.owner_id)
-}
+    for (const item of data) {
+      // const owner = await this.userService.findById(item.owner_id)
+    }
 
 
     const results = data.slice(startIndex, endIndex);
@@ -111,42 +128,40 @@ for (const item of data) {
     };
   }
 
-  async getShop(slug: string): Promise< any> {
-    return await this.shop.findOne({slug});
+  async getShop(slug: string): Promise<any> {
+    return await this._shop.findOne({ slug });
   }
 
-   getShopById(id: any){
+  getShopById(id: any) {
     // console.log(id);
-    return  this.shop.findById(id);
+    return this._shop.findById(id);
   }
 
 
   async update(id: string, updateShopDto: UpdateShopDto) {
-    return await this.shop.findByIdAndUpdate(id, updateShopDto);
+    return await this._shop.findByIdAndUpdate(id, updateShopDto);
   }
 
-  approve(id: string) {
-    return `This action removes a #${id} shop`;
-  }
 
-  remove(id: string) {
-    return `This action removes a #${id} shop`;
+  async remove(id: string) {
+    return await this._shop.findByIdAndDelete(id);
   }
 
   async disapproveShop(id: any) {
-    const shop = await this.shop.findById(id);
-    // shop.ApproveShop.admin_commission_rate = approveSho.admin_commission_rate;
+    const shop = await this._shop.findById(id);
+    // _shop.balance.admin_commission_rate = approveSho.admin_commission_rate;
     shop.is_active = false;
-    await this.shop.findByIdAndUpdate(id, shop);
+    await this._shop.findByIdAndUpdate(id, shop);
     return shop;
   }
 
   async approveShop(approveSho: any) {
-    const shop = await this.shop.findById(approveSho.id);
-    shop.admin_commission_rate = approveSho.admin_commission_rate;
-    // shop.ApproveShop.id = approveSho.id;
+    const shop = await this._shop.findById(approveSho.id);
+    shop.balance.admin_commission_rate = approveSho.admin_commission_rate;
+    // _shop.admin_commission_rate = approveSho.admin_commission_rate;
+    // _shop.ApproveShop.id = approveSho.id;
     shop.is_active = true;
-    await this.shop.findByIdAndUpdate(approveSho.id, shop);
+    await this._shop.findByIdAndUpdate(approveSho.id, shop);
     return shop;
   }
 

@@ -34,8 +34,8 @@ export class Tag extends CoreEntity {
   // @Prop({type: mongoose.Schema.Types.ObjectId, ref: 'Type', required: false})
   // type_id: Type;
 
-  @Prop({type: [{type: mongoose.Schema.Types.ObjectId, ref: 'Product'}], required: false, default:[]})
-  products: Product[] = [];
+  // @Prop({type: [{type: mongoose.Schema.Types.ObjectId, ref: 'Product'}], required: false, default:[]})
+  // products: Product[] = [];
 
   @Prop({type: String, required: false})
   language: string;

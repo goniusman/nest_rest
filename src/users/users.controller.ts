@@ -67,7 +67,7 @@ export class UsersController {
     req.session.destroy();
     return { msg: 'The user session has ended' }
   }
-
+ 
 
 
   @Get()

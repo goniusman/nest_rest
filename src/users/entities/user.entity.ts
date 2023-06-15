@@ -55,8 +55,8 @@ export class User extends CoreEntity {
   @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Shop' }], required: false, default: [] })
   shops?: Shop[];
 
-  @Prop({ type:  mongoose.Schema.Types.ObjectId, ref: 'Shop', required: false })
-  shop_id?: Shop;
+  // @Prop({ type:  mongoose.Schema.Types.ObjectId, ref: 'Shop', required: false })
+  // shop_id?: Shop;
 
   @Prop({  type: mongoose.Schema.Types.ObjectId, ref: 'Shop' , required: false})
   managed_shop?: Shop;

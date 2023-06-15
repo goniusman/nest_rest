@@ -25,10 +25,10 @@ const fuse = new Fuse(manufacturers, options);
 
 @Injectable()
 export class ManufacturersService {
+  
   private manufacturers: Manufacturer[] = manufacturers;
 
   constructor(@InjectModel('Manufacturer') private _manufacturer: Model<Manufacturer>){}
-
 
   async create(createManufactureDto: CreateManufacturerDto) {
     
@@ -92,7 +92,7 @@ export class ManufacturersService {
   }
 
   update(id: string, updateManufacturesDto: UpdateManufacturerDto) {
-    const manufacturer = this._manufacturer.findByIdAndUpdate(id, updateManufacturesDto);
+    const manufacturer = this._manufacturer.findByIdAndUpdate(id, updateManufacturesDto).exec();
 
     // Update author
     // manufacturer.is_approved = updateManufacturesDto.is_approved ?? true;
@@ -103,4 +103,5 @@ export class ManufacturersService {
   remove(id: string) {
     return this._manufacturer.findByIdAndDelete(id);
   }
+
 }

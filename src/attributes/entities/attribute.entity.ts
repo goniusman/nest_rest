@@ -3,6 +3,7 @@ import { Shop } from 'src/shops/entities/shop.entity';
 import { AttributeValue } from './attribute-value.entity';
 import * as mongoose from 'mongoose';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { User } from 'src/users/entities/user.entity';
 
 
 export type AttributeDocument = Attribute & Document;
@@ -10,22 +11,22 @@ export type AttributeDocument = Attribute & Document;
 @Schema({ timestamps: true })
 export class Attribute extends CoreEntity {
 
-  @Prop({ required: false })   
+  @Prop({ required: false, unique: true })   
   name: string;
 
-  // @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Shop', required: false })  
-  // shop_id: Shop; 
+  @Prop({ required: false, unique: true })   
+  slug: string;
 
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Shop', required: false })   
   shop: Shop;
 
-  @Prop({ required: false })   
-  slug: string;
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User', required: false })   
+  user: User;
 
   @Prop({ required: false, type: mongoose.Schema.Types.Array, default: [] })   
   values: AttributeValue[];
 
-  @Prop({ required: false })    
+  @Prop({ required: false, default: ["en"] })    
   language: string;
 
   @Prop({ required: false, default: ["en"] })    

@@ -48,6 +48,8 @@ import mailer from './config/mailer'
  
 // import { UserSchema } from './schemas/user.schema';
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
+import { APP_GUARD } from '@nestjs/core';
+import { JwtAuthGuard } from './auth/gurd/jwt-auth.guard';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -113,7 +115,12 @@ import { CloudinaryModule } from './cloudinary/cloudinary.module';
     CloudinaryModule,
   ],
   controllers: [],
-  providers: [],
+  providers: [
+  //   {
+  //   provide: APP_GUARD,
+  //   useClass: JwtAuthGuard,
+  // },
+],
 })
 
 export class AppModule {}

@@ -155,7 +155,7 @@ export class UsersService {
     // return this.users.find((user) => user._id === id);
 
     // return await this.users.findById(id).exec();
-    const user = (await (await (await this.users.findOne({_id: id})).populate('shops')).populate('managed_shop')).populate('shop_id')
+    const user = (await (await (await this.users.findOne({_id: id})).populate('shops')).populate('managed_shop'))
     
     return user;
 
@@ -171,7 +171,7 @@ export class UsersService {
 
   async getAllStaff(id) {
     // console.log(id);
-    return await this.users.find({shop_id: id}).exec();
+    return await this.users.find({managed_shop: id}).exec();
     // return this.users.find((user) => user._id === id);
   }
 

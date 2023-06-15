@@ -28,9 +28,6 @@ export class Category extends CoreEntity {
 
   @Prop({type: [{type: mongoose.Schema.Types.ObjectId, ref: 'Category'}], default: []})
   children?: Category[] =[];
- 
-  @Prop({ type: [{type: mongoose.Schema.Types.ObjectId, ref: 'Product'}], default:[] })
-  products?: Product[] = [];
   
   @Prop({type: mongoose.Schema.Types.ObjectId, ref: 'Type'})  
   type?: Type;

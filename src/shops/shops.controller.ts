@@ -22,7 +22,8 @@ export class ShopsController {
   constructor(private readonly shopsService: ShopsService) {}
 
   @Post()
-  create(@Body() createShopDto: CreateShopDto) {
+  create(@Body() createShopDto: CreateShopDto, @Req() request) {
+     request;
     return this.shopsService.create(createShopDto);
   }
 
@@ -46,15 +47,15 @@ export class ShopsController {
     return this.shopsService.remove(id);
   }
 
-  @Post('approve')
-  approveShop(@Req() req, @Param('id') id: string) {
-    return this.shopsService.approve(id);
-  }
+  // @Post('approve')
+  // approveShop(@Req() req, @Param('id') id: string) {
+  //   return this.shopsService.approve(id);
+  // }
 
-  @Post('disapprove')
-  disapproveShop(@Param('id') id: string) {
-    return this.shopsService.approve(id);
-  }
+  // @Post('disapprove')
+  // disapproveShop(@Param('id') id: string) {
+  //   return this.shopsService.approve(id);
+  // }
 }
 
 @Controller('staffs')

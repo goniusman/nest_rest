@@ -32,4 +32,5 @@ export class CreateUserDto extends PickType(User, ['email', 'password']) {
   name?: string; 
   permissions: any;
   shop_id?: string;
+  managed_shop?: any;
 }

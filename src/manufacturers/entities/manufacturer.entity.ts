@@ -4,6 +4,7 @@ import { ShopSocials } from '../../settings/entities/setting.entity';
 import { Type } from '../../types/entities/type.entity';
 import {Prop, Schema, SchemaFactory} from '@nestjs/mongoose';
 import mongoose from 'mongoose';
+import { Product } from 'src/products/entities/product.entity';
 
 @Schema({timestamps:true})
 export class Manufacturer extends CoreEntity {
@@ -28,7 +29,7 @@ export class Manufacturer extends CoreEntity {
   @Prop({type: String, required:true})
   name: string;
 
-  @Prop({type: [String], required:false})
+  @Prop({type: [{type: mongoose.Schema.Types.ObjectId, ref: 'Product'}], required:false, default: []})
   products_count?: string[];
 
   @Prop({type: String, required:false, slug: 'name'})

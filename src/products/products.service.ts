@@ -1,9 +1,9 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, Req } from '@nestjs/common';
 import { plainToClass } from 'class-transformer';
 import { CreateProductDto } from './dto/create-product.dto';
 import { GetProductsDto, ProductPaginator } from './dto/get-products.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
-import { Product } from './entities/product.entity';
+import { Product, ProductDocument } from './entities/product.entity';
 import { paginate } from 'src/common/pagination/paginate';
 import productsJson from '@db/products.json';
 import Fuse from 'fuse.js';
@@ -35,16 +35,15 @@ export class ProductsService {
   private products: any = products;
 
   constructor(
-    @InjectModel('Product') private _product: Model<Product>,
+    @InjectModel('Product') private _product: Model<ProductDocument>,
     private authorService: AuthorsService,
     private manufacturerService: ManufacturersService
 
   ) { }
 
-  async create(createProductDto: CreateProductDto) {
+  async create(createProductDto: CreateProductDto, user: any) {
     try {
-
-
+      createProductDto.user_id = user.id;
       const createdProduct = await this._product.create(createProductDto)
 
       if (createdProduct?._id) {
@@ -57,13 +56,14 @@ export class ProductsService {
 
         this.manufacturerService.update(manufacturer?._id.toString(), manufacturer)
       }
+      return createdProduct;
 
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
     }
   }
 
-  async getProducts({ limit, page, search }: GetProductsDto): Promise<ProductPaginator> {
+  async getProducts({ limit, page, search }: GetProductsDto, @Req() req:any = "test" ): Promise<ProductPaginator> {
     if (!page) page = 1;
     if (!limit) limit = 30;
     const startIndex = (page - 1) * limit;

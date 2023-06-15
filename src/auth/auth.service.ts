@@ -326,12 +326,13 @@ export class AuthService {
         name: user.name,
         email: user.email,
         shops: user?.shops,
-        shop_id: user?.shop_id?._id,
+        shop_id: user?.shop_id,
         managed_shop: user?.managed_shop,
         is_active: user.is_active,
         address: user?.address,
         profile: user?.profile,
         orders: user?.orders,
+        permissions: user.permissions
 
       }
       return result;

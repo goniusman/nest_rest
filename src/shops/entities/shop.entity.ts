@@ -3,6 +3,8 @@ import mongoose from 'mongoose';
 import { UserAddress } from 'src/addresses/entities/address.entity';
 import { Attachment } from 'src/common/entities/attachment.entity';
 import { CoreEntity } from 'src/common/entities/core.entity';
+import { Order } from 'src/orders/entities/order.entity';
+import { Product } from 'src/products/entities/product.entity';
 import { Location, ShopSocials } from 'src/settings/entities/setting.entity';
 import { User } from 'src/users/entities/user.entity'
 
@@ -54,14 +56,15 @@ export class Shop extends CoreEntity {
   @Prop({type: [{type: mongoose.Schema.Types.ObjectId, ref: 'User'}], default: []})
   staffs?: User[];
 
-  @Prop({ required: false, type: Boolean })
+  @Prop({ required: false, type: Boolean, default: false })
   is_active: boolean;
 
-  @Prop({ required: false, type: Number })
-  orders_count: number;
+  @Prop({  type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Order'}], default: [] })
+  orders_count: Order[] = [];
+  ;
 
-  @Prop({ required: false, type: Number })
-  products_count: number;
+  @Prop({  type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Product'}], default: [] })
+  products_count: Product[] = [];
 
   @Prop({ required: false, type: Balance })
   balance?: Balance;
@@ -72,8 +75,8 @@ export class Shop extends CoreEntity {
   @Prop({ required: false, type: String })
   slug: string;
   
-  @Prop({ required: false, type: Number })
-  admin_commission_rate?: number = 0;
+  // @Prop({ required: false, type: Number })
+  // admin_commission_rate?: number = 0;
 
   @Prop({ required: true, type: String })
   description?: string;

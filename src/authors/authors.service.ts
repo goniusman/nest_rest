@@ -49,7 +49,7 @@ export class AuthorsService {
     if (!limit) limit = 30;
     const startIndex = (page - 1) * limit;
     const endIndex = page * limit;
-    let data: Author[] = await this._author.find();
+    let data: Author[] = await this._author.find().exec();
     if (search) {
       const parseSearchParams = search.split(';');
       for (const searchParam of parseSearchParams) {
