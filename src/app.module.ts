@@ -43,6 +43,7 @@ import { MiddlewareConsumer, NestModule } from '@nestjs/common';
 import * as cors from 'cors';
 
 import config from './config/cloudinary'
+import env from './config/env'
 import database from './config/database'
 import mailer from './config/mailer'
  
@@ -50,16 +51,32 @@ import mailer from './config/mailer'
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtAuthGuard } from './auth/gurd/jwt-auth.guard';
+
+
+const mongo = env().database.host ? `${env().database.host}:${env().database.port}`  : 
+ 'mongodb://127.0.0.1:27018'
+
+// console.log(env().database.port);
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [config, database, mailer] 
+      load: [config, database, mailer,env] 
       
     }),
     // MongooseModule.forRoot(process.env.MONGODB_URI),
     // MongooseModule.forRoot('mongodb://<username>:<password>@localhost:27017',{dbName: 'studentdb'}),
-    MongooseModule.forRoot('mongodb://127.0.0.1:27017', {
+    // MongooseModule.forRoot('mongodb://127.0.0.1:27017', {
+    //   dbName: 'pickbazar',
+    //   connectionFactory: (connection) => {
+    //     // eslint-disable-next-line @typescript-eslint/no-var-requires
+    //     connection.plugin(require('mongoose-slug-generator'));
+    //     return connection;
+    //   }
+       
+    // }),
+    
+    MongooseModule.forRoot(mongo, {
       dbName: 'pickbazar',
       connectionFactory: (connection) => {
         // eslint-disable-next-line @typescript-eslint/no-var-requires
