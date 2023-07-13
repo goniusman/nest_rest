@@ -51,7 +51,7 @@ import mailer from './config/mailer'
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtAuthGuard } from './auth/gurd/jwt-auth.guard';
-
+import { ContactusModule } from './contactus/contactus.module';
 
 const mongo = env().database.host ? `${env().database.host}:${env().database.port}`  : 
  'mongodb://127.0.0.1:27018'
@@ -130,6 +130,7 @@ const mongo = env().database.host ? `${env().database.host}:${env().database.por
     WebHookModule,
     PaymentModule,
     CloudinaryModule,
+    ContactusModule,
   ],
   controllers: [],
   providers: [
