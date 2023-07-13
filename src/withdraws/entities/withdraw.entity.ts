@@ -20,19 +20,19 @@ export class Withdraw extends CoreEntity {
   @Prop({type: String, required: true, enum: WithdrawStatus, default: WithdrawStatus.APPROVED})
   status: WithdrawStatus;
 
-  @Prop({type:  mongoose.Schema.Types.ObjectId, ref: 'Shop', required: false})
+  @Prop({type:  mongoose.Schema.Types.ObjectId, ref: 'Shop'})
   shop_id: Shop;
 
-  @Prop({type: {type: mongoose.Schema.Types.ObjectId, ref: 'Shop'}, required: false})
+  @Prop({type: {type: mongoose.Schema.Types.ObjectId, ref: 'Shop'}})
   shop: Shop;
 
-  @Prop({type: String, required: false})
+  @Prop({type: String})
   payment_method: string;
 
-  @Prop({type: String, required: false})
+  @Prop({type: String})
   details: string;
 
-  @Prop({type: String, required: false})
+  @Prop({type: String})
   note: string;
 }
 

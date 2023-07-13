@@ -7,6 +7,7 @@ import { UserSchema } from './entities/user.entity';
 import {UploadsService} from 'src/uploads/uploads.service';
 import {UploadsModule} from 'src/uploads/uploads.module';
 import { ProfileSchema } from './entities/profile.entity';
+import { MailModule } from 'src/mail/mail.module';
 // import Logger from '@nestjs/common';
 
 @Module({
@@ -14,6 +15,7 @@ import { ProfileSchema } from './entities/profile.entity';
     MongooseModule.forFeature([{ name: 'User', schema: UserSchema }, {name: 'Profile', schema: ProfileSchema}]),
     CloudinaryModule,
     UploadsModule,
+    MailModule
     // Logger
   ],
   controllers: [UsersController],

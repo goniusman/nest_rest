@@ -8,5 +8,11 @@ export default () => ({
   database: {
     host: process.env.MONGODB_URI || 'mongodb://127.0.0.1',
     port: process.env.MONGODB_PORT || 27017
+  },
+  mailer : {
+    MAIL_HOST: process.env.MAIL_HOST,
+    MAIL_USER: process.env.MAIL_USER,
+    MAIL_PASSWORD: process.env.MAIL_PASSWORD,
+    MAIL_FROM: process.env.MAIL_FROM
   }
 });

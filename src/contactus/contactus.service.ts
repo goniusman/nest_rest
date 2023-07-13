@@ -34,7 +34,7 @@ export class ContactusService {
   }
 
   remove(id: string) {
-    return this._contactus.remove({_id: id})
+    return this._contactus.findByIdAndRemove( id)
   }
   
 }

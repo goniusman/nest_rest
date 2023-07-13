@@ -33,6 +33,7 @@ import { JwtAuthGuard } from './gurd/jwt-auth.guard';
 import { ShopsService } from 'src/shops/shops.service';
 import { AnyARecord } from 'dns';
 import { LocalAuthGuard } from './local/local.auth.guard';
+import { MailService } from 'src/mail/mail.service';
 // import { TransformInterceptor } from 'src/utils/Response.Interceptor';
 const users = plainToClass(User, usersJson);
 
@@ -46,12 +47,16 @@ export class AuthService {
     // @InjectModel('User') private _user: Model<User>, 
     private usersService: UsersService,
     private jwtService: JwtService,
-    private shopService: ShopsService) { }
+    private shopService: ShopsService,
+    private mailService: MailService
+    ) { }
 
 
   async register(createUserInput: CreateUserDto): Promise<any> {
 
     try {
+      const existuser = await this.usersService.findByEmail(createUserInput.email)
+
 
       const user = await this.usersService.create(createUserInput);
       const id = user?._id.toString()
@@ -60,6 +65,10 @@ export class AuthService {
         email: user.email, id, permissions: permission,
         name: user.name
       };
+
+      await this.mailService.sendUserConfirmation(user, "token");
+
+      console.log('gettting hit');
       return {
         token: this.jwtService.sign(payload),
         permissions: permission,

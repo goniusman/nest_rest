@@ -14,6 +14,7 @@ import { LocalStrategy } from './local/local.strategy';
 // import {CommonModule} from 'src/common/common.module';
 import {jwtConstants} from './gurd/constants'
 import { ShopsModule } from 'src/shops/shops.module';
+import { MailModule } from 'src/mail/mail.module';
 
 @Module({
 
@@ -27,7 +28,8 @@ import { ShopsModule } from 'src/shops/shops.module';
       secret: jwtConstants.secret,
       signOptions: { expiresIn: '12h' },
     }), 
-    MongooseModule.forFeature([{ name: "User", schema: UserSchema }])
+    MongooseModule.forFeature([{ name: "User", schema: UserSchema }]),
+  
   ],
   controllers: [AuthController],
   providers: [AuthService, JwtStrategy, LocalStrategy],

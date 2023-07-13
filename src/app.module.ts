@@ -53,6 +53,8 @@ import { APP_GUARD } from '@nestjs/core';
 import { JwtAuthGuard } from './auth/gurd/jwt-auth.guard';
 import { ContactusModule } from './contactus/contactus.module';
 import { RequestLoggerMiddleware } from './utils/Middleware/Request-Middleware.logger';
+import { MailService } from './mail/mail.service';
+import { MailModule } from './mail/mail.module';
 
 
 const mongo = env().database.host ? `${env().database.host}:${env().database.port}`  : 
@@ -98,6 +100,7 @@ const mongo = env().database.host ? `${env().database.host}:${env().database.por
     // ServeStaticModule.forRoot({
     //   rootPath: join(__dirname, '..', 'files')
     // }),
+    MailModule,
     UsersModule,
     // ProfilesModule,
     CommonModule,
@@ -133,6 +136,7 @@ const mongo = env().database.host ? `${env().database.host}:${env().database.por
     PaymentModule,
     CloudinaryModule,
     ContactusModule,
+    MailModule,
   ],
   controllers: [],
   providers: [
@@ -140,7 +144,7 @@ const mongo = env().database.host ? `${env().database.host}:${env().database.por
   //   provide: APP_GUARD,
   //   useClass: JwtAuthGuard,
   // },
-],
+MailService],
 })
 
 export class AppModule {
