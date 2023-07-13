@@ -12,6 +12,9 @@ import {
   UseInterceptors,
   UploadedFile,
   Req,
+  HttpCode,
+  HttpStatus,
+  Logger,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 // import { CreateUserDto } from './dto/create-user.dto';
@@ -38,9 +41,14 @@ import { JwtAuthGuard } from 'src/auth/gurd/jwt-auth.guard';
 
 @Controller('users')
 export class UsersController {
+  private readonly logger = new Logger();
 
-  constructor(private readonly usersService: UsersService) {}
+  constructor(
+    // private readonly logger : Logger,
+    private readonly usersService: UsersService) {
 
+    
+  }
   // @ApiOkResponse({
   //   description: 'The user records',
   //   type: User,
@@ -71,15 +79,19 @@ export class UsersController {
 
 
   @Get()
-  @HasRoles(Role.CUSTOMER, Role.STORE_OWNER)
-  @UseGuards(JwtAuthGuard, RolesGuard)
+  // @HasRoles(Role.CUSTOMER, Role.STORE_OWNER)
+  // @UseGuards(JwtAuthGuard, RolesGuard)
   getAllUsers(@Query() query: any) {
-    return this.usersService.getUsers(query);
+    // console.log('requesting.....');
+    this.logger.error("this is error message")
+    return HttpStatus.UNAUTHORIZED
+    // return this.usersService.getUsers(query);   
   }
 
   // @UseGuards(AuthenticatedGuard)
   @Get(':id')
   getUser(@Param('id') id: string) {
+    //nice to meet you
     return this.usersService.findById(id);
   }
 
@@ -105,6 +117,7 @@ export class UsersController {
 
   @Post('make-admin') 
   makeAdmin(@Req() req: Request , @Body('user_id') id: string) {
+    //// testing for docker save directly
     return this.usersService.makeAdmin(id);
   }
 
@@ -115,6 +128,9 @@ export class UsersController {
   // //  console.log(file);
   //     return this.usersService.profilePicture(file);
   // }
+
+  //// end controller methods
+
 
 }
 
@@ -140,4 +156,6 @@ export class ProfilesController {
   // deleteProfile(@Param('id') id: number) {
   //   return this.usersService.remove(id);
   // }
+
+  /////// nice docker save using volume
 }

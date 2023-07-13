@@ -52,6 +52,8 @@ import { CloudinaryModule } from './cloudinary/cloudinary.module';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtAuthGuard } from './auth/gurd/jwt-auth.guard';
 import { ContactusModule } from './contactus/contactus.module';
+import { RequestLoggerMiddleware } from './utils/Middleware/Request-Middleware.logger';
+
 
 const mongo = env().database.host ? `${env().database.host}:${env().database.port}`  : 
  'mongodb://127.0.0.1:27018'
@@ -141,7 +143,11 @@ const mongo = env().database.host ? `${env().database.host}:${env().database.por
 ],
 })
 
-export class AppModule {}
+export class AppModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(RequestLoggerMiddleware).forRoutes('*');
+  }
+}
 
 // export class AppModule implements NestModule {
 //   configure(consumer: MiddlewareConsumer): void {
