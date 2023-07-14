@@ -80,7 +80,7 @@ const mongo = env().database.host ? `${env().database.host}:${env().database.por
        
     // }),
     
-    MongooseModule.forRoot(mongo, {
+    MongooseModule.forRoot('mongodb+srv://mogobazar:<Osman@#1>@mogo.ria9rqi.mongodb.net/?retryWrites=true&w=majority', {
       dbName: 'pickbazar',
       connectionFactory: (connection) => {
         // eslint-disable-next-line @typescript-eslint/no-var-requires
