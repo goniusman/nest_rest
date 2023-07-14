@@ -58,7 +58,7 @@ import { MailModule } from './mail/mail.module';
 
 
 const mongo = env().database.host ? `${env().database.host}:${env().database.port}`  : 
- 'mongodb://127.0.0.1:27018'
+ 'mongodb+srv://mogobazar:<Osman@#1>@mogo.ria9rqi.mongodb.net/?retryWrites=true&w=majority'
 
 // console.log(env().database.port);
 @Module({
