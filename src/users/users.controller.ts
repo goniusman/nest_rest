@@ -15,7 +15,16 @@ import {
   HttpCode,
   HttpStatus,
   Logger,
+  // CACHE_MANAGER, 
+  Inject
 } from '@nestjs/common';
+
+import {
+CacheInterceptor,
+CacheTTL,
+CacheKey
+} from  '@nestjs/cache-manager'
+import Cache from 'cache-manager';
 import { UsersService } from './users.service';
 // import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -38,23 +47,48 @@ import { RolesGuard } from 'src/auth/gurd/roles.guard';
 import { JwtAuthGuard } from 'src/auth/gurd/jwt-auth.guard';
 // import { IUser } from '../interface/user.interface';
 
-
 @Controller('users')
 export class UsersController {
   private readonly logger = new Logger();
-
+  randomNumDbs = Math.floor(Math.random() * 10)
   constructor(
     // private readonly logger : Logger,
-    private readonly usersService: UsersService) {
-
-    
-  }
+    // @Inject(CACHE_MANAGER) private cacheManager: Cache,
+    private readonly usersService: UsersService) {}
   // @ApiOkResponse({
   //   description: 'The user records',
   //   type: User,
   //   isArray: true
   // })
 
+///////////////// previously created for cache
+  // async getNumber(): Promise<any> {
+  //   const val = await this.cacheManager.get('number')
+  //   if(val) {
+  //     return { 
+  //       data: val,
+  //       FromRedis: 'this is loaded from redis cache'
+  //     }
+  //   }
+
+  //   if(!val){
+  //     await this.cacheManager.set('number', this.randomNumDbs , { ttl: 1000 })
+  //     return {
+  //       data: this.randomNumDbs,
+  //       FromRandomNumDbs: 'this is loaded from randomNumDbs'
+  //   }
+  //   }
+
+  // }
+
+
+  @Get("getSomeDate")
+  async getSomeDate(): Promise<any> {
+    return await this.usersService.getSomeDate()
+  } 
+  
+
+  
   @Post()
   @ApiConsumes('multipart/form-data')
   createUser(@Body() createUserDto: CreateUserDto): Promise<User>  {
@@ -77,7 +111,9 @@ export class UsersController {
   }
  
 
-
+  @UseInterceptors(CacheInterceptor) // Automatically cache the response for this endpoint
+  @CacheKey('custom-key') // overrides the default cache key
+  @CacheTTL(30) // override TTL to 30 seconds
   @Get()
   // @HasRoles(Role.CUSTOMER, Role.STORE_OWNER)
   // @UseGuards(JwtAuthGuard, RolesGuard)

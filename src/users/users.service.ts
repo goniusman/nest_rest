@@ -1,5 +1,8 @@
 /* eslint-disable prettier/prettier */
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException, Inject, } from '@nestjs/common';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { HttpService } from '@nestjs/axios';
+import { Cache } from 'cache-manager';
 // import { plainToClass } from 'class-transformer';
 import { CreateUserDto } from './dto/create-user.dto';
 // import {  UserPaginator } from './dto/get-users.dto';
@@ -43,7 +46,9 @@ export class UsersService {
     @InjectModel(User.name)
     private users: Model<UserDocument>,
     private cloudinary: CloudinaryService,
-    private uploader: UploadsService
+    private uploader: UploadsService,
+    private readonly httpService: HttpService,
+    @Inject(CACHE_MANAGER) private cacheService: Cache,
     // private readonly configService: ConfigService
   ) {
 
@@ -55,6 +60,31 @@ export class UsersService {
   }
 
   // @InjectModel('Student') private studentModel:Model<IStudent>
+
+
+  ////// testing for caching manager with redis //although not working properly
+  async getSomeDate(): Promise<any> {
+    console.log('not here');
+    console.log(this.cacheService);
+    const cachedData = await this.cacheService.get("test");
+    console.log(cachedData);
+    if(cachedData){
+      console.log('data set to cache', cachedData);
+      return await `${cachedData}`;
+    }
+    const { data } = await this.httpService.axiosRef.get(
+      `https://jsonplaceholder.typicode.com/todos/1`,
+    );
+     await this.cacheService.set("test", data);
+
+     return data;
+
+  }
+
+
+
+
+
 
   async create(createUserDto: CreateUserDto): Promise<any> {
 

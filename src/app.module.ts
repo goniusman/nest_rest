@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { CacheModule, CacheInterceptor } from '@nestjs/cache-manager';
 import { ConfigModule } from '@nestjs/config';
 import { StripeModule } from 'nestjs-stripe';
 import { AddressesModule } from './addresses/addresses.module';
@@ -42,31 +43,51 @@ import { join } from 'path';
 import { MiddlewareConsumer, NestModule } from '@nestjs/common';
 import * as cors from 'cors';
 
-import config from './config/cloudinary'
-import env from './config/env'
-import database from './config/database'
-import mailer from './config/mailer'
- 
+import config from './config/cloudinary';
+import env from './config/env';
+import database from './config/database';
+import mailer from './config/mailer';
+
 // import { UserSchema } from './schemas/user.schema';
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
-import { APP_GUARD } from '@nestjs/core';
+import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { JwtAuthGuard } from './auth/gurd/jwt-auth.guard';
 import { ContactusModule } from './contactus/contactus.module';
 import { RequestLoggerMiddleware } from './utils/Middleware/Request-Middleware.logger';
 import { MailService } from './mail/mail.service';
 import { MailModule } from './mail/mail.module';
+import type { RedisClientOptions } from 'redis';
+import { redisStore } from 'cache-manager-redis-store';
+import { HttpModule } from '@nestjs/axios';
 
-
-const mongo = env().database.host ? `${env().database.host}:${env().database.port}`  : 
- 'mongodb://127.0.0.1:27018'
+const mongo = env().database.host
+  ? `${env().database.host}:${env().database.port}`
+  : 'mongodb://127.0.0.1:27018';
 
 // console.log(env().database.port);
 @Module({
   imports: [
+    HttpModule.register({
+      timeout: 5000,
+      maxRedirects: 5,
+    }),
+    CacheModule.register<RedisClientOptions>({
+      isGlobal: true,
+      // @ts-ignore
+      store: redisStore, 
+      socket: {
+        host: 'localhost',    // This is ignored and `127.0.0.1` is used instead
+        port: 6379
+      }
+      // host: 'localhost',
+      // port: 6379,
+      // username: process.env.REDIS_USERNAME, // new property
+      // password: process.env.REDIS_PASSWORD, // new property
+      // no_ready_check: true, // new property
+    }),
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [config, database, mailer,env] 
-      
+      load: [config, database, mailer, env],
     }),
     // MongooseModule.forRoot(process.env.MONGODB_URI),
     // MongooseModule.forRoot('mongodb://<username>:<password>@localhost:27017',{dbName: 'studentdb'}),
@@ -77,17 +98,16 @@ const mongo = env().database.host ? `${env().database.host}:${env().database.por
     //     connection.plugin(require('mongoose-slug-generator'));
     //     return connection;
     //   }
-       
+
     // }),
-    
+
     MongooseModule.forRoot(mongo, {
       dbName: 'pickbazar',
       connectionFactory: (connection) => {
         // eslint-disable-next-line @typescript-eslint/no-var-requires
         connection.plugin(require('mongoose-slug-generator'));
         return connection;
-      }
-       
+      },
     }),
     // MongooseModule.forFeature([{ name: 'User', schema: UserSchema }]),
     StripeModule.forRoot({
@@ -140,13 +160,17 @@ const mongo = env().database.host ? `${env().database.host}:${env().database.por
   ],
   controllers: [],
   providers: [
-  //   {
-  //   provide: APP_GUARD,
-  //   useClass: JwtAuthGuard,
-  // },
-MailService],
+    //   {
+    //   provide: APP_GUARD,
+    //   useClass: JwtAuthGuard,
+    // },
+    MailService,
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: CacheInterceptor,
+    },
+  ],
 })
-
 export class AppModule {
   configure(consumer: MiddlewareConsumer) {
     consumer.apply(RequestLoggerMiddleware).forRoutes('*');
