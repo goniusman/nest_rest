@@ -60,9 +60,9 @@ import type { RedisClientOptions } from 'redis';
 import { redisStore } from 'cache-manager-redis-store';
 import { HttpModule } from '@nestjs/axios';
 
-const mongo = env().database.host
-  ? `${env().database.host}:${env().database.port}`
-  : 'mongodb://127.0.0.1:27018';
+
+const mongo = env().database.host ? `${env().database.host}:${env().database.port}`  : 
+ 'mongodb://127.0.0.1:27018'
 
 // console.log(env().database.port);
 @Module({
@@ -100,7 +100,7 @@ const mongo = env().database.host
     //   }
 
     // }),
-
+    
     MongooseModule.forRoot(mongo, {
       dbName: 'pickbazar',
       connectionFactory: (connection) => {
