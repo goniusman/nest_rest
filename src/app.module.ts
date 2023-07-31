@@ -73,11 +73,12 @@ const mongo = env().database.host ? `${env().database.host}:${env().database.por
     }),
     CacheModule.register<RedisClientOptions>({
       isGlobal: true,
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       store: redisStore, 
       socket: {
-        host: 'localhost',    // This is ignored and `127.0.0.1` is used instead
-        port: 6379
+        host: env().redis.host,    // This is ignored and `127.0.0.1` is used instead
+        port: Number(env().redis.port)
       }
       // host: 'localhost',
       // port: 6379,

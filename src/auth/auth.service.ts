@@ -1,5 +1,5 @@
 
-import { HttpException, HttpStatus, Injectable, NotAcceptableException, NotFoundException, Req, UnauthorizedException, UseGuards, UseInterceptors } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, Logger, NotAcceptableException, NotFoundException, Req, UnauthorizedException, UseGuards, UseInterceptors } from '@nestjs/common';
 // import * as bcrypt from '@types/bcrypt'; 
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
@@ -34,6 +34,7 @@ import { ShopsService } from 'src/shops/shops.service';
 import { AnyARecord } from 'dns';
 import { LocalAuthGuard } from './local/local.auth.guard';
 import { MailService } from 'src/mail/mail.service';
+import { jwtConstants } from './gurd/constants';
 // import { TransformInterceptor } from 'src/utils/Response.Interceptor';
 const users = plainToClass(User, usersJson);
 
@@ -42,38 +43,55 @@ const users = plainToClass(User, usersJson);
 export class AuthService {
   private users: User[] = users;
   private readonly _commonHelper = new CommonHelper()
-
+  private readonly logger = new Logger();
   constructor(
     // @InjectModel('User') private _user: Model<User>, 
     private usersService: UsersService,
     private jwtService: JwtService,
     private shopService: ShopsService,
     private mailService: MailService
-    ) { }
+  ) { }
 
 
   async register(createUserInput: CreateUserDto): Promise<any> {
 
     try {
-      const existuser = await this.usersService.findByEmail(createUserInput.email)
+
+      if (createUserInput.email != undefined) {
+        const existuser = await this.usersService.findByEmail(createUserInput.email)
+
+        if (existuser != null) {
+          throw new HttpException('User already exists', HttpStatus.BAD_REQUEST);
+        }
 
 
-      const user = await this.usersService.create(createUserInput);
-      const id = user?._id.toString()
-      const permission = user?.permissions
-      const payload = {
-        email: user.email, id, permissions: permission,
-        name: user.name
-      };
+        const user = await this.usersService.create(createUserInput);
+        const id = user?._id.toString()
+        const permission = user?.permissions
 
-      await this.mailService.sendUserConfirmation(user, "token");
+        const payload = {
+          id,
+          email: user.email,
+          permissions: permission,
+          name: user.name
+        };
+        const token = this.jwtService.sign(payload)
 
-      console.log('gettting hit');
-      return {
-        token: this.jwtService.sign(payload),
-        permissions: permission,
-        id: id,
-      };
+        await this.mailService.sendUserConfirmation(user, token);
+
+        // if (sendMail != null) {
+        //   throw new HttpException('User already exists', HttpStatus.BAD_REQUEST);
+        // }
+
+
+        return {
+          token,
+          permissions: permission,
+          id,
+        };
+      }
+
+
 
 
     } catch (err) {
@@ -86,6 +104,7 @@ export class AuthService {
       //   message: err.message,
       //   status: HttpStatus.BAD_REQUEST
       // }
+      this.logger.error(`auth/register/ error message is -- ${err.message}`);
       throw new HttpException(err.message, HttpStatus.BAD_REQUEST)
     }
 
@@ -107,6 +126,31 @@ export class AuthService {
     // };
 
   }
+
+  async confirmlink(req: Request, token: string) {
+
+    // const token = req.params.token;
+    const verifyToken = await this.verifyToken(token)
+
+    if (verifyToken) {
+      return this.usersService.updateEmailVerified(verifyToken.id)
+    } else {
+      throw new HttpException('Token not valid!', HttpStatus.BAD_REQUEST);
+    }
+
+  }
+
+
+  private async verifyToken(token: string) {
+    const payload = await this.jwtService.verifyAsync(
+      token,
+      {
+        secret: jwtConstants.secret
+      }
+    );
+    return payload;
+  }
+
 
   async validatePassword(email: string, password: string): Promise<any> {
     const user = await this.usersService.findByEmail(email);
@@ -131,8 +175,6 @@ export class AuthService {
     }
 
   }
-
-
 
   async login(body: any): Promise<any> {
 
@@ -169,12 +211,9 @@ export class AuthService {
     return this.usersService.getAllUsr()
   }
 
-
-
   findAndDelete(id: string): any {
     return this.usersService.remove(id)
   }
-
 
   // async login(loginInput: LoginDto): Promise<AuthResponse> {
   //   console.log(loginInput);
@@ -218,9 +257,7 @@ export class AuthService {
       };
     }
 
-
   }
-
 
   async forgetPassword(
     forgetPasswordInput: ForgetPasswordDto,
@@ -232,6 +269,7 @@ export class AuthService {
       message: 'Password change successful',
     };
   }
+
   async verifyForgetPasswordToken(
     verifyForgetPasswordTokenInput: VerifyForgetPasswordDto,
   ): Promise<CoreResponse> {
@@ -242,6 +280,7 @@ export class AuthService {
       message: 'Password change successful',
     };
   }
+
   async resetPassword(
     resetPasswordInput: ResetPasswordDto,
   ): Promise<CoreResponse> {
@@ -252,6 +291,7 @@ export class AuthService {
       message: 'Password change successful',
     };
   }
+
   async socialLogin(socialLoginDto: SocialLoginDto): Promise<AuthResponse> {
     console.log(socialLoginDto);
     return {
@@ -260,6 +300,7 @@ export class AuthService {
       id: ""
     };
   }
+
   async otpLogin(otpLoginDto: OtpLoginDto): Promise<AuthResponse> {
     console.log(otpLoginDto);
     return {
@@ -268,6 +309,7 @@ export class AuthService {
       id: ""
     };
   }
+
   async verifyOtpCode(verifyOtpInput: VerifyOtpDto): Promise<CoreResponse> {
     console.log(verifyOtpInput);
     return {
@@ -275,6 +317,7 @@ export class AuthService {
       success: true,
     };
   }
+
   async sendOtpCode(otpInput: OtpDto): Promise<OtpResponse> {
     console.log(otpInput);
     return {

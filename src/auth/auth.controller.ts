@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { Controller, Get, Post, Body, HttpCode, HttpStatus, Param, Req, Query, UseInterceptors } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { Request, UseGuards } from '@nestjs/common';
@@ -25,21 +26,28 @@ import { RolesGuard } from './gurd/roles.guard';
 import { LocalAuthGuard } from './local/local.auth.guard'
 import { JwtAuthGuard } from './gurd/jwt-auth.guard'
 import { IGetUserAuthInfoRequest } from 'src/helper/typeDefinition';
-import { query } from 'express';
+import { Request, query } from 'express';
+import { ApiConsumes } from '@nestjs/swagger';
 // import { TransformInterceptor } from 'src/utils/Response.Interceptor';
 
 
-@Controller()
+@Controller("auth")
 // @UseInterceptors(TransformInterceptor)
 export class AuthController {
   constructor(private readonly authService: AuthService) { }
 
 
   @Post('register')
-  createAccount(@Body() registerDto: CreateUserDto) {
+  createAccount( @Req() req, @Body() registerDto: CreateUserDto) {
+    // console.log(registerDto);
     return this.authService.register(registerDto);
+    console.log(req);
   }
 
+  @Get('confirm')
+  async confirmlink(req: Request, token: string) {
+    return this.authService.confirmlink(req, token);
+  }
 
   // @UseGuards(LocalAuthGuard)
   // @HttpCode(HttpStatus.OK)
@@ -138,6 +146,7 @@ export class AuthController {
   addWalletPoints(@Body() addPointsDto: any) {
     return this.authService.me();
   }
+
   @Post('contact-us')
   contactUs(@Body() addPointsDto: any) {
     return {

@@ -2,7 +2,7 @@ import * as mongoose from 'mongoose';
 import { ApiConsumes, PickType } from '@nestjs/swagger';
 import { Prop, Schema, SchemaFactory, raw } from '@nestjs/mongoose';
 import {ApiProperty} from '@nestjs/swagger';
-import { IsBoolean, IsDate, IsNotEmpty, IsNumber, IsString, MaxLength } from "class-validator";
+import { IsBoolean, IsDate, IsEmail, IsNotEmpty, IsNumber, IsString, MaxLength, MinLength } from "class-validator";
 
 import { CreateAddressDto } from 'src/addresses/dto/create-address.dto';
 import { User } from '../entities/user.entity';
@@ -20,6 +20,7 @@ import { CreateProfileDto } from './create-profile.dto';
 // }
 import { Address } from '../../addresses/entities/address.entity';
 import {Type} from 'class-transformer';
+import { Shop } from 'src/shops/entities/shop.entity';
 
 export enum Permission {
   SUPER_ADMIN = 'super_admin',
@@ -29,8 +30,13 @@ export enum Permission {
 }
 
 export class CreateUserDto extends PickType(User, ['email', 'password']) {
+  
+  // @IsString()
+  // @MaxLength(20)
   name?: string; 
-  permissions: any;
-  shop_id?: string;
-  managed_shop?: any;
+
+  permissions?: Permission[];
+
+  managed_shop?: Shop;
+
 }

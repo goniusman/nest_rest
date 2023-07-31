@@ -57,7 +57,9 @@ async function bootstrap() {
     }),
 
     // snapshot: true,
+    
   });
+
   // const sess = session.Session
   // app.useGlobalGuards(new JwtAuthGuard())
   // app.use(
@@ -84,7 +86,7 @@ async function bootstrap() {
     .setTitle('Marvel')
     .setDescription('Marvel Mock API')
     .setVersion('1.0')
-    .addTag('marvel')
+    .addTag('Marvel')
     .build();
 
 
@@ -94,7 +96,7 @@ async function bootstrap() {
 
   const PORT = process.env.PORT || 5000;
 
-  await app.listen(5005);
+  await app.listen(PORT);
 
   console.log(`Application is running on : ${await app.getUrl()}/api`);
 }

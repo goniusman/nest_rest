@@ -8,6 +8,10 @@ export default () => ({
   database: {
     host: process.env.MONGODB_URI || 'mongodb://127.0.0.1',
     port: process.env.MONGODB_PORT || 27017
+  }, 
+  redis: {
+    host: process.env.REDIS_URI || 'localhost',
+    port: process.env.REDIS_PORT || 6379
   },
   mailer : {
     MAIL_HOST: process.env.MAIL_HOST,

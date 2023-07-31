@@ -11,7 +11,7 @@ import Fuse from 'fuse.js';
 import * as bcrypt from 'bcrypt'
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
-import {  User, UserDocument } from './entities/user.entity';
+import { User, UserDocument } from './entities/user.entity';
 import { CloudinaryService } from '../cloudinary/cloudinary.service';
 // import { CreateUserDto } from '../dto/create-user.dto';
 // import { IUser } from '../interface/user.interface';
@@ -19,10 +19,11 @@ import { CloudinaryService } from '../cloudinary/cloudinary.service';
 // import { User } from './entities/user.entity';
 // import usersJson from '@db/users.json';
 import { paginate } from 'src/common/pagination/paginate';
-import {GetUsersDto, UserPaginator} from './dto/get-users.dto';
-import {ApiOkResponse} from '@nestjs/swagger';
+import { GetUsersDto, UserPaginator } from './dto/get-users.dto';
+import { ApiOkResponse } from '@nestjs/swagger';
 import { ConfigService } from '@nestjs/config';
-import {UploadsService} from 'src/uploads/uploads.service';
+import { UploadsService } from 'src/uploads/uploads.service';
+import { IUser } from './interface/user.interface';
 // const users = plainToClass(UserSchema, usersJson);
 
 const options = {
@@ -38,10 +39,10 @@ export enum Permission {
 }
 
 @Injectable()
-export class UsersService { 
+export class UsersService {
   // private users: User[];
 
-  private NAME : string;
+  private NAME: string;
   constructor(
     @InjectModel(User.name)
     private users: Model<UserDocument>,
@@ -62,49 +63,31 @@ export class UsersService {
   // @InjectModel('Student') private studentModel:Model<IStudent>
 
 
-  ////// testing for caching manager with redis //although not working properly
-  async getSomeDate(): Promise<any> {
-    console.log('not here');
-    console.log(this.cacheService);
-    const cachedData = await this.cacheService.get("test");
-    console.log(cachedData);
-    if(cachedData){
-      console.log('data set to cache', cachedData);
-      return await `${cachedData}`;
-    }
-    const { data } = await this.httpService.axiosRef.get(
-      `https://jsonplaceholder.typicode.com/todos/1`,
-    );
-     await this.cacheService.set("test", data);
-
-     return data;
-
-  }
-
-
-
-
-
-
   async create(createUserDto: CreateUserDto): Promise<any> {
 
     ////////
     // const NMAILER_NAME = this.configService.get<string>('NMAILER_USER_NAME')
     // console.log(NMAILER_NAME);
-  // async create(createUserDto: CreateUserDto) {
+    // async create(createUserDto: CreateUserDto) {
     // return this.users[0];
 
-   const saltOrRounds = 10;
+    const saltOrRounds = 10;
     const hashPassword = await bcrypt.hash(createUserDto.password, saltOrRounds);
 
     const newStudent = await new this.users({
       ...createUserDto,
-       password: hashPassword
-      });
+      password: hashPassword
+    });
+
+    if (newStudent !== undefined) {
+
+    }
+
+
 
     return newStudent.save();
 
-   
+
 
     //  return {
     //   msg: "user created successfully",
@@ -112,7 +95,29 @@ export class UsersService {
     //  }
   }
 
-  async getUsers({ text, limit, page, search }:GetUsersDto): Promise<UserPaginator> {
+
+  ////// testing for caching manager with redis //although not working properly
+  async getSomeDate(): Promise<any> {
+    console.log('not here');
+    console.log(this.cacheService);
+    const cachedData = await this.cacheService.get("test");
+    console.log(cachedData);
+    if (cachedData) {
+      console.log('data set to cache', cachedData);
+      return await `${cachedData}`;
+    }
+    const { data } = await this.httpService.axiosRef.get(
+      `https://jsonplaceholder.typicode.com/todos/1`,
+    );
+    await this.cacheService.set("test", data);
+
+    return data;
+
+  }
+
+
+
+  async getUsers({ text, limit, page, search }: GetUsersDto): Promise<UserPaginator> {
     // console.log(text);
     if (!page) page = 1;
     if (!limit) limit = 30;
@@ -128,7 +133,7 @@ export class UsersService {
       userData = fuse.search(text)?.map(({ item }) => item);
     }
 
- 
+
     if (!userData || userData.length == 0) {
       throw new NotFoundException('Students data not found!');
     }
@@ -164,34 +169,15 @@ export class UsersService {
     // return results
   }
 
-  async getUser(id: any): Promise<any> {
-    // console.log(id);
-    // console.log(await this.users.findById(id));
-    // return await this.users.findOne({
-    //   select:{
-    //     name: true,
-    //     permissions: true,
-    //     profile: true,
-    //     shops: true,
-    //     // _id: true,
-    //     email: true,
-    //     is_active: true,
-    //     password: false,
-    //    },
-    //   where:{email: 'kamal@gmail.com'}}).exec();
-    // const user = await this.users.findById(id).exec();
-    //  const {password, ...result} = user
-    //  return result;
-    // return this.users.find((user) => user._id === id);
+  async getUser(id: any): Promise<IUser> {
 
-    // return await this.users.findById(id).exec();
-    const user = (await (await (await this.users.findOne({_id: id})).populate('shops')).populate('managed_shop'))
-    
+    const user = (await (await (await this.users.findOne({ _id: id })).populate('shops')).populate('managed_shop'))
+
     return user;
 
-  } 
-  
-  
+  }
+
+
   async getAllUsr() {
     // console.log(id);
     return await this.users.find().exec();
@@ -201,7 +187,7 @@ export class UsersService {
 
   async getAllStaff(id) {
     // console.log(id);
-    return await this.users.find({managed_shop: id}).exec();
+    return await this.users.find({ managed_shop: id }).exec();
     // return this.users.find((user) => user._id === id);
   }
 
@@ -211,42 +197,42 @@ export class UsersService {
     // return this.users.find((user) => user._id === id);
   }
 
-  async findByEmail(prop: string) { 
+  async findByEmail(prop: string) {
     // console.log(id);
-    return await this.users.findOne({email:prop}).exec();
+    return await this.users.findOne({ email:  prop  }).exec();
+    // return await this.users.findOne({ email: prop }).exec();
     // return this.users.find((user) => user._id === id);
   }
 
-  async update(id: string, updateUserDto:any) {
+  async update(id: string, updateUserDto: any) {
 
+    try {
 
-      try {
-
-        const user = await this.findById(id)
-        const imageId = user?.profile?.avatar?.id
-        if (imageId) {
-         const imageDoc = await this.uploader.findOne(imageId)
-         const deletedImageCloud = await 
-           this.cloudinary.deleteCloudinaryImage(`${imageDoc.public_id}.jpg`, imageDoc.signature)
-          console.log(deletedImageCloud);
-        }
-
-        if(updateUserDto?.address ){
-          user?.address.push(updateUserDto?.address[0])
-          return await this.users.findByIdAndUpdate(id, user)
-        }else{
-           return await this.users.findByIdAndUpdate(id, updateUserDto)
-        
-        }
-
-     
-      } catch (error) {
-        console.log(error);
+      const user = await this.findById(id)
+      const imageId = user?.profile?.avatar?.id
+      if (imageId) {
+        const imageDoc = await this.uploader.findOne(imageId)
+        const deletedImageCloud = await
+          this.cloudinary.deleteCloudinaryImage(`${imageDoc.public_id}.jpg`, imageDoc.signature)
+        console.log(deletedImageCloud);
       }
- 
+
+      if (updateUserDto?.address) {
+        user?.address.push(updateUserDto?.address[0])
+        return await this.users.findByIdAndUpdate(id, user)
+      } else {
+        return await this.users.findByIdAndUpdate(id, updateUserDto)
+
+      }
+
+
+    } catch (error) {
+      console.log(error);
+    }
+
   }
 
-  async updateShop(userId: any, shop:any): Promise<any> {
+  async updateShop(userId: any, shop: any): Promise<any> {
 
     try {
       const user = await this.findById(userId)
@@ -259,59 +245,74 @@ export class UsersService {
 
   async updatePassword(email: string, password: string): Promise<boolean> {
 
-      try {
-        const user = await this.findByEmail(email)
-        const saltOrRounds = 10;
-        const encPassword = await bcrypt.hash(password, saltOrRounds);
-        user.password = encPassword;
-        const update = await this.users.findOneAndUpdate({email}, user)
-        if(!update) {
-          throw new Error('user not updated')
-        }else{
-          return true;
-        }
-
-      } catch (error) {
-        return false;
+    try {
+      const user = await this.findByEmail(email)
+      const saltOrRounds = 10;
+      const encPassword = await bcrypt.hash(password, saltOrRounds);
+      user.password = encPassword;
+      const update = await this.users.findOneAndUpdate({ email }, user)
+      if (!update) {
+        throw new Error('user not updated')
+      } else {
+        return true;
       }
 
+    } catch (error) {
+      return false;
+    }
+
   }
 
 
-  async remove(id: string) { 
-    return await this.users.deleteOne({_id: id})
+  async remove(id: string): Promise<any> {
+    return await this.users.deleteOne({ _id: id })
   }
 
-  async makeAdmin(user_id: string) {
-    const user = await this.users.findById({_id: user_id});
-    if(user.permissions.includes(Permission.SUPER_ADMIN)){
+  async makeAdmin(user_id: string): Promise<any> {
+    const user = await this.users.findById({ _id: user_id });
+    if (user.permissions.includes(Permission.SUPER_ADMIN)) {
       const deductAdmin = user.permissions.filter(item => {
         return item != Permission.SUPER_ADMIN
       })
-     user.permissions = deductAdmin;
-    }else{
-        user.permissions = [...user.permissions, Permission.SUPER_ADMIN];
+      user.permissions = deductAdmin;
+    } else {
+      user.permissions = [...user.permissions, Permission.SUPER_ADMIN];
     }
-  
+
     return await user.save();
   }
 
   async banUser(id: string) {
-    const user = await this.users.findById({_id: id});
+    const user = await this.users.findById({ _id: id });
     user.is_active = !user.is_active;
     return user.save();
+  }
+
+  async updateEmailVerified(id: string) {
+
+    const user = await this.users.findById({ _id: id });
+    user.email_verified_at = true;
+    return user.save();
+
   }
 
   async activeUser(id: string) {
-    const user = await this.users.findById({_id: id});
+    // const user = await this.users.findById({ _id: id });
+    // this.users.aggregate()
     // console.log(user);
-    user.is_active = !user.is_active;
+    // user.is_active = !user.is_active;
     // user.password = '12345'
-    return user.save();
+    return this.users.aggregate([
+
+      { $match: { _id: `ObjectId(${id})` } },
+      { $set: { is_active: false } }
+
+    ])
+
   }
 
   async profilePicture(file: Express.Multer.File) {
-    const cloudinaryUpload =  await this.cloudinary.uploadImage(file).catch((err) => {
+    const cloudinaryUpload = await this.cloudinary.uploadImage(file).catch((err) => {
       throw new BadRequestException(err);
     });
 
@@ -322,4 +323,5 @@ export class UsersService {
 
 
   }
+
 }

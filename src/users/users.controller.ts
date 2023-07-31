@@ -33,7 +33,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { GetUsersDto } from './dto/get-users.dto';
 import {ApiConsumes, ApiOkResponse} from '@nestjs/swagger';
 // import { CreateUserDto } from '../dto/create-user.dto';
-import {  User } from './entities/user.entity';
+import {  User, UserDocument } from './entities/user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 // import { LocalAuthGuard } from '../auth/local/local.auth.guard';
 // import { AuthenticatedGuard } from '../auth/local/authenticated.guard';
@@ -82,18 +82,18 @@ export class UsersController {
   // }
 
 
-  @Get("getSomeDate")
-  async getSomeDate(): Promise<any> {
-    return await this.usersService.getSomeDate()
-  } 
+  // @Get("getSomeDate")
+  // async getSomeDate(): Promise<any> {
+  //   return await this.usersService.getSomeDate()
+  // } 
   
 
   
-  @Post()
-  @ApiConsumes('multipart/form-data')
-  createUser(@Body() createUserDto: CreateUserDto): Promise<User>  {
-    return this.usersService.create(createUserDto);
-  }
+  // @Post()
+  // @ApiConsumes('multipart/form-data')
+  // createUser(@Body() createUserDto: CreateUserDto): Promise<UserDocument>  {
+  //   return this.usersService.create(createUserDto);
+  // }
 
   // @UseGuards(LocalAuthGuard)
   // @Post("/login")
@@ -104,25 +104,25 @@ export class UsersController {
   // }
 
 
-  @Get('/logout')
-  logout(@Request() req): any {
-    req.session.destroy();
-    return { msg: 'The user session has ended' }
-  }
+  // @Get('/logout')
+  // logout(@Request() req): any {
+  //   req.session.destroy();
+  //   return { msg: 'The user session has ended' }
+  // }
  
 
-  @UseInterceptors(CacheInterceptor) // Automatically cache the response for this endpoint
-  @CacheKey('custom-key') // overrides the default cache key
-  @CacheTTL(30) // override TTL to 30 seconds
+  // @UseInterceptors(CacheInterceptor) // Automatically cache the response for this endpoint
+  // @CacheKey('custom-key') // overrides the default cache key
+  // @CacheTTL(30) // override TTL to 30 seconds
   @Get()
   // @HasRoles(Role.CUSTOMER, Role.STORE_OWNER)
   // @UseGuards(JwtAuthGuard, RolesGuard)
-  getAllUsers(@Query() query: any) {
-    // console.log('requesting.....');
-    this.logger.error("this is error message")
-    return HttpStatus.UNAUTHORIZED
-    // return this.usersService.getUsers(query);   
-  }
+  // getAllUsers(@Query() query: any) {
+  //   // console.log('requesting.....');
+  //   // this.logger.error("this is error message")
+  //   // return HttpStatus.UNAUTHORIZED
+  //   return this.usersService.getUsers(query);   
+  // }
 
   // @UseGuards(AuthenticatedGuard)
   @Get(':id')

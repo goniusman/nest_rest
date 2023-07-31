@@ -54,10 +54,10 @@ export class ShopsService {
     try {
 
       staff.permissions = [Permission.STAFF]
-      staff.managed_shop = staff.shop_id;
+      // staff.managed_shop = staff.shop_id;
       const createdStaff = await this.userService.create(staff)
 
-      const shop = await this.getShopById(staff.shop_id).exec()
+      const shop = await this.getShopById(staff.managed_shop).exec()
       shop.staffs.push(createdStaff._id)
       await this.update(shop._id.toString(), shop)
       
