@@ -21,9 +21,24 @@
             "hash": "9aef0ce3328783e487f5c19b1172954bbb2d8c3e328a9df2e0f7ec82e6460832"
         },
         {
-            "date": 1690782380102,
-            "name": "logs/2023-07-31-error.log",
-            "hash": "fc5d4bb034ac85928aee1af066059d811a19788bbfa2ee91d1c0791bb0e7b4a8"
+            "date": 1690857895070,
+            "name": "logs\\2023-08-01-error.log",
+            "hash": "8d2f1babdc34efac8fbcd985996bf3689bac5348729638dad04c0ec2978cc286"
+        },
+        {
+            "date": 1690968958986,
+            "name": "logs\\2023-08-02-error.log",
+            "hash": "63e0757d80ad4f90807e34e1302c0bbb082c7c81edecd987889c47469174815e"
+        },
+        {
+            "date": 1691040250841,
+            "name": "logs\\2023-08-03-error.log",
+            "hash": "577deed69f05501c306d3ef01add600ac11dc95b2f1df2f27c1fcd4ffb3119f3"
+        },
+        {
+            "date": 1691040778233,
+            "name": "logs/2023-08-03-error.log",
+            "hash": "4748ed20fa754e317f269ddd6cd9c8f22b35c9b59d54126dd6a96b0e2f688b96"
         }
     ],
     "hashType": "sha256"

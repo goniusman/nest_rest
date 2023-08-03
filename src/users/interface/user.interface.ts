@@ -12,10 +12,10 @@ export interface IUser extends Document{
     readonly permissions?: Permission[];
     readonly managed_shop?: Shop;
     readonly email_verified_at?: boolean;
-    readonly profile?: Profile;
-    readonly shops?: Shop[];
+    // readonly profile?: Profile;
+    // readonly shops?: Shop[];
     readonly is_active?: boolean;
-    readonly address?: Address[];
+    // readonly address?: Address[];
     readonly orders?: Order[];
     readonly shop_id?: Shop;
 }

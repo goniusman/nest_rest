@@ -53,208 +53,134 @@ export class AuthService {
   ) { }
 
 
+
   async register(createUserInput: CreateUserDto): Promise<any> {
 
     try {
 
       if (createUserInput.email != undefined) {
+
         const existuser = await this.usersService.findByEmail(createUserInput.email)
 
-        if (existuser != null) {
+        if (existuser == null) {
+
+          const createdUser = await this.usersService.create(createUserInput);
+
+          if (createdUser._id) {
+            return createdUser;
+          } else {
+            throw new HttpException('User Created Faild!', HttpStatus.BAD_REQUEST);
+          }
+        } else {
           throw new HttpException('User already exists', HttpStatus.BAD_REQUEST);
         }
 
-
-        const user = await this.usersService.create(createUserInput);
-        const id = user?._id.toString()
-        const permission = user?.permissions
-
-        const payload = {
-          id,
-          email: user.email,
-          permissions: permission,
-          name: user.name
-        };
-        const token = this.jwtService.sign(payload)
-
-        await this.mailService.sendUserConfirmation(user, token);
-
-        // if (sendMail != null) {
-        //   throw new HttpException('User already exists', HttpStatus.BAD_REQUEST);
-        // }
-
-
-        return {
-          token,
-          permissions: permission,
-          id,
-        };
+      } else {
+        throw new HttpException('Email Not Submited!', HttpStatus.BAD_REQUEST)
       }
-
-
-
 
     } catch (err) {
-      // this.findAndDelete(userModel?._id);
-      // status = false;
-      // message = err.message;
-      // data = err;
-      // return this._commonHelper.respone(status, message, data);
-      // return {
-      //   message: err.message,
-      //   status: HttpStatus.BAD_REQUEST
-      // }
+
       this.logger.error(`auth/register/ error message is -- ${err.message}`);
-      throw new HttpException(err.message, HttpStatus.BAD_REQUEST)
+      throw err
     }
 
-    // return this._commonHelper.respone(status, message, data);
-
-
-    // const user: User = {
-    //   id: uuidv4(),
-    //   ...users[0],
-    //   ...createUserInput,
-    //   created_at: new Date(),
-    //   updated_at: new Date(),
-    // };
-    // this.users.push(user);
-
-    // return {
-    //   token: 'jwt token',
-    //   permissions: ['super_admin', 'customer'],
-    // };
 
   }
 
-  async confirmlink(req: Request, token: string) {
-
-    // const token = req.params.token;
-    const verifyToken = await this.verifyToken(token)
-
-    if (verifyToken) {
-      return this.usersService.updateEmailVerified(verifyToken.id)
-    } else {
-      throw new HttpException('Token not valid!', HttpStatus.BAD_REQUEST);
-    }
-
-  }
-
-
-  private async verifyToken(token: string) {
-    const payload = await this.jwtService.verifyAsync(
-      token,
-      {
-        secret: jwtConstants.secret
-      }
-    );
-    return payload;
-  }
-
-
-  async validatePassword(email: string, password: string): Promise<any> {
-    const user = await this.usersService.findByEmail(email);
-    // console.log(user); 
-    if (!user) throw new NotFoundException("User not found", { cause: new Error(), description: 'There are no user. please register!' });
-    const passwordValid = await bcrypt.compare(password, user.password)
-    // return passwordValid;
-    if (user && passwordValid) {
-      user.password = undefined;
-      return user;
-    }
-    throw new HttpException("Password Not Correct", HttpStatus.BAD_REQUEST)
-  }
-
-  async validateUser(email: string): Promise<boolean> {
-    const user = await this.usersService.findByEmail(email);
-
-    if (!user) {
-      return false;
-    } else {
-      return true;
-    }
-
-  }
-
-  async login(body: any): Promise<any> {
-
+  async confirmRegister(id) {
     try {
-      const user = await this.usersService.findByEmail(body.email);
-      const ValidePassword = await this.validatePassword(user?.email, body.password);
-      if (!ValidePassword) {
-        throw new UnauthorizedException();
+      const updatedUser = await this.usersService.updateEmailVerified(id);
+      if (updatedUser._id) {
+        return updatedUser;
       } else {
-        const id = user?._id.toString();
-        const permissions = user?.permissions
-        const payload = { email: user.email, id, permissions: permissions, name: user.name };
-        return {
-          token: await this.jwtService.signAsync(payload),
-          permissions: permissions,
-          id: id
-        };
+        throw new HttpException('Update User Faild!', HttpStatus.BAD_REQUEST);
       }
-
     } catch (error) {
-      throw new HttpException(error.message, HttpStatus.BAD_REQUEST)
+      this.logger.error(`authservice/confirmRegister error is ${error.message}`)
+      throw error
     }
+
 
   }
 
   async token(user: any) {
-    const payload = { username: user.name, sub: user._id };
-    return {
-      access_token: this.jwtService.sign(payload),
-    };
+    return await this.jwtService.sign(user)
   }
 
-  async getAllUsr() {
-    return this.usersService.getAllUsr()
-  }
-
-  findAndDelete(id: string): any {
-    return this.usersService.remove(id)
-  }
-
-  // async login(loginInput: LoginDto): Promise<AuthResponse> {
-  //   console.log(loginInput);
-  //   return {
-  //     token: 'jwt token',
-  //     permissions: ['super_admin', 'customer'],
-  //     id: ""
-  //   };
-  // }
-
-  async changePassword(email: string,
-    changePasswordInput: ChangePasswordDto,
-  ): Promise<CoreResponse> {
-
+  async validateUser(email: string): Promise<User> {
     try {
-      const validateUser = await this.validateUser(email);
-      if (!validateUser) {
-        throw new Error("User Not Found")
-      }
-      const validatePassword = await this.validatePassword(email, changePasswordInput.oldPassword)
+      const user = await this.usersService.findByEmail(email);
 
-      if (!validatePassword) {
-        throw new Error("Password did not match")
-      }
-
-      const updatePassword = await this.usersService.updatePassword(email, changePasswordInput.newPassword)
-
-      if (!updatePassword) {
-        throw new Error("Password not Changed")
+      if (!user) {
+        throw new HttpException('User not found', HttpStatus.NOT_FOUND)
       } else {
-        return {
-          success: true,
-          message: 'Password change successful',
-        };
+        return user;
       }
+
+    } catch (err) {
+      this.logger.error(`authController/token user login error: ${err.message}`);
+      throw err;
+    }
+
+  }
+
+  async findByEmail(email: string) {
+    return await this.usersService.findByEmail(email)
+  }
+
+  async verifyToken(token: string) {
+    try {
+      const payload = await this.jwtService.verifyAsync(
+        token,
+        {
+          secret: jwtConstants.secret
+        }
+      );
+      return payload;
+
     } catch (error) {
-      return {
-        success: false,
-        message: error.message,
-        status: 403
-      };
+      this.logger.error(`authService/verifyToken ${error.message}`)
+      return error
+    }
+
+  }
+
+  async validatePassword(dbpass: string, password: string): Promise<boolean> {
+    const passwordValid = await bcrypt.compare(password, dbpass)
+
+    if (passwordValid) {
+      return true;
+    } else {
+      return false
+    }
+
+  }
+
+  async updatePassword(email: string, newPassword: string): Promise<any> {
+    return await this.usersService.updatePassword(email, newPassword)
+  }
+
+
+  async me(id: string = "645edc9c9f206888102d1782"): Promise<any> {
+    // const id: string = "this is test id"
+    try {
+      const user = await this.usersService.getUser(id);
+      if (user) {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { _doc, ...others } = user;
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { password, updatedAt, __v, ...result } = _doc
+
+        return result;
+
+      } else {
+        throw new HttpException('User not found', HttpStatus.NOT_FOUND)
+      }
+
+    } catch (err) {
+      this.logger.error(`authService/me user error: ${err.message}`);
+      throw err;
     }
 
   }
@@ -330,77 +256,7 @@ export class AuthService {
     };
   }
 
-  // async getUsers({ text, first, page }: GetUsersArgs): Promise<UserPaginator> {
-  //   const startIndex = (page - 1) * first;
-  //   const endIndex = page * first;
-  //   let data: User[] = this.users;
-  //   if (text?.replace(/%/g, '')) {
-  //     data = fuse.search(text)?.map(({ item }) => item);
-  //   }
-  //   const results = data.slice(startIndex, endIndex);
-  //   return {
-  //     data: results,
-  //     paginatorInfo: paginate(data.length, page, first, results.length),
-  //   };
-  // }
-  // public getUser(getUserArgs: GetUserArgs): User {
-  //   return this.users.find((user) => user.id === getUserArgs.id);
-  // }
-
-  public async me(id: string = "645edc9c9f206888102d1782"): Promise<any> {
-    // const id: string = "this is test id"
-    try {
-      const user = await this.usersService.getUser(id);
-      // const {password, ...result} = user._doc
-      // const ids = user?.shop_id;
-      // let managedshop: any = null
-      // if(ids) {
-      //     managedshop = await this.shopService.getShopById(ids)
-      //   //  user.shops.push(shop) ;
-      //   //  user.managed_shop = shop
-      // }
-
-      // let shops = []
-
-      // for (const item of user.shops) {
-      //   shops.push(await this.shopService.getShopById(item)) 
-      // }
-
-      // user.anos = shops;
-      // console.log(shops);
-
-      // Object.assign(user)
-      // let {_doc,  ...result} = user;
-      // const shops = await this.shopService.getShopById('646b0397286b0a9d91f39ca8');
-      //  console.log(shops);
-      const result = {
-        _id: user._id.toString(),
-        name: user.name,
-        email: user.email,
-        shops: user?.shops,
-        shop_id: user?.shop_id,
-        managed_shop: user?.managed_shop,
-        is_active: user.is_active,
-        address: user?.address,
-        profile: user?.profile,
-        orders: user?.orders,
-        permissions: user.permissions
-
-      }
-      return result;
-
-    } catch (error) {
-      console.log(error);
-    }
-
-  }
-
-  // me(): User {
-  //   return this.users[0];
-  // }
+ 
 
 
-  // updateUser(id: number, updateUserInput: UpdateUserInput) {
-  //   return `This action updates a #${id} user`;
-  // }
 }

@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import { BadRequestException, Injectable, NotFoundException, Inject, } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException, Inject, Logger, HttpException, HttpStatus, } from '@nestjs/common';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { HttpService } from '@nestjs/axios';
 import { Cache } from 'cache-manager';
@@ -41,7 +41,7 @@ export enum Permission {
 @Injectable()
 export class UsersService {
   // private users: User[];
-
+  private readonly logger = new Logger();
   private NAME: string;
   constructor(
     @InjectModel(User.name)
@@ -50,6 +50,7 @@ export class UsersService {
     private uploader: UploadsService,
     private readonly httpService: HttpService,
     @Inject(CACHE_MANAGER) private cacheService: Cache,
+
     // private readonly configService: ConfigService
   ) {
 
@@ -65,34 +66,20 @@ export class UsersService {
 
   async create(createUserDto: CreateUserDto): Promise<any> {
 
-    ////////
-    // const NMAILER_NAME = this.configService.get<string>('NMAILER_USER_NAME')
-    // console.log(NMAILER_NAME);
-    // async create(createUserDto: CreateUserDto) {
-    // return this.users[0];
+    try {
 
-    const saltOrRounds = 10;
-    const hashPassword = await bcrypt.hash(createUserDto.password, saltOrRounds);
+      const saltOrRounds = 10;
+      const hashPassword = await bcrypt.hash(createUserDto.password, saltOrRounds);
+      const newStudent = await new this.users({
+        ...createUserDto,
+        password: hashPassword
+      });
+      return newStudent.save();
 
-    const newStudent = await new this.users({
-      ...createUserDto,
-      password: hashPassword
-    });
-
-    if (newStudent !== undefined) {
-
+    } catch (error) {
+      this.logger.error(`userService/create error is ${error.message}`)
     }
 
-
-
-    return newStudent.save();
-
-
-
-    //  return {
-    //   msg: "user created successfully",
-    //   userId: newStudent._id
-    //  }
   }
 
 
@@ -169,11 +156,20 @@ export class UsersService {
     // return results
   }
 
-  async getUser(id: any): Promise<IUser> {
+  async getUser(id: any): Promise<any> {
+    try {
+      const user = (await (await (await this.users.findOne({ _id: id }))?.populate('shops'))?.populate('managed_shop'))
+      if (user) {
+        return user;
 
-    const user = (await (await (await this.users.findOne({ _id: id })).populate('shops')).populate('managed_shop'))
+      } else {
+        throw new HttpException('User not found', HttpStatus.NOT_FOUND)
+      }
+    } catch (err) {
+      this.logger.error(`userService/getUser user error: ${err.message}`);
+      throw err;
+    }
 
-    return user;
 
   }
 
@@ -199,7 +195,7 @@ export class UsersService {
 
   async findByEmail(prop: string) {
     // console.log(id);
-    return await this.users.findOne({ email:  prop  }).exec();
+    return await this.users.findOne({ email: prop }).exec();
     // return await this.users.findOne({ email: prop }).exec();
     // return this.users.find((user) => user._id === id);
   }
@@ -290,9 +286,20 @@ export class UsersService {
 
   async updateEmailVerified(id: string) {
 
-    const user = await this.users.findById({ _id: id });
-    user.email_verified_at = true;
-    return user.save();
+    try {
+      const user = await this.users.findById(id);
+      if (user != null) {
+        user.email_verified_at = true;
+        return await user.save();
+      } else {
+        throw new HttpException(`User ${id} does not exist`, HttpStatus.NOT_FOUND)
+      }
+
+    } catch (error) {
+      this.logger.error(`/users/updateEmailVerifed error is ${error.message}`)
+      return error;
+    }
+
 
   }
 

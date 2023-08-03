@@ -168,10 +168,10 @@ const mongo = db.host ? `${db.host}:${db.port}`  :
     //   useClass: JwtAuthGuard,
     // },
     MailService,
-    {
-      provide: APP_INTERCEPTOR,
-      useClass: CacheInterceptor,
-    },
+    // {
+    //   provide: APP_INTERCEPTOR,
+    //   useClass: CacheInterceptor,
+    // },
   ],
 })
 export class AppModule {
