@@ -20,10 +20,10 @@ import {
 } from '@nestjs/common';
 
 import {
-CacheInterceptor,
-CacheTTL,
-CacheKey
-} from  '@nestjs/cache-manager'
+  CacheInterceptor,
+  CacheTTL,
+  CacheKey
+} from '@nestjs/cache-manager'
 import Cache from 'cache-manager';
 import { UsersService } from './users.service';
 // import { CreateUserDto } from './dto/create-user.dto';
@@ -31,13 +31,13 @@ import { UpdateUserDto } from './dto/update-user.dto';
 // import { CreateProfileDto } from './dto/create-profile.dto';
 // import { UpdateProfileDto } from './dto/update-profile.dto';
 import { GetUsersDto } from './dto/get-users.dto';
-import {ApiConsumes, ApiOkResponse} from '@nestjs/swagger';
+import { ApiConsumes, ApiOkResponse } from '@nestjs/swagger';
 // import { CreateUserDto } from '../dto/create-user.dto';
-import {  User, UserDocument } from './entities/user.entity';
+import { User, UserDocument } from './entities/user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 // import { LocalAuthGuard } from '../auth/local/local.auth.guard';
 // import { AuthenticatedGuard } from '../auth/local/authenticated.guard';
-import {FileInterceptor} from '@nestjs/platform-express';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { CreateProfileDto } from './dto/create-profile.dto';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 import { HasRoles } from 'src/auth/gurd/has-roles.decorator';
@@ -49,19 +49,16 @@ import { JwtAuthGuard } from 'src/auth/gurd/jwt-auth.guard';
 
 @Controller('users')
 export class UsersController {
+
   private readonly logger = new Logger();
   randomNumDbs = Math.floor(Math.random() * 10)
-  constructor(
-    // private readonly logger : Logger,
-    // @Inject(CACHE_MANAGER) private cacheManager: Cache,
-    private readonly usersService: UsersService) {}
-  // @ApiOkResponse({
-  //   description: 'The user records',
-  //   type: User,
-  //   isArray: true
-  // })
 
-///////////////// previously created for cache
+  constructor(
+    // @Inject(CACHE_MANAGER) private cacheManager: Cache,
+    private readonly usersService: UsersService) { }
+
+
+  ///////////////// previously created for cache
   // async getNumber(): Promise<any> {
   //   const val = await this.cacheManager.get('number')
   //   if(val) {
@@ -86,73 +83,64 @@ export class UsersController {
   // async getSomeDate(): Promise<any> {
   //   return await this.usersService.getSomeDate()
   // } 
-  
 
-  
-  // @Post()
-  // @ApiConsumes('multipart/form-data')
-  // createUser(@Body() createUserDto: CreateUserDto): Promise<UserDocument>  {
-  //   return this.usersService.create(createUserDto);
-  // }
-
-  // @UseGuards(LocalAuthGuard)
-  // @Post("/login")
-  // login(@Body() req): any {
-  //   console.log(req);
-  //   return {User: req.user,
-  //           msg: 'User logged in'};
-  // }
-
-
-  // @Get('/logout')
-  // logout(@Request() req): any {
-  //   req.session.destroy();
-  //   return { msg: 'The user session has ended' }
-  // }
- 
 
   // @UseInterceptors(CacheInterceptor) // Automatically cache the response for this endpoint
   // @CacheKey('custom-key') // overrides the default cache key
   // @CacheTTL(30) // override TTL to 30 seconds
-  @Get()
-  // @HasRoles(Role.CUSTOMER, Role.STORE_OWNER)
-  // @UseGuards(JwtAuthGuard, RolesGuard)
-  // getAllUsers(@Query() query: any) {
-  //   // console.log('requesting.....');
-  //   // this.logger.error("this is error message")
-  //   // return HttpStatus.UNAUTHORIZED
-  //   return this.usersService.getUsers(query);   
-  // }
 
-  // @UseGuards(AuthenticatedGuard)
+
+
+
+  @Get()
+  @HasRoles(Role.STORE_OWNER, Role.SUPER_ADMIN)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  getAllUsers(@Query() query: any) {
+    return this.usersService.getUsers(query);
+  }
+
+
   @Get(':id')
+  @HasRoles(Role.STORE_OWNER, Role.SUPER_ADMIN)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   getUser(@Param('id') id: string) {
     //nice to meet you
     return this.usersService.findById(id);
   }
 
   @Put(':id')
+  @UseGuards(JwtAuthGuard)
   updateUser(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
     return this.usersService.update(id, updateUserDto);
   }
- 
+
+
   @Delete(':id')
+  @UseGuards(JwtAuthGuard)
   async removeUser(@Param('id') id: string) {
     return await this.usersService.remove(id);
   }
 
+
   @Post('unblock-user')
+  @HasRoles(Role.STORE_OWNER, Role.SUPER_ADMIN)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   activeUser(@Body('id') id: string) {
     return this.usersService.activeUser(id);
   }
 
+
   @Post('block-user')
+  @HasRoles(Role.STORE_OWNER, Role.SUPER_ADMIN)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   banUser(@Body('id') id: string) {
     return this.usersService.banUser(id);
   }
 
-  @Post('make-admin') 
-  makeAdmin(@Req() req: Request , @Body('user_id') id: string) {
+  @Post('make-admin')
+  @HasRoles(Role.SUPER_ADMIN)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  makeAdmin(@Req() req: Request, @Body('user_id') id: string) {
     //// testing for docker save directly
     return this.usersService.makeAdmin(id);
   }
@@ -167,16 +155,33 @@ export class UsersController {
 
   //// end controller methods
 
+  // @Post('contact-us')
+  // contactUs(@Body() addPointsDto: any) {
+  //   return {
+  //     success: true,
+  //     message: 'Thank you for contacting us. We will get back to you soon.',
+  //   };
+
+  // }
+
+  // @Post('add-points')
+  // addWalletPoints(@Body() addPointsDto: any) {
+  //   return this.authService.me();
+  // }
+
+
+
+
+
+
+
 
 }
 
 
-
-
-
 @Controller('profiles')
 export class ProfilesController {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(private readonly usersService: UsersService) { }
 
   @Post()
   createProfile(@Body() createProfileDto: CreateProfileDto) {
@@ -188,10 +193,14 @@ export class ProfilesController {
     console.log(updateProfileDto);
   }
 
-  // @Delete(':id')
-  // deleteProfile(@Param('id') id: number) {
-  //   return this.usersService.remove(id);
-  // }
+  @Delete(':id')
+  deleteProfile(@Param('id') id: string) {
+    return this.usersService.remove(id);
+  }
 
-  /////// nice docker save using volume
+ 
 }
+
+
+
+

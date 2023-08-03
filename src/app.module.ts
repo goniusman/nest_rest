@@ -166,10 +166,10 @@ const mongo = env().database.host ? `${env().database.host}:${env().database.por
     //   useClass: JwtAuthGuard,
     // },
     MailService,
-    {
-      provide: APP_INTERCEPTOR,
-      useClass: CacheInterceptor,
-    },
+    // {
+    //   provide: APP_INTERCEPTOR,
+    //   useClass: CacheInterceptor,
+    // },
   ],
 })
 export class AppModule {

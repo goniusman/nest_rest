@@ -61,7 +61,7 @@ export class User extends CoreEntity {
   @Prop({  type: mongoose.Schema.Types.ObjectId, ref: 'Shop' , required: false})
   managed_shop?: Shop;
 
-  @Prop({ required: false, type: Boolean, default: true})
+  @Prop({ required: false, type: Boolean, default: false})
   is_active?: boolean = true;
 
   @Prop({ type: mongoose.Schema.Types.Array, default: [] })

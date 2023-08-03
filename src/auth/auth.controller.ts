@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { Controller, Get, Post, Body, HttpCode, HttpStatus, Param, Req, Query, UseInterceptors } from '@nestjs/common';
+import { Controller, Get, Post, Body, HttpCode, HttpStatus, Param, Req, Query, UseInterceptors, Res, HttpException, Logger, UseFilters } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { Request, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
@@ -26,114 +26,328 @@ import { RolesGuard } from './gurd/roles.guard';
 import { LocalAuthGuard } from './local/local.auth.guard'
 import { JwtAuthGuard } from './gurd/jwt-auth.guard'
 import { IGetUserAuthInfoRequest } from 'src/helper/typeDefinition';
-import { Request, query } from 'express';
-import { ApiConsumes } from '@nestjs/swagger';
+import { ApiTags } from '@nestjs/swagger';
+import passport from 'passport';
+import { MailService } from 'src/mail/mail.service';
+import { ok } from 'assert';
+import { HttpExceptionFilter } from 'src/utils/Exeption/httpExceptionFilter';
+// import { query } from 'express';
+// import { ApiConsumes } from '@nestjs/swagger';
 // import { TransformInterceptor } from 'src/utils/Response.Interceptor';
 
-
+@ApiTags("Auth")
 @Controller("auth")
 // @UseInterceptors(TransformInterceptor)
 export class AuthController {
-  constructor(private readonly authService: AuthService) { }
+
+  private readonly logger = new Logger();
+
+  constructor(
+    private readonly authService: AuthService,
+    private mailService: MailService
+
+  ) { }
 
 
   @Post('register')
-  createAccount( @Req() req, @Body() registerDto: CreateUserDto) {
-    // console.log(registerDto);
-    return this.authService.register(registerDto);
-    console.log(req);
+  // @UseFilters(HttpExceptionFilter)
+  async createAccount(@Body() registerDto: CreateUserDto): Promise<any> {
+
+    try {
+
+      if (registerDto?.email != undefined) {
+
+        const existuser = await this.authService.findByEmail(registerDto.email)
+
+        if (existuser == null) {
+
+          const createdUser = await this.authService.register(registerDto);
+
+          if (createdUser._id) {
+
+            const payload = {
+              id: createdUser._id,
+              name: createdUser.name,
+              email: createdUser.email,
+              // password: createdUser.password,
+              permissions: createdUser.permissions,
+            };
+            const token = await this.authService.token(payload)
+
+            if (token) {
+              const sendMail = await this.mailService.sendUserConfirmation(payload, token);
+
+              if (sendMail != null) {
+                return {
+                  ...payload,
+                  token,
+                  message: "Please Check your email addressess"
+                }
+              } else {
+
+                throw new HttpException('Email Send Faild!', HttpStatus.CONFLICT);
+              }
+            } else {
+
+              throw new HttpException('Token Not Generated!', HttpStatus.CONFLICT);
+            }
+          } else {
+
+            throw new HttpException('User Created Faild!', HttpStatus.CONFLICT);
+          }
+
+        } else {
+
+          throw new HttpException('User already exists!', HttpStatus.BAD_REQUEST);
+        }
+
+      } else {
+
+        throw new HttpException('Email Should Not Be Empty!', HttpStatus.BAD_REQUEST)
+      }
+    } catch (error) {
+      // response.status = 400
+      this.logger.error(`authController/register/ error message is -- ${error.message} user ` );
+
+      // throw new HttpException({
+      //   // status: HttpStatus.FORBIDDEN,
+      //   error: error,
+      // }, HttpStatus.BAD_GATEWAY, {
+      //   cause: error
+      // });
+
+      throw error
+
+    }
+
   }
 
-  @Get('confirm')
-  async confirmlink(req: Request, token: string) {
-    return this.authService.confirmlink(req, token);
+
+  @Get('confirmregister')
+  async confirmRegister(@Body() body, @Query() query) {
+
+    try {
+      const { token } = query;
+
+      const user = await this.authService.verifyToken(token)
+      if (user) {
+        const existuser = await this.authService.findByEmail(user.email)
+        if (existuser != null) {
+
+          const updateEmailVerify = await this.authService.confirmRegister(user.id)
+
+          if (updateEmailVerify != null) {
+            const sendMail = await this.mailService.sendUserGreetings(user);
+            if (sendMail.accepted.length > 0) {
+              return {
+                ...user,
+                message: "Email Verified Successfully"
+              }
+            } else {
+
+              throw new HttpException('Email Send Faild!', HttpStatus.CONFLICT);
+            }
+          } else {
+            throw new HttpException('Email Not Verified yet!', HttpStatus.CONFLICT);
+          }
+
+        } else {
+          throw new HttpException('User Not Found', HttpStatus.NOT_FOUND);
+        }
+
+      } else {
+        throw new HttpException('Token Not Valid', HttpStatus.NOT_FOUND);
+      }
+
+
+    } catch (error) {
+      this.logger.error(`authController/confirmRegister error is ${error.message}`)
+      throw error;
+    }
+
   }
-
-  // @UseGuards(LocalAuthGuard)
-  // @HttpCode(HttpStatus.OK)
-  // @Post('login')
-  // async login(@Request() req) : Promise<any>{
-  //     return await this.authService.login(req.body);
-  // }
-
-  // @UseGuards(AuthGuard)
-  // @Post('token')
-  // async token(@Request() req) {
-  //     return this.authService.token(req.user);
-  // }
-
-  @HasRoles(Role.SUPER_ADMIN)
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Get('getallusers')
-  async getallusers(@Request() req) {
-    return this.authService.getAllUsr();
-  }
-
-  // @UseGuards(JwtAuthGuard)
-  // @Get('me/:id')
-  // me(@Param('id') id?: string) { 
-  //   return this.authService.me(id);
-  // }
-
-  @UseGuards(JwtAuthGuard)
-  @Post('change-password')
-  changePassword(@Req() req: IGetUserAuthInfoRequest, @Body() changePasswordDto: ChangePasswordDto) {
-    // const email = req;
-    return this.authService.changePassword(req?.user?.email, changePasswordDto);
-  }
-
-  // @HasRoles(Role.SUPER_ADMIN)
-  // @UseGuards(AuthGuard('jwt'), RolesGuard)
-  // @Get('admin')
-  // onlyAdmin(@Request() req) {
-  //   return req.user;
-  // }
-
-  // @HasRoles(Role.CUSTOMER)
-  // @UseGuards(AuthGuard('jwt'), RolesGuard)
-  // @Get('user')
-  // onlyUser(@Request() req) {
-  //   return req.user;
-  // }
-
-
 
 
   @Post('token')
-  @UseGuards(LocalAuthGuard)
-  login(@Body() loginDto: LoginDto) {
-    return this.authService.login(loginDto);
+  // @HttpCode(HttpStatus.OK)
+  async login(@Body() loginDto: LoginDto, @Res() res): Promise<any> {
+
+    try {
+
+      if (loginDto.email && loginDto.password) {
+
+        const user = await this.authService.findByEmail(loginDto.email)
+
+        if (user) {
+
+          const ValidePassword = await this.authService.validatePassword(user?.password, loginDto.password);
+
+          if (ValidePassword) {
+
+            const id = user?._id.toString();
+            const permissions = user?.permissions
+            const payload = {
+              id,
+              name: user.name,
+              email: user.email,
+              permissions
+            };
+
+            return res.status(200).send({
+              id,
+              permissions,
+              token: await this.authService.token(payload),
+            });
+
+          } else {
+
+            throw new HttpException('Password Not Valid', HttpStatus.BAD_REQUEST)
+
+          }
+
+        } else {
+          throw new HttpException('User not found', HttpStatus.NOT_FOUND)
+        }
+      } else {
+        throw new HttpException('Email and password shuld not be empty!', HttpStatus.NOT_FOUND)
+      }
+
+    } catch (err) {
+      this.logger.error(`authController/token user login error: ${err.message}`);
+      throw err;
+    }
+
   }
 
-  @Post('social-login-token')
-  socialLogin(@Body() socialLoginDto: SocialLoginDto) {
-    return this.authService.socialLogin(socialLoginDto);
+
+  @UseGuards(JwtAuthGuard)
+  @Get('me/:id')
+  async me(@Param('id') id?: string) {
+
+    try {
+      const user = await this.authService.me(id);
+      if (user) {
+        return user;
+      } else {
+        throw new HttpException('User not found', HttpStatus.NOT_FOUND)
+      }
+
+    } catch (err) {
+      this.logger.error(`authController/me user login error: ${err.message}`);
+      throw err;
+    }
+
+
   }
-  @Post('otp-login')
-  otpLogin(@Body() otpLoginDto: OtpLoginDto) {
-    return this.authService.otpLogin(otpLoginDto);
+
+
+  @HasRoles(Role.SUPER_ADMIN)
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Get('admin')
+  onlyAdmin(@Request() req) {
+    return req.user;
   }
-  @Post('send-otp-code')
-  sendOtpCode(@Body() otpDto: OtpDto) {
-    return this.authService.sendOtpCode(otpDto);
+
+  @HasRoles(Role.CUSTOMER)
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Get('user')
+  onlyUser(@Request() req) {
+    return req.user;
   }
-  @Post('verify-otp-code')
-  verifyOtpCode(@Body() verifyOtpDto: VerifyOtpDto) {
-    return this.authService.verifyOtpCode(verifyOtpDto);
+
+
+  @UseGuards(JwtAuthGuard)
+  @Post('change-password')
+  async changePassword(@Req() req: IGetUserAuthInfoRequest, @Body() changePasswordDto: ChangePasswordDto) {
+
+
+    const email = req?.user?.email;
+
+    try {
+      if (changePasswordDto.newPassword && changePasswordDto.oldPassword) {
+
+        const validateUser = await this.authService.validateUser(email);
+        if (validateUser) {
+
+          const validatePassword = await this.authService.validatePassword(validateUser.password, changePasswordDto.oldPassword)
+
+          if (validatePassword) {
+
+            const updatePassword = await this.authService.updatePassword(validateUser.email, changePasswordDto.newPassword)
+
+            if (updatePassword) {
+              return {
+                success: true,
+                message: 'Password changed successful!',
+              };
+            } else {
+              throw new HttpException('Password Not Changed!', HttpStatus.CONFLICT)
+
+            }
+
+          } else {
+            throw new HttpException('Password Not Match!', HttpStatus.BAD_REQUEST)
+          }
+        } else {
+          throw new HttpException('User not found', HttpStatus.NOT_FOUND)
+        }
+
+      } else {
+        throw new HttpException('Password Field Shuld not be empty!', HttpStatus.BAD_REQUEST)
+
+      }
+    } catch (err) {
+      this.logger.error(`authController/changePassword error: ${err.message}`);
+      throw err;
+    }
+
+
+
   }
+
+
   @Post('forget-password')
   forgetPassword(@Body() forgetPasswordDto: ForgetPasswordDto) {
     return this.authService.forgetPassword(forgetPasswordDto);
   }
+
+
   @Post('reset-password')
   resetPassword(@Body() resetPasswordDto: ResetPasswordDto) {
     return this.authService.resetPassword(resetPasswordDto);
   }
 
+
   @Post('logout')
   async logout(): Promise<boolean> {
     return true;
   }
+
+
+  @Post('social-login-token')
+  socialLogin(@Body() socialLoginDto: SocialLoginDto) {
+    return this.authService.socialLogin(socialLoginDto);
+  }
+
+
+  @Post('otp-login')
+  otpLogin(@Body() otpLoginDto: OtpLoginDto) {
+    return this.authService.otpLogin(otpLoginDto);
+  }
+
+
+  @Post('send-otp-code')
+  sendOtpCode(@Body() otpDto: OtpDto) {
+    return this.authService.sendOtpCode(otpDto);
+  }
+
+
+  @Post('verify-otp-code')
+  verifyOtpCode(@Body() verifyOtpDto: VerifyOtpDto) {
+    return this.authService.verifyOtpCode(verifyOtpDto);
+  }
+
+
   @Post('verify-forget-password-token')
   verifyForgetPassword(
     @Body() verifyForgetPasswordDto: VerifyForgetPasswordDto,
@@ -142,24 +356,7 @@ export class AuthController {
   }
 
 
-  @Post('add-points')
-  addWalletPoints(@Body() addPointsDto: any) {
-    return this.authService.me();
-  }
 
-  @Post('contact-us')
-  contactUs(@Body() addPointsDto: any) {
-    return {
-      success: true,
-      message: 'Thank you for contacting us. We will get back to you soon.',
-    };
-  }
-
-
-  @Get('me/:id')
-  me(@Param('id') id: string) {
-    return this.authService.me(id);
-  }
 
 
 }

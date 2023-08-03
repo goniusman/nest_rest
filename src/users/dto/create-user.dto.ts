@@ -19,7 +19,7 @@ import { CreateProfileDto } from './create-profile.dto';
 //   permission: Permission = Permission.CUSTOMER;
 // }
 import { Address } from '../../addresses/entities/address.entity';
-import {Type} from 'class-transformer';
+import {Exclude, Type} from 'class-transformer';
 import { Shop } from 'src/shops/entities/shop.entity';
 
 export enum Permission {
@@ -35,7 +35,15 @@ export class CreateUserDto extends PickType(User, ['email', 'password']) {
   // @MaxLength(20)
   name?: string; 
 
-  permissions?: Permission[];
+  @IsEmail()
+  @IsNotEmpty()
+  email: string
+
+  // @IsNotEmpty()
+  password: string;
+
+  @IsNotEmpty()
+  permissions: Permission[];
 
   managed_shop?: Shop;
 

@@ -14,9 +14,11 @@ export default () => ({
     port: process.env.REDIS_PORT || 6379
   },
   mailer : {
-    MAIL_HOST: process.env.MAIL_HOST,
-    MAIL_USER: process.env.MAIL_USER,
-    MAIL_PASSWORD: process.env.MAIL_PASSWORD,
-    MAIL_FROM: process.env.MAIL_FROM
+    host: process.env.MAIL_HOST,
+    port: process.env.MAIL_PORT,
+    user: process.env.MAIL_USER,
+    password: process.env.MAIL_PASSWORD,
+    from: process.env.MAIL_FROM,
+    transport: process.env.MAIL_TRANSPORT
   }
 });
