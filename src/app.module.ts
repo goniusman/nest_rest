@@ -61,10 +61,12 @@ import { redisStore } from 'cache-manager-redis-store';
 import { HttpModule } from '@nestjs/axios';
 
 
-const mongo = env().database.host ? `${env().database.host}:${env().database.port}`  : 
+const {db, redis} = env()
+
+const mongo = db.host ? `${db.host}:${db.port}`  : 
  'mongodb://127.0.0.1:27018'
 
-// console.log(env().database.port);
+// console.log(database.port);
 @Module({
   imports: [
     HttpModule.register({
@@ -77,8 +79,8 @@ const mongo = env().database.host ? `${env().database.host}:${env().database.por
       // @ts-ignore
       store: redisStore, 
       socket: {
-        host: env().redis.host,    // This is ignored and `127.0.0.1` is used instead
-        port: Number(env().redis.port)
+        host: redis.host,    // This is ignored and `127.0.0.1` is used instead
+        port: Number(redis.port)
       }
       // host: 'localhost',
       // port: 6379,

@@ -26,10 +26,9 @@ import { RolesGuard } from './gurd/roles.guard';
 import { LocalAuthGuard } from './local/local.auth.guard'
 import { JwtAuthGuard } from './gurd/jwt-auth.guard'
 import { IGetUserAuthInfoRequest } from 'src/helper/typeDefinition';
-import { Request, query } from 'express';
+import { query } from 'express';
 import { ApiConsumes } from '@nestjs/swagger';
 // import { TransformInterceptor } from 'src/utils/Response.Interceptor';
-
 
 @Controller("auth")
 // @UseInterceptors(TransformInterceptor)
