@@ -53,18 +53,20 @@ export class ShopsService {
   async createStaff(staff: CreateUserDto) {
     try {
 
-      staff.permissions = [Permission.STAFF]
-      // staff.managed_shop = staff.shop_id;
+      // staff.permissions = [Permission.STAFF]
+      staff.managed_shop = staff.shop_id;
       const createdStaff = await this.userService.create(staff)
 
-      const shop = await this.getShopById(staff.managed_shop).exec()
-      shop.staffs.push(createdStaff._id)
-      await this.update(shop._id.toString(), shop)
+      if(createdStaff._id){
       
-      return createdStaff
+          return createdStaff
+
+      }else{
+        throw new HttpException('Staff Not Created!', HttpStatus.BAD_REQUEST)
+      }
 
     } catch (error) {
-      throw new HttpException(error.message, HttpStatus.BAD_REQUEST)
+      throw error;
     }
 
   }
@@ -139,7 +141,13 @@ export class ShopsService {
 
 
   async update(id: string, updateShopDto: UpdateShopDto) {
-    return await this._shop.findByIdAndUpdate(id, updateShopDto);
+    try {
+
+      return await this._shop.findByIdAndUpdate(id, updateShopDto);
+      
+    } catch (error) {
+      throw error
+    }
   }
 
 

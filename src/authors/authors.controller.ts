@@ -7,6 +7,7 @@ import {
   Post,
   Put,
   Query,
+  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { AuthorsService } from './authors.service';
@@ -16,9 +17,15 @@ import { Author } from './entities/author.entity';
 import { UpdateAuthorDto } from './dto/update-author.dto';
 import { CreateAuthorDto } from './dto/create-author.dto';
 import { TransformInterceptor } from 'src/helper/respones';
+import {HasRoles} from 'src/auth/gurd/has-roles.decorator';
+import {Role} from 'src/auth/gurd/role.enum';
+import {JwtAuthGuard} from 'src/auth/gurd/jwt-auth.guard';
+import {RolesGuard} from 'src/auth/gurd/roles.guard';
 
 // @UseInterceptors(TransformInterceptor)
 @Controller('authors')
+@HasRoles(Role.STORE_OWNER, Role.SUPER_ADMIN)
+@UseGuards(JwtAuthGuard, RolesGuard)
 export class AuthorsController {
   constructor(private readonly authorsService: AuthorsService) {}
 

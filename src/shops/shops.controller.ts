@@ -8,6 +8,10 @@ import {
   Delete,
   Query,
   Req,
+  UseGuards,
+  Logger,
+  HttpException,
+  HttpStatus,
 } from '@nestjs/common';
 import { ShopsService } from './shops.service';
 import { CreateShopDto } from './dto/create-shop.dto';
@@ -15,7 +19,11 @@ import { UpdateShopDto } from './dto/update-shop.dto';
 import { GetShopsDto, ShopPaginator } from './dto/get-shops.dto';
 import { GetStaffsDto } from './dto/get-staffs.dto';
 import { UserPaginator } from 'src/users/dto/get-users.dto';
-import {CreateUserDto} from 'src/users/dto/create-user.dto';
+import {CreateUserDto, Permission} from 'src/users/dto/create-user.dto';
+import {HasRoles} from 'src/auth/gurd/has-roles.decorator';
+import {Role} from 'src/auth/gurd/role.enum';
+import {JwtAuthGuard} from 'src/auth/gurd/jwt-auth.guard';
+import {RolesGuard} from 'src/auth/gurd/roles.guard';
 
 @Controller('shops')
 export class ShopsController {
@@ -60,11 +68,47 @@ export class ShopsController {
 
 @Controller('staffs')
 export class StaffsController {
+  private readonly logger = new Logger();
+
   constructor(private readonly shopsService: ShopsService) {}
   
+
   @Post()
-  create(@Body() createUserDto) {
-    return this.shopsService.createStaff(createUserDto);
+  @HasRoles(Role.STORE_OWNER, Role.SUPER_ADMIN)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  async createStaff(@Req() req, @Body() createStaffDto: CreateUserDto) {
+
+    try {
+      const {email, password, shop_id} = createStaffDto;
+      if(email && password && shop_id){
+
+        const createdStaff = await this.shopsService.createStaff(createStaffDto)
+
+        if(createdStaff._id){
+          const shop = await this.shopsService.getShopById(createStaffDto.shop_id).exec()
+          if(shop._id){
+            shop.staffs.push(createdStaff._id)
+            const shopUpdate = await this.shopsService.update(shop._id.toString(), shop)
+            if(shopUpdate._id){
+              return createdStaff
+            }else{
+              throw new HttpException('Shop Not Update !', HttpStatus.BAD_REQUEST)
+            }
+          }else{
+            throw new HttpException('Shop Not Found!', HttpStatus.NOT_FOUND)
+          }
+        }else{
+          throw new HttpException('User Not Created!', HttpStatus.BAD_REQUEST)
+        }
+      }else{
+        throw new HttpException('Field Not Empty!', HttpStatus.BAD_REQUEST)
+      }
+
+    } catch (error) {
+      this.logger.error(`shops/createStaff failed: ${error} user is ${req.user.id}`)
+      throw error
+    }
+
   }
 
   @Get()

@@ -26,7 +26,7 @@ export class Manufacturer extends CoreEntity {
   @Prop({type: Boolean, required:false})
   is_approved?: boolean;
 
-  @Prop({type: String, required:true})
+  @Prop({type: String, required:true, unique: true})
   name: string;
 
   @Prop({type: [{type: mongoose.Schema.Types.ObjectId, ref: 'Product'}], required:false, default: []})

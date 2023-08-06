@@ -17,17 +17,51 @@ export class AttributesService {
   constructor(@InjectModel('Attribute') private _attr : Model<Attribute>){}
 
   create(createAttributeDto: CreateAttributeDto) {
-    return this._attr.create(createAttributeDto);
-    // return this.attributes[0];
+    // try {
+      
+      return this._attr.create(createAttributeDto);
+    // } catch (error) {
+    //   throw error
+    // }
+    
   }
 
-  findAll() {
-    return this._attr.find().populate('shop');
+  async findByName(param: string) {
+    try {
+      return await this._attr.findOne({name: param});
+      
+    } catch (error) {
+      throw error
+    }
+    // return this.attributes.find(
+    //   (p) => p.id === Number(param) || p.slug === param,
+    // );
+  }
+
+  async findAll() {
+    try {
+      return await this._attr.find().populate('shop');
+      
+    } catch (error) {
+      throw error
+    }
   }
 
   findOne(param: string) {
 
     return this._attr.findOne({slug: param});
+    // return this.attributes.find(
+    //   (p) => p.id === Number(param) || p.slug === param,
+    // );
+  }
+  
+  findById(id: string) {
+    try {
+      
+      return this._attr.findById(id);
+    } catch (error) {
+      throw error
+    }
     // return this.attributes.find(
     //   (p) => p.id === Number(param) || p.slug === param,
     // );
@@ -40,4 +74,6 @@ export class AttributesService {
   remove(id: string) {
     return this._attr.findByIdAndDelete(id)
   }
+
+
 }

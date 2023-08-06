@@ -260,7 +260,6 @@ export class AuthController {
   @Post('change-password')
   async changePassword(@Req() req: IGetUserAuthInfoRequest, @Body() changePasswordDto: ChangePasswordDto) {
 
-
     const email = req?.user?.email;
 
     try {
@@ -305,6 +304,10 @@ export class AuthController {
 
   }
 
+  @Post('logout')
+  async logout(): Promise<boolean> {
+    return true;
+  }
 
   @Post('forget-password')
   forgetPassword(@Body() forgetPasswordDto: ForgetPasswordDto) {
@@ -318,10 +321,6 @@ export class AuthController {
   }
 
 
-  @Post('logout')
-  async logout(): Promise<boolean> {
-    return true;
-  }
 
 
   @Post('social-login-token')

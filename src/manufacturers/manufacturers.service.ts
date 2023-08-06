@@ -88,7 +88,21 @@ export class ManufacturersService {
   } 
   
   async getManufacturesById(id: any): Promise<Manufacturer> {
-    return await this._manufacturer.findById(id);
+    try {
+      return await this._manufacturer.findById(id);
+      
+    } catch (error) {
+      throw error
+    }
+  }
+  
+  async getManufacturesByName(name: any): Promise<Manufacturer> {
+    try {
+      return await this._manufacturer.findOne({name});
+      
+    } catch (error) {
+      throw error
+    }
   }
 
   update(id: string, updateManufacturesDto: UpdateManufacturerDto) {

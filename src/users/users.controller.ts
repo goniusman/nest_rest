@@ -16,7 +16,8 @@ import {
   HttpStatus,
   Logger,
   // CACHE_MANAGER, 
-  Inject
+  Inject,
+  HttpException
 } from '@nestjs/common';
 
 import {
@@ -58,6 +59,149 @@ export class UsersController {
     private readonly usersService: UsersService) { }
 
 
+  @Get()
+  @HasRoles(Role.STORE_OWNER, Role.SUPER_ADMIN)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  getAllUsers(@Req() req, @Query() query: any) {
+    try {
+    
+      return this.usersService.getUsers(query);
+
+    } catch (error) {
+      this.logger.error(`users/getAllUsers failed: ${error} user is ${req.user.id}`)
+      throw error
+    }
+  }
+
+
+  @Get(':id')
+  @HasRoles(Role.STORE_OWNER, Role.SUPER_ADMIN)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  getUser(@Param('id') id: string) {
+    //nice to meet you
+    return this.usersService.findById(id);
+  }
+
+  @Put(':id')
+  @UseGuards(JwtAuthGuard)
+  updateUser(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
+    return this.usersService.update(id, updateUserDto);
+  }
+
+
+  @Delete(':id')
+  @UseGuards(JwtAuthGuard)
+  async removeUser(@Param('id') id: string) {
+    return await this.usersService.remove(id);
+  }
+
+
+  @Post('unblock-user')
+  @HasRoles(Role.STORE_OWNER, Role.SUPER_ADMIN)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  activeUser(@Req() req, @Body('id') id: string) {
+  
+    try {
+      if(id){
+      const user = this.usersService.findById(id)
+      if(user){
+        return this.usersService.activeUser(id);
+
+      }else{
+        throw new HttpException('No user found', HttpStatus.NOT_FOUND)
+      }
+      }else{
+        throw new HttpException('ID Should not be emapty', HttpStatus.BAD_REQUEST)
+    
+      }
+
+    } catch (error) {
+      this.logger.error(`users/activeUser failed: ${error} user is ${req.user.id}`)
+      throw error
+    }
+  }
+
+
+  @Post('block-user')
+  @HasRoles(Role.STORE_OWNER, Role.SUPER_ADMIN)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  banUser(@Req() req,@Body('id') id: string) {
+    try {
+
+      if(id){
+
+      const user = this.usersService.findById(id)
+      if(user){
+        return this.usersService.banUser(id);
+
+      }else{
+        throw new HttpException('No user found', HttpStatus.NOT_FOUND)
+      }
+    
+    }else{
+      throw new HttpException('ID Should not be emapty', HttpStatus.BAD_REQUEST)
+    
+    }
+    } catch (error) {
+      this.logger.error(`users/banUser failed: ${error} user is ${req.user.id}`)
+      throw error
+    }
+
+  
+  }
+
+  @Post('make-admin')
+  @HasRoles(Role.SUPER_ADMIN)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  assignORRevoke(@Req() req, @Body('user_id') id: string) {
+    
+    try {
+      if(id){
+      const user = this.usersService.findById(id)
+      if(user){
+        return this.usersService.assignORRevoke(id, user);
+
+      }else{
+        throw new HttpException('No user found', HttpStatus.NOT_FOUND)
+      }
+      }else{
+        throw new HttpException('ID Should not be emapty', HttpStatus.BAD_REQUEST)
+    
+      }
+
+    } catch (error) {
+      this.logger.error(`users/assignORRevoke failed: ${error} user is ${req.user.id}`)
+      throw error
+    }
+
+  }
+
+  // @Post('profile-picture')
+  // @ApiConsumes('multipart/form-data')
+  // @UseInterceptors(FileInterceptor('file'))
+  // profilePicture(@UploadedFile() file: Express.Multer.File):any {
+  // //  console.log(file);
+  //     return this.usersService.profilePicture(file);
+  // }
+
+  //// end controller methods
+
+  // @Post('contact-us')
+  // contactUs(@Body() addPointsDto: any) {
+  //   return {
+  //     success: true,
+  //     message: 'Thank you for contacting us. We will get back to you soon.',
+  //   };
+
+  // }
+
+  // @Post('add-points')
+  // addWalletPoints(@Body() addPointsDto: any) {
+  //   return this.authService.me();
+  // }
+
+
+
   ///////////////// previously created for cache
   // async getNumber(): Promise<any> {
   //   const val = await this.cacheManager.get('number')
@@ -88,87 +232,6 @@ export class UsersController {
   // @UseInterceptors(CacheInterceptor) // Automatically cache the response for this endpoint
   // @CacheKey('custom-key') // overrides the default cache key
   // @CacheTTL(30) // override TTL to 30 seconds
-
-
-
-
-  @Get()
-  @HasRoles(Role.STORE_OWNER, Role.SUPER_ADMIN)
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  getAllUsers(@Query() query: any) {
-    return this.usersService.getUsers(query);
-  }
-
-
-  @Get(':id')
-  @HasRoles(Role.STORE_OWNER, Role.SUPER_ADMIN)
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  getUser(@Param('id') id: string) {
-    //nice to meet you
-    return this.usersService.findById(id);
-  }
-
-  @Put(':id')
-  @UseGuards(JwtAuthGuard)
-  updateUser(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.usersService.update(id, updateUserDto);
-  }
-
-
-  @Delete(':id')
-  @UseGuards(JwtAuthGuard)
-  async removeUser(@Param('id') id: string) {
-    return await this.usersService.remove(id);
-  }
-
-
-  @Post('unblock-user')
-  @HasRoles(Role.STORE_OWNER, Role.SUPER_ADMIN)
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  activeUser(@Body('id') id: string) {
-    return this.usersService.activeUser(id);
-  }
-
-
-  @Post('block-user')
-  @HasRoles(Role.STORE_OWNER, Role.SUPER_ADMIN)
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  banUser(@Body('id') id: string) {
-    return this.usersService.banUser(id);
-  }
-
-  @Post('make-admin')
-  @HasRoles(Role.SUPER_ADMIN)
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  makeAdmin(@Req() req: Request, @Body('user_id') id: string) {
-    //// testing for docker save directly
-    return this.usersService.makeAdmin(id);
-  }
-
-  // @Post('profile-picture')
-  // @ApiConsumes('multipart/form-data')
-  // @UseInterceptors(FileInterceptor('file'))
-  // profilePicture(@UploadedFile() file: Express.Multer.File):any {
-  // //  console.log(file);
-  //     return this.usersService.profilePicture(file);
-  // }
-
-  //// end controller methods
-
-  // @Post('contact-us')
-  // contactUs(@Body() addPointsDto: any) {
-  //   return {
-  //     success: true,
-  //     message: 'Thank you for contacting us. We will get back to you soon.',
-  //   };
-
-  // }
-
-  // @Post('add-points')
-  // addWalletPoints(@Body() addPointsDto: any) {
-  //   return this.authService.me();
-  // }
-
 
 
 

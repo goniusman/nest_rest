@@ -6,40 +6,144 @@ import {
   Put,
   Param,
   Delete,
+  HttpException,
+  HttpStatus,
+  UseGuards,
+  Logger,
 } from '@nestjs/common';
 import { AttributesService } from './attributes.service';
 import { CreateAttributeDto } from './dto/create-attribute.dto';
 import { UpdateAttributeDto } from './dto/update-attribute.dto';
 
+import {HasRoles} from 'src/auth/gurd/has-roles.decorator';
+import {Role} from 'src/auth/gurd/role.enum';
+import {JwtAuthGuard} from 'src/auth/gurd/jwt-auth.guard';
+import {RolesGuard} from 'src/auth/gurd/roles.guard';
+
 @Controller('attributes')
+@HasRoles(Role.STORE_OWNER, Role.SUPER_ADMIN)
+@UseGuards(JwtAuthGuard, RolesGuard)
 export class AttributesController {
+
+  private readonly logger = new Logger()
   constructor(private readonly attributesService: AttributesService) {}
 
   @Post()
-  create(@Body() createAttributeDto: CreateAttributeDto) {
-    return this.attributesService.create(createAttributeDto);
+  async create(@Body() createAttributeDto: CreateAttributeDto) {
+    try {
+
+      const existAttribute = await this.attributesService.findByName(createAttributeDto.name)
+      if(!existAttribute){
+
+        return await this.attributesService.create(createAttributeDto);
+      }else{
+        throw new HttpException('User Already Exists', HttpStatus.BAD_REQUEST)
+  
+      }
+
+    } catch (error) {
+
+      this.logger.error(`attributeController/create error is + ${error.message}` )
+      throw error;
+
+    }
+
+    
   }
 
   @Get()
-  findAll() {
-    return this.attributesService.findAll();
+  async findAll() {
+
+    try {
+
+      const attributes = await this.attributesService.findAll();
+      if(attributes.length > 0){
+        return attributes;
+      }else{
+        throw new HttpException('There are no attributes', HttpStatus.NOT_FOUND)
+  
+      }
+
+    } catch (error) {
+
+      this.logger.error(`attributeController/findAll error is + ${error.message}` )
+      throw error;
+
+    }
+  
   }
 
   @Get(':param')
-  findOne(@Param('param') param: string) {
-    return this.attributesService.findOne(param);
+  async findOne(@Param('param') param: string) {
+
+    try {
+       
+      const attribute = await this.attributesService.findOne(param);
+      if(attribute){
+        return attribute;
+      }else{
+        throw new HttpException('There are no attributes', HttpStatus.NOT_FOUND)
+  
+      }
+
+    } catch (error) {
+
+      this.logger.error(`attributeController/findOne error is + ${error.message}` )
+      throw error;
+
+    }
+  
+
+  
   }
  
   @Put(':id')
-  update(
+  async update(
     @Param('id') id: string,
     @Body() updateAttributeDto: UpdateAttributeDto,
   ) {
-    return this.attributesService.update(id, updateAttributeDto);
+
+    try {
+      
+      const attribute = await this.attributesService.update(id, updateAttributeDto);
+      if(attribute){
+        return attribute;
+      }else{
+        throw new HttpException('Not Update', HttpStatus.BAD_REQUEST)
+  
+      }
+
+    } catch (error) {
+
+      this.logger.error(`attributeController/update error is + ${error.message}` )
+      throw error;
+
+    }
+
+
+
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.attributesService.remove(id);
+  async remove(@Param('id') id: string) {
+
+    try {
+      const attribute = await this.attributesService.findById(id);
+      if(attribute){
+        return await this.attributesService.remove(id);
+      }else{
+        throw new HttpException('Attribute Not Found', HttpStatus.NOT_FOUND)
+  
+      }
+
+    } catch (error) {
+
+      this.logger.error(`attributeController/update error is + ${error.message}` )
+      throw error;
+
+    }
+  
   }
+
+
 }

@@ -27,7 +27,7 @@ import { IUser } from './interface/user.interface';
 // const users = plainToClass(UserSchema, usersJson);
 
 const options = {
-  keys: ['name', 'type.slug', 'categories.slug', 'status'],
+  keys: ['name', '_id', 'permissions', 'is_active', 'email'],
   threshold: 0.3,
 };
 
@@ -50,19 +50,15 @@ export class UsersService {
     private uploader: UploadsService,
     private readonly httpService: HttpService,
     @Inject(CACHE_MANAGER) private cacheService: Cache,
-
     // private readonly configService: ConfigService
   ) {
-
     /// if env var is not specified use this technique
     //  const NAME = this.configService.get<string>('NMAILER_USER_NAME')
     //  if(!NAME) throw new Error('Mailer user name is not specified')
     //  this.NAME = NAME
-
   }
 
   // @InjectModel('Student') private studentModel:Model<IStudent>
-
 
   async create(createUserDto: CreateUserDto): Promise<any> {
 
@@ -78,57 +74,32 @@ export class UsersService {
 
     } catch (error) {
       this.logger.error(`userService/create error is ${error.message}`)
+      throw error;
     }
 
   }
-
-
-  ////// testing for caching manager with redis //although not working properly
-  async getSomeDate(): Promise<any> {
-    console.log('not here');
-    console.log(this.cacheService);
-    const cachedData = await this.cacheService.get("test");
-    console.log(cachedData);
-    if (cachedData) {
-      console.log('data set to cache', cachedData);
-      return await `${cachedData}`;
-    }
-    const { data } = await this.httpService.axiosRef.get(
-      `https://jsonplaceholder.typicode.com/todos/1`,
-    );
-    await this.cacheService.set("test", data);
-
-    return data;
-
-  }
-
-
 
   async getUsers({ text, limit, page, search }: GetUsersDto): Promise<UserPaginator> {
-    // console.log(text);
+
+    try {
+      
     if (!page) page = 1;
-    if (!limit) limit = 30;
+    if (!limit) limit = 3;
     const startIndex = (page - 1) * limit;
     const endIndex = page * limit;
-    // let data: IUser[] = this.users;
-
 
     let userData = await this.users.find();
+
+    if(userData || userData.length != 0) {
+
     const fuse = new Fuse(userData, options);
 
     if (text?.replace(/%/g, '')) {
       userData = fuse.search(text)?.map(({ item }) => item);
     }
 
-
-    if (!userData || userData.length == 0) {
-      throw new NotFoundException('Students data not found!');
-    }
-
-    //  userData;
-
     if (search) {
-      const parseSearchParams = search.split(';');
+      const parseSearchParams = search.split(':');
       const searchText: any = [];
       for (const searchParam of parseSearchParams) {
         const [key, value] = searchParam.split(':');
@@ -139,6 +110,8 @@ export class UsersService {
           });
         }
       }
+
+      userData = fuse.search(parseSearchParams[1])?.map(({ item }) => item);;
 
       // userData =  userData
       //   .find({name: searchText})
@@ -153,7 +126,16 @@ export class UsersService {
       ...paginate(userData.length, page, limit, results.length, url),
     };
 
-    // return results
+  }else{
+      throw new HttpException('Users Not found', HttpStatus.NOT_FOUND)
+  }
+
+  } catch (error) {
+    this.logger.error(`userService/getUsers error is ${error.message}`)
+    throw error;
+  }
+
+
   }
 
   async getUser(id: any): Promise<any> {
@@ -173,13 +155,11 @@ export class UsersService {
 
   }
 
-
   async getAllUsr() {
     // console.log(id);
     return await this.users.find().exec();
     // return this.users.find((user) => user._id === id);
   }
-
 
   async getAllStaff(id) {
     // console.log(id);
@@ -188,9 +168,12 @@ export class UsersService {
   }
 
   async findById(id: string) {
-    // console.log(id);
-    return await this.users.findById(id).exec();
-    // return this.users.find((user) => user._id === id);
+    try {
+      return await this.users.findById(id).exec();
+    } catch (error) {
+      throw error;
+    }
+
   }
 
   async findByEmail(prop: string) {
@@ -259,13 +242,12 @@ export class UsersService {
 
   }
 
-
   async remove(id: string): Promise<any> {
     return await this.users.deleteOne({ _id: id })
   }
 
-  async makeAdmin(user_id: string): Promise<any> {
-    const user = await this.users.findById({ _id: user_id });
+  async assignORRevoke(user_id: string, user:any): Promise<any> {
+    // const user = await this.users.findById({ _id: user_id });
     if (user.permissions.includes(Permission.SUPER_ADMIN)) {
       const deductAdmin = user.permissions.filter(item => {
         return item != Permission.SUPER_ADMIN
@@ -330,5 +312,28 @@ export class UsersService {
 
 
   }
+
+
+
+  ////// testing for caching manager with redis //although not working properly
+  async getSomeDate(): Promise<any> {
+    console.log('not here');
+    console.log(this.cacheService);
+    const cachedData = await this.cacheService.get("test");
+    console.log(cachedData);
+    if (cachedData) {
+      console.log('data set to cache', cachedData);
+      return await `${cachedData}`;
+    }
+    const { data } = await this.httpService.axiosRef.get(
+      `https://jsonplaceholder.typicode.com/todos/1`,
+    );
+    await this.cacheService.set("test", data);
+
+    return data;
+
+  }
+
+
 
 }
