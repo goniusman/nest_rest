@@ -286,17 +286,18 @@ export class UsersService {
   }
 
   async activeUser(id: string) {
-    // const user = await this.users.findById({ _id: id });
-    // this.users.aggregate()
-    // console.log(user);
-    // user.is_active = !user.is_active;
-    // user.password = '12345'
-    return this.users.aggregate([
 
-      { $match: { _id: `ObjectId(${id})` } },
-      { $set: { is_active: false } }
+    const user = await this.users.findById({ _id: id });
 
-    ])
+    user.is_active = !user.is_active;
+
+    return this.users.findByIdAndUpdate(  id,  user)
+    // return this.users.aggregate([
+
+    //   { $match: { _id: `ObjectId(${id})` } },
+    //   { $set: { is_active: !user.is_active } }
+
+    // ])
 
   }
 
@@ -304,12 +305,7 @@ export class UsersService {
     const cloudinaryUpload = await this.cloudinary.uploadImage(file).catch((err) => {
       throw new BadRequestException(err);
     });
-
-
-
     return 'updated'
-
-
 
   }
 
