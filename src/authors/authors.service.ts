@@ -11,18 +11,18 @@ import { CreateAuthorDto } from './dto/create-author.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 
-const authors = plainToClass(Author, authorsJson);
+// const authors = plainToClass(Author, authorsJson);
 
 const options = {
   keys: ['name', 'slug'],
   threshold: 0.3,
 };
 
-const fuse = new Fuse(authors, options);
+
 
 @Injectable()
 export class AuthorsService {
-  private authors: Author[] = authors;
+  // private authors: Author[] = authors;
 
   constructor(@InjectModel('Author') private _author: Model<AuthorDocument>) { }
 
@@ -45,18 +45,21 @@ export class AuthorsService {
   }
 
   async getAuthors({ page, limit, search }: GetAuthorDto) {
+
+  
     if (!page) page = 1;
     if (!limit) limit = 30;
     const startIndex = (page - 1) * limit;
     const endIndex = page * limit;
     let data: Author[] = await this._author.find().exec();
+    const fuse = new Fuse(data, options);
     if (search) {
       const parseSearchParams = search.split(';');
       for (const searchParam of parseSearchParams) {
         const [key, value] = searchParam.split(':');
-        // data = fuse.search(value)?.map(({ item }) => item);
+        data = fuse.search(value)?.map(({ item }) => item);
         //  let boll : boolean = value == '1' ? true : false;
-        data = await this._author.find({ is_approved: true }).exec()
+        // data = await this._author.find({ is_approved: true }).exec()
       }
     }
 

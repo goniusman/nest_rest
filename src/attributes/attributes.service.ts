@@ -6,30 +6,38 @@ import { Attribute } from './entities/attribute.entity';
 import { plainToClass } from 'class-transformer';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { GetAttributesArgs } from './dto/get-attributes.dto';
+import { paginate } from 'src/common/pagination/paginate';
+import Fuse from 'fuse.js';
 
-const attributes = plainToClass(Attribute, attributesJson);
+// const attributes = plainToClass(Attribute, attributesJson);
+const options = {
+  keys: ['name', 'slug'],
+  threshold: 0.3,
+};
+
 
 @Injectable()
 export class AttributesService {
-  private attributes: Attribute[] = attributes;
+  // private attributes: Attribute[] = attributes;
 
 
-  constructor(@InjectModel('Attribute') private _attr : Model<Attribute>){}
+  constructor(@InjectModel('Attribute') private _attr: Model<Attribute>) { }
 
   create(createAttributeDto: CreateAttributeDto) {
     // try {
-      
-      return this._attr.create(createAttributeDto);
+
+    return this._attr.create(createAttributeDto);
     // } catch (error) {
     //   throw error
     // }
-    
+
   }
 
   async findByName(param: string) {
     try {
-      return await this._attr.findOne({name: param});
-      
+      return await this._attr.findOne({ name: param });
+
     } catch (error) {
       throw error
     }
@@ -38,26 +46,47 @@ export class AttributesService {
     // );
   }
 
-  async findAll() {
-    try {
-      return await this._attr.find().populate('shop');
-      
-    } catch (error) {
-      throw error
-    }
+  async findAll({ page, limit, search }: GetAttributesArgs) {
+
+      if (!page) page = 1;
+      if (!limit) limit = 30;
+      const startIndex = (page - 1) * limit;
+      const endIndex = page * limit;
+      let data: Attribute[] = await this._attr.find();
+      const fuse = new Fuse(data, options);
+      if (search) {
+        const parseSearchParams = search.split(';');
+        for (const searchParam of parseSearchParams) {
+          const [key, value] = searchParam.split(':');
+          data = fuse.search(value)?.map(({ item }) => item);
+          //  let boll : boolean = value == '1' ? true : false;
+          // data = await this._attr.find({ name: value }).exec()
+        }
+      }
+
+
+      const results = data.slice(startIndex, endIndex);
+
+      const url = `/attributes?search=${search}&limit=${limit}`;
+      return {
+        data: results,
+        ...paginate(data.length, page, limit, results.length, url),
+      };
+
+  
   }
 
   findOne(param: string) {
 
-    return this._attr.findOne({slug: param});
+    return this._attr.findOne({ slug: param });
     // return this.attributes.find(
     //   (p) => p.id === Number(param) || p.slug === param,
     // );
   }
-  
+
   findById(id: string) {
     try {
-      
+
       return this._attr.findById(id);
     } catch (error) {
       throw error
@@ -69,7 +98,7 @@ export class AttributesService {
 
   update(id: string, updateAttributeDto: UpdateAttributeDto) {
     return this._attr.findByIdAndUpdate(id, updateAttributeDto);
-  } 
+  }
 
   remove(id: string) {
     return this._attr.findByIdAndDelete(id)
