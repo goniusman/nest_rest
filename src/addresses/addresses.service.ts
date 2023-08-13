@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
 import { CreateAddressDto } from './dto/create-address.dto';
-import { UpdateAddressDto } from './dto/update-address.dto';  
-import {Model} from 'mongoose';
-import {InjectModel} from '@nestjs/mongoose';
- 
-import {  Address } from './entities/address.entity';
+import { UpdateAddressDto } from './dto/update-address.dto';
+  
+import { Address } from './entities/address.entity';
 @Injectable()
 export class AddressesService {
 

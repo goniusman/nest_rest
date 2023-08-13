@@ -1,26 +1,25 @@
 import {
-  Controller,
-  Get,
-  Post,
   Body,
-  Put,
-  Param,
+  Controller,
   Delete,
+  Get,
   HttpException,
   HttpStatus,
-  UseGuards,
   Logger,
+  Param,
+  Post,
+  Put,
   Query,
+  UseGuards,
 } from '@nestjs/common';
+import { HasRoles } from 'src/auth/gurd/has-roles.decorator';
+import { JwtAuthGuard } from 'src/auth/gurd/jwt-auth.guard';
+import { Role } from 'src/auth/gurd/role.enum';
+import { RolesGuard } from 'src/auth/gurd/roles.guard';
 import { AttributesService } from './attributes.service';
 import { CreateAttributeDto } from './dto/create-attribute.dto';
-import { UpdateAttributeDto } from './dto/update-attribute.dto';
-
-import { HasRoles } from 'src/auth/gurd/has-roles.decorator';
-import { Role } from 'src/auth/gurd/role.enum';
-import { JwtAuthGuard } from 'src/auth/gurd/jwt-auth.guard';
-import { RolesGuard } from 'src/auth/gurd/roles.guard';
 import { AttributePaginator, GetAttributesArgs } from './dto/get-attributes.dto';
+import { UpdateAttributeDto } from './dto/update-attribute.dto';
 
 @Controller('attributes')
 @HasRoles(Role.STORE_OWNER, Role.SUPER_ADMIN, Role.STAFF)

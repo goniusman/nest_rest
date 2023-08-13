@@ -48,7 +48,7 @@ export class WithdrawsService {
     // }
 
     if (search) {
-      let shopSearch = search.split(':')[1]
+      const shopSearch = search.split(':')[1]
       data = await this._withdraw.find({shop_id: shopSearch}).populate('shop_id');
     }
     const results = data.slice(startIndex, endIndex);

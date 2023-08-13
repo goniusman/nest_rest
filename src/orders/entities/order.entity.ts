@@ -1,3 +1,5 @@
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import mongoose from 'mongoose';
 import { UserAddress } from 'src/addresses/entities/address.entity';
 import { CoreEntity } from 'src/common/entities/core.entity';
 import { Coupon } from 'src/coupons/entities/coupon.entity';
@@ -6,8 +8,6 @@ import { File, Product } from 'src/products/entities/product.entity';
 import { Shop } from 'src/shops/entities/shop.entity';
 import { User } from 'src/users/entities/user.entity';
 import { OrderStatus } from './order-status.entity';
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import mongoose from 'mongoose';
 
 export enum PaymentGatewayType {
   STRIPE = 'STRIPE',
@@ -27,7 +27,7 @@ export enum OrderStatusType {
   FAILED = 'order-failed',
   AT_LOCAL_FACILITY = 'order-at-local-facility',
   OUT_FOR_DELIVERY = 'order-out-for-delivery',
-  DEFAULT_ORDER_STATUS = 'order-pending',
+  DEFAULT_ORDER_STATUS = 'order-pendings',
 }
 
 export enum PaymentStatusType {
@@ -40,19 +40,19 @@ export enum PaymentStatusType {
   CASH = 'payment-cash',
   WALLET = 'payment-wallet',
   AWAITING_FOR_APPROVAL = 'payment-awaiting-for-approval',
-  DEFAULT_PAYMENT_STATUS = 'payment-pending',
+  DEFAULT_PAYMENT_STATUS = 'payment-pendings',
 }
 
-@Schema({timestamps: true})
+@Schema({ timestamps: true })
 export class Order extends CoreEntity {
 
-  @Prop({type: String, required: false})
+  @Prop({ type: String, required: false })
   tracking_number: string;
 
-  @Prop({type: Number, required: false})
+  @Prop({ type: Number, required: false })
   customer_id: number;
 
-  @Prop({type: String, required: false})
+  @Prop({ type: String, required: false })
   customer_contact: string;
 
   @Prop({ required: false, type: mongoose.Schema.Types.ObjectId, ref: 'User', })
@@ -61,34 +61,34 @@ export class Order extends CoreEntity {
   @Prop({ required: false, type: mongoose.Schema.Types.ObjectId, ref: 'Order', })
   parent_order?: Order;
 
-  @Prop({type: [{type: mongoose.Schema.Types.ObjectId, ref: 'Order'}], default: []})
+  @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Order' }], default: [] })
   children: Order[];
 
   @Prop({ required: false, type: mongoose.Schema.Types.ObjectId, ref: 'OrderStatus', })
   status: OrderStatus;
 
-  @Prop({ required: false, type: String, enum: OrderStatusType }) 
+  @Prop({ required: false, type: String, enum: OrderStatusType })
   order_status: OrderStatusType;
 
-  @Prop({ required: false, type: String, enum: PaymentStatusType }) 
+  @Prop({ required: false, type: String, enum: PaymentStatusType })
   payment_status: PaymentStatusType;
 
-  @Prop({type: Number, required: false})
+  @Prop({ type: Number, required: false })
   amount: number;
 
-  @Prop({type: Number, required: false})
+  @Prop({ type: Number, required: false })
   sales_tax: number;
 
-  @Prop({type: Number, required: false})
+  @Prop({ type: Number, required: false })
   total: number;
 
-  @Prop({type: Number, required: false})
+  @Prop({ type: Number, required: false })
   paid_total: number;
 
-  @Prop({type: String, required: false})
+  @Prop({ type: String, required: false })
   payment_id?: string;
 
-  @Prop({ required: false, type: String, enum: PaymentGatewayType }) 
+  @Prop({ required: false, type: String, enum: PaymentGatewayType })
   payment_gateway: PaymentGatewayType;
 
   @Prop({ required: false, type: mongoose.Schema.Types.ObjectId, ref: 'Coupon', })
@@ -97,16 +97,16 @@ export class Order extends CoreEntity {
   @Prop({ required: false, type: mongoose.Schema.Types.ObjectId, ref: 'Shop', })
   shop: Shop;
 
-  @Prop({type: Number, required: false})
+  @Prop({ type: Number, required: false })
   discount?: number;
 
-  @Prop({type: Number, required: false})
+  @Prop({ type: Number, required: false })
   delivery_fee: number;
 
-  @Prop({type: String, required: false})
+  @Prop({ type: String, required: false })
   delivery_time: string;
 
-  @Prop({type: [{type: mongoose.Schema.Types.ObjectId, ref: 'Product'}], default: []})
+  @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Product' }], default: [] })
   products: Product[];
 
   @Prop({ required: false, type: UserAddress })
@@ -115,10 +115,10 @@ export class Order extends CoreEntity {
   @Prop({ required: false, type: UserAddress })
   shipping_address: UserAddress;
 
-  @Prop({type: String, required: false})
+  @Prop({ type: String, required: false })
   language: string;
 
-  @Prop({type: String, required: false})
+  @Prop({ type: String, required: false })
   translated_languages: string[];
 
   @Prop({ required: false, type: PaymentIntent })
@@ -128,21 +128,21 @@ export class Order extends CoreEntity {
 
 const OrderSchema = SchemaFactory.createForClass(Order)
 
-export {OrderSchema}
+export { OrderSchema };
 
-@Schema({timestamps: true})
+@Schema({ timestamps: true })
 export class OrderFiles extends CoreEntity {
 
-  @Prop({type: String, required: false})
+  @Prop({ type: String, required: false })
   purchase_key: string;
 
-  @Prop({type: Number, required: false})
+  @Prop({ type: Number, required: false })
   digital_file_id: number;
 
-  @Prop({type: Number, required: false})
+  @Prop({ type: Number, required: false })
   order_id?: number;
 
-  @Prop({type: Number, required: false})
+  @Prop({ type: Number, required: false })
   customer_id: number;
 
   @Prop({ required: false, type: mongoose.Schema.Types.ObjectId, ref: 'File', })
@@ -156,4 +156,4 @@ export class OrderFiles extends CoreEntity {
 
 const OrderFilesSchema = SchemaFactory.createForClass(OrderFiles)
 
-export {OrderFilesSchema}
+export { OrderFilesSchema };
