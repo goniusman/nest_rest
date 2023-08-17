@@ -1,17 +1,16 @@
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import mongoose from 'mongoose';
 import { AttributeValue } from 'src/attributes/entities/attribute-value.entity';
+import { Author } from 'src/authors/entities/author.entity';
 import { Category } from 'src/categories/entities/category.entity';
 import { Attachment } from 'src/common/entities/attachment.entity';
 import { CoreEntity } from 'src/common/entities/core.entity';
+import { Manufacturer } from 'src/manufacturers/entities/manufacturer.entity';
 import { Order } from 'src/orders/entities/order.entity';
-import { Shop } from 'src/shops/entities/shop.entity';
 import { Tag } from 'src/tags/entities/tag.entity';
 import { Type } from 'src/types/entities/type.entity';
-import { Review } from '../../reviews/entities/review.entity';
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import mongoose from 'mongoose';
-import { Author } from 'src/authors/entities/author.entity';
-import { Manufacturer } from 'src/manufacturers/entities/manufacturer.entity';
 import { User } from 'src/users/entities/user.entity';
+import { Review } from '../../reviews/entities/review.entity';
 
 
 export type ProductDocument = Product & Document
@@ -71,8 +70,11 @@ export class Product extends CoreEntity {
   @Prop({ required: false, type: mongoose.Schema.Types.ObjectId, ref: 'Manufacturer' })
   manufacturer_id: Manufacturer;
 
-  @Prop({ required: false, type: mongoose.Schema.Types.ObjectId, ref: 'Shop' })
-  shop_id: Shop;
+  @Prop({ required: false, type: String})
+  shop: string; 
+  
+  // @Prop({ required: false, type: mongoose.Schema.Types.ObjectId, ref: 'Shop' })
+  // shop_id: Shop;
 
   @Prop({ required: false, type: mongoose.Schema.Types.ObjectId, ref: 'User' })
   user_id: User;
@@ -176,7 +178,7 @@ ProductSchema.pre("save", function(next) {
 })
 
 
-export {ProductSchema}
+export { ProductSchema };
 
 export class File extends CoreEntity {
 

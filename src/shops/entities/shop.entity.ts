@@ -1,12 +1,10 @@
 import { Prop, Schema, SchemaFactory, raw } from '@nestjs/mongoose';
 import mongoose from 'mongoose';
-import { UserAddress } from 'src/addresses/entities/address.entity';
 import { Attachment } from 'src/common/entities/attachment.entity';
 import { CoreEntity } from 'src/common/entities/core.entity';
 import { Order } from 'src/orders/entities/order.entity';
-import { Product } from 'src/products/entities/product.entity';
 import { Location, ShopSocials } from 'src/settings/entities/setting.entity';
-import { User } from 'src/users/entities/user.entity'
+import { User } from 'src/users/entities/user.entity';
 
 
 
@@ -47,6 +45,12 @@ export class ShopSettings extends mongoose.Document {
 @Schema({timestamps:true})
 export class Shop extends CoreEntity {
 
+  @Prop({ required: true, type: String,unique: true })
+  name: string;
+
+  @Prop({ required: false, type: String, unique:true })
+  slug: string;
+
   @Prop({ required: true, type: mongoose.Schema.Types.ObjectId, ref: 'User', })
   owner_id: User;
 
@@ -63,17 +67,13 @@ export class Shop extends CoreEntity {
   orders_count: Order[] = [];
   ;
 
-  @Prop({  type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Product'}], default: [] })
-  products_count: Product[] = [];
+  @Prop({type: [{type: mongoose.Schema.Types.ObjectId, ref: 'Product'}], required:false, default: []})
+  products_count?: string[];
 
   @Prop({ required: false, type: Balance })
   balance?: Balance;
 
-  @Prop({ required: true, type: String })
-  name: string;
 
-  @Prop({ required: false, type: String })
-  slug: string;
   
   // @Prop({ required: false, type: Number })
   // admin_commission_rate?: number = 0;
@@ -120,4 +120,5 @@ ShopSchema.pre("save", function(next) {
   next()
 })
 
-export {ShopSchema}
+export { ShopSchema };
+

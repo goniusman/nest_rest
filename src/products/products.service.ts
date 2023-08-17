@@ -1,17 +1,18 @@
+import productsJson from '@db/products.json';
 import { HttpException, HttpStatus, Injectable, Req } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
 import { plainToClass } from 'class-transformer';
+import Fuse from 'fuse.js';
+import { Model } from 'mongoose';
+import { AuthorsService } from 'src/authors/authors.service';
+import { paginate } from 'src/common/pagination/paginate';
+import { ManufacturersService } from 'src/manufacturers/manufacturers.service';
+import { ShopsService } from 'src/shops/shops.service';
 import { CreateProductDto } from './dto/create-product.dto';
+import { GetPopularProductsDto } from './dto/get-popular-products.dto';
 import { GetProductsDto, ProductPaginator } from './dto/get-products.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { Product, ProductDocument } from './entities/product.entity';
-import { paginate } from 'src/common/pagination/paginate';
-import productsJson from '@db/products.json';
-import Fuse from 'fuse.js';
-import { GetPopularProductsDto } from './dto/get-popular-products.dto';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import { AuthorsService } from 'src/authors/authors.service';
-import { ManufacturersService } from 'src/manufacturers/manufacturers.service';
 
 const products = plainToClass(Product, productsJson);
 
@@ -37,7 +38,8 @@ export class ProductsService {
   constructor(
     @InjectModel('Product') private _product: Model<ProductDocument>,
     private authorService: AuthorsService,
-    private manufacturerService: ManufacturersService
+    private manufacturerService: ManufacturersService,
+    private shopService: ShopsService
 
   ) { }
 
@@ -47,16 +49,26 @@ export class ProductsService {
       const createdProduct = await this._product.create(createProductDto)
 
       if (createdProduct?._id) {
-        const author = await this.authorService.getAuthorById(createProductDto.author_id);
+
+        if(createProductDto?.author_id){
+             const author = await this.authorService.getAuthorById(createProductDto.author_id);
         author.products_count.push(createdProduct._id.toString())
         this.authorService.updateAuthor(author?._id.toString(), author)
+        }
+     
+        if(createProductDto?.manufacturer_id){
+          const manufacturer = await this.manufacturerService.getManufacturesById(createProductDto.manufacturer_id);
+          manufacturer.products_count.push(createdProduct._id.toString())
+          this.manufacturerService.update(manufacturer?._id.toString(), manufacturer)
+        }
+        
+        const shop = await this.shopService.getShop(createProductDto.shop);
+        shop.products_count.push(createdProduct._id.toString())
+        this.shopService.update(shop?._id.toString(), shop)
 
-        const manufacturer = await this.manufacturerService.getManufacturesById(createProductDto.manufacturer_id);
-        manufacturer.products_count.push(createdProduct._id.toString())
 
-        this.manufacturerService.update(manufacturer?._id.toString(), manufacturer)
+        return createdProduct;
       }
-      return createdProduct;
 
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
@@ -69,7 +81,7 @@ export class ProductsService {
     const startIndex = (page - 1) * limit;
     const endIndex = page * limit;
     // let data: Product[] = this.products;
-    let data: Product[] = await this._product.find().populate('shop_id').populate('type_id').populate('manufacturer_id');
+    let data: Product[] = await this._product.find().populate('shop').populate('type_id').populate('manufacturer_id');
     const fuse = new Fuse(data, options);
     if (search) {
       const parseSearchParams = search.split(';');
