@@ -1,29 +1,25 @@
 /* eslint-disable prettier/prettier */
-import { BadRequestException, Injectable, NotFoundException, Inject, Logger, HttpException, HttpStatus, } from '@nestjs/common';
-import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { HttpService } from '@nestjs/axios';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { BadRequestException, HttpException, HttpStatus, Inject, Injectable, Logger } from '@nestjs/common';
 import { Cache } from 'cache-manager';
 // import { plainToClass } from 'class-transformer';
 import { CreateUserDto } from './dto/create-user.dto';
 // import {  UserPaginator } from './dto/get-users.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
-import Fuse from 'fuse.js';
-import * as bcrypt from 'bcrypt'
-import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
-import { User, UserDocument } from './entities/user.entity';
+import * as bcrypt from 'bcrypt';
+import Fuse from 'fuse.js';
+import { Model } from 'mongoose';
 import { CloudinaryService } from '../cloudinary/cloudinary.service';
+import { User, UserDocument } from './entities/user.entity';
 // import { CreateUserDto } from '../dto/create-user.dto';
 // import { IUser } from '../interface/user.interface';
 
 // import { User } from './entities/user.entity';
 // import usersJson from '@db/users.json';
 import { paginate } from 'src/common/pagination/paginate';
-import { GetUsersDto, UserPaginator } from './dto/get-users.dto';
-import { ApiOkResponse } from '@nestjs/swagger';
-import { ConfigService } from '@nestjs/config';
 import { UploadsService } from 'src/uploads/uploads.service';
-import { IUser } from './interface/user.interface';
+import { GetUsersDto, UserPaginator } from './dto/get-users.dto';
 // const users = plainToClass(UserSchema, usersJson);
 
 const options = {
@@ -161,6 +157,17 @@ export class UsersService {
     // return this.users.find((user) => user._id === id);
   }
 
+  async isAdminOrOwner(owner_id): Promise<boolean> {
+
+    const user = await this.users.findById(owner_id)
+
+    if(user.permissions.includes(Permission.STORE_OWNER) || user.permissions.includes(Permission.SUPER_ADMIN)){
+      return true;
+    }
+
+    return false;
+  }
+
   async getAllStaff(id) {
     // console.log(id);
     return await this.users.find({ managed_shop: id }).exec();
@@ -211,7 +218,7 @@ export class UsersService {
 
   }
 
-  async updateShop(userId: any, shop: any): Promise<any> {
+  async updateUserWithShopId(userId: any, shop: any): Promise<any> {
 
     try {
       const user = await this.findById(userId)

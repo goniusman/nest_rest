@@ -1,38 +1,70 @@
 import {
-  Controller,
-  Get,
-  Post,
   Body,
-  Put,
-  Param,
+  Controller,
   Delete,
+  Get,
+  HttpException,
+  HttpStatus,
+  Logger,
+  Param,
+  Post,
+  Put,
   Query,
   Req,
   UseGuards,
-  Logger,
-  HttpException,
-  HttpStatus,
 } from '@nestjs/common';
-import { ShopsService } from './shops.service';
+import { HasRoles } from 'src/auth/gurd/has-roles.decorator';
+import { JwtAuthGuard } from 'src/auth/gurd/jwt-auth.guard';
+import { Role } from 'src/auth/gurd/role.enum';
+import { RolesGuard } from 'src/auth/gurd/roles.guard';
+import { CreateUserDto } from 'src/users/dto/create-user.dto';
+import { UserPaginator } from 'src/users/dto/get-users.dto';
 import { CreateShopDto } from './dto/create-shop.dto';
-import { UpdateShopDto } from './dto/update-shop.dto';
 import { GetShopsDto, ShopPaginator } from './dto/get-shops.dto';
 import { GetStaffsDto } from './dto/get-staffs.dto';
-import { UserPaginator } from 'src/users/dto/get-users.dto';
-import {CreateUserDto, Permission} from 'src/users/dto/create-user.dto';
-import {HasRoles} from 'src/auth/gurd/has-roles.decorator';
-import {Role} from 'src/auth/gurd/role.enum';
-import {JwtAuthGuard} from 'src/auth/gurd/jwt-auth.guard';
-import {RolesGuard} from 'src/auth/gurd/roles.guard';
+import { UpdateShopDto } from './dto/update-shop.dto';
+import { ShopsService } from './shops.service';
 
 @Controller('shops')
+@HasRoles(Role.STORE_OWNER, Role.SUPER_ADMIN, Role.STAFF)
+@UseGuards(JwtAuthGuard, RolesGuard)
 export class ShopsController {
-  constructor(private readonly shopsService: ShopsService) {}
+
+  private readonly logger = new Logger()
+
+  constructor(private readonly shopsService: ShopsService) {
+    
+  }
 
   @Post()
-  create(@Body() createShopDto: CreateShopDto, @Req() request) {
-     request;
-    return this.shopsService.create(createShopDto);
+  async create(@Body() createShopDto: CreateShopDto, @Req() request) {
+    try {
+      const isAdminOrOwner = await this.shopsService.isAdminOrOwner(createShopDto.owner_id)
+      if(isAdminOrOwner) {
+         const shopName = await this.shopsService.getShop(createShopDto.name)
+        if(!shopName?._id) {
+          const createShop = await this.shopsService.create(createShopDto);
+          if(createShop._id){
+            return createShop
+          }else{
+            return null
+          }
+         
+        }else{
+
+          throw new HttpException('Shop Name Already Exist!', HttpStatus.BAD_REQUEST)
+
+        }
+      }else{
+        throw new HttpException('This User not exist!'+ request?.user.name, HttpStatus.BAD_REQUEST)
+
+      }
+     
+      
+    } catch (error) {
+      this.logger.error(`ShopsController/create error is ${error.message}`)
+      throw error;
+    }
   }
 
   @Get()
@@ -52,7 +84,12 @@ export class ShopsController {
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.shopsService.remove(id);
+    try {
+      return this.shopsService.remove(id);
+    } catch (error) {
+      this.logger.error(`ShopsController/remove error is ${error.message}`)
+      throw error;
+    }
   }
 
   // @Post('approve')

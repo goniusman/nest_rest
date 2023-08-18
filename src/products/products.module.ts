@@ -1,22 +1,21 @@
 import { Module } from '@nestjs/common';
-import { ProductsService } from './products.service';
-import {
-  ProductsController,
-  PopularProductsController,
-} from './products.controller';
 import { MongooseModule } from '@nestjs/mongoose';
-import { ProductSchema } from './entities/product.entity';
 import { AuthorsModule } from 'src/authors/authors.module';
 import { ManufacturersModule } from 'src/manufacturers/manufacturers.module';
+import { ShopsModule } from 'src/shops/shops.module';
+import { ProductSchema } from './entities/product.entity';
+import {
+  PopularProductsController,
+  ProductsController,
+} from './products.controller';
+import { ProductsService } from './products.service';
 
 @Module({
   imports: [
-  
-    MongooseModule.forFeature([
-      {name: 'Product', schema: ProductSchema}
-    ]),
+    MongooseModule.forFeature([{ name: 'Product', schema: ProductSchema }]),
     AuthorsModule,
-    ManufacturersModule
+    ManufacturersModule,
+    ShopsModule,
     // AuthorsService,
     // ManufacturersService
   ],

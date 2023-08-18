@@ -1,17 +1,17 @@
+import shopsJson from '@db/shops.json';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
 import { plainToClass } from 'class-transformer';
+import Fuse from 'fuse.js';
+import { Model } from 'mongoose';
+import { paginate } from 'src/common/pagination/paginate';
+import { CreateUserDto } from 'src/users/dto/create-user.dto';
+import { UsersService } from 'src/users/users.service';
 import { CreateShopDto } from './dto/create-shop.dto';
+import { GetShopsDto } from './dto/get-shops.dto';
+import { GetStaffsDto } from './dto/get-staffs.dto';
 import { UpdateShopDto } from './dto/update-shop.dto';
 import { Shop } from './entities/shop.entity';
-import shopsJson from '@db/shops.json';
-import Fuse from 'fuse.js';
-import { GetShopsDto } from './dto/get-shops.dto';
-import { paginate } from 'src/common/pagination/paginate';
-import { GetStaffsDto } from './dto/get-staffs.dto';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import { UsersService } from 'src/users/users.service';
-import { CreateUserDto, Permission } from 'src/users/dto/create-user.dto';
 
 const shops = plainToClass(Shop, shopsJson);
 const options = {
@@ -32,20 +32,22 @@ export class ShopsService {
   async create(createShopDto: CreateShopDto): Promise<any> {
 
     try {
-
-      // const user = await this.userService.getUser(createShopDto.owner_id)
-      // createShopDto.owner = user
-      // createShopDto.slug = createShopDto.name
       const shopCreated = await this._shop.create(createShopDto);
-      // user.shops.push(shopCreated._id)
-      const updateShop = await this.userService.updateShop(createShopDto.owner_id, shopCreated._id)
-      if (updateShop) {
-        return shopCreated;
-      }
+      if(shopCreated._id){
+         const updateShop = await this.userService.updateUserWithShopId(createShopDto.owner_id, shopCreated._id)
+        if (updateShop) {
+          return shopCreated;
+        }else{
+          return null;
+        }
 
+      }else{
+        return null;
+      }
+     
 
     } catch (error) {
-      console.log(error);
+      throw error;
     }
 
   }
@@ -130,9 +132,15 @@ export class ShopsService {
     };
   }
 
-  async getShop(slug: string): Promise<any> {
-    return await this._shop.findOne({ slug });
+  async getShop(name: string): Promise<any> {
+    return await this._shop.findOne({ slug:name });
   }
+
+
+  async isAdminOrOwner(owner_id:any): Promise<boolean>{
+    return await this.userService.isAdminOrOwner(owner_id);
+  }
+
 
   getShopById(id: any) {
     // console.log(id);
@@ -152,7 +160,17 @@ export class ShopsService {
 
 
   async remove(id: string) {
-    return await this._shop.findByIdAndDelete(id);
+    try {
+    const shop = this._shop.findById(id)
+    if(shop){
+      return await this._shop.findByIdAndDelete(id);
+    }else{
+      throw new HttpException('This Shop not exist!', HttpStatus.BAD_REQUEST)
+    }
+    } catch (error) {
+      throw error;
+    }
+   
   }
 
   async disapproveShop(id: any) {
