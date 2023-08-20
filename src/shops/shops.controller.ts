@@ -13,19 +13,22 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
-import { HasRoles } from 'src/auth/gurd/has-roles.decorator';
-import { JwtAuthGuard } from 'src/auth/gurd/jwt-auth.guard';
-import { Role } from 'src/auth/gurd/role.enum';
-import { RolesGuard } from 'src/auth/gurd/roles.guard';
-import { CreateUserDto } from 'src/users/dto/create-user.dto';
-import { UserPaginator } from 'src/users/dto/get-users.dto';
-import { CreateShopDto } from './dto/create-shop.dto';
-import { GetShopsDto, ShopPaginator } from './dto/get-shops.dto';
-import { GetStaffsDto } from './dto/get-staffs.dto';
-import { UpdateShopDto } from './dto/update-shop.dto';
-import { ShopsService } from './shops.service';
+import {ApiBearerAuth,ApiTags} from '@nestjs/swagger';
+import {HasRoles} from 'src/auth/gurd/has-roles.decorator';
+import {JwtAuthGuard} from 'src/auth/gurd/jwt-auth.guard';
+import {Role} from 'src/auth/gurd/role.enum';
+import {RolesGuard} from 'src/auth/gurd/roles.guard';
+import {CreateUserDto} from 'src/users/dto/create-user.dto';
+import {UserPaginator} from 'src/users/dto/get-users.dto';
+import {CreateShopDto} from './dto/create-shop.dto';
+import {GetShopsDto,ShopPaginator} from './dto/get-shops.dto';
+import {GetStaffsDto} from './dto/get-staffs.dto';
+import {UpdateShopDto} from './dto/update-shop.dto';
+import {ShopsService} from './shops.service';
 
 @Controller('shops')
+@ApiBearerAuth()
+@ApiTags("Shops")  
 @HasRoles(Role.STORE_OWNER, Role.SUPER_ADMIN, Role.STAFF)
 @UseGuards(JwtAuthGuard, RolesGuard)
 export class ShopsController {
