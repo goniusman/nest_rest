@@ -1,51 +1,33 @@
 import {
-  Controller,
-  Request,
-  UseGuards,
-  Get,
-  Post,
   Body,
-  Put,
-  Param,
+  Controller,
   Delete,
-  Query,
-  UseInterceptors,
-  UploadedFile,
-  Req,
-  HttpCode,
+  Get,
+  HttpException,
   HttpStatus,
   Logger,
-  // CACHE_MANAGER, 
-  Inject,
-  HttpException
+  Param,
+  Post,
+  Put,
+  Query,
+  Req,
+  UseGuards
 } from '@nestjs/common';
 
-import {
-  CacheInterceptor,
-  CacheTTL,
-  CacheKey
-} from '@nestjs/cache-manager'
-import Cache from 'cache-manager';
 import { UsersService } from './users.service';
 // import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 // import { CreateProfileDto } from './dto/create-profile.dto';
 // import { UpdateProfileDto } from './dto/update-profile.dto';
-import { GetUsersDto } from './dto/get-users.dto';
-import { ApiConsumes, ApiOkResponse } from '@nestjs/swagger';
 // import { CreateUserDto } from '../dto/create-user.dto';
-import { User, UserDocument } from './entities/user.entity';
-import { CreateUserDto } from './dto/create-user.dto';
 // import { LocalAuthGuard } from '../auth/local/local.auth.guard';
 // import { AuthenticatedGuard } from '../auth/local/authenticated.guard';
-import { FileInterceptor } from '@nestjs/platform-express';
+import { HasRoles } from 'src/auth/gurd/has-roles.decorator';
+import { JwtAuthGuard } from 'src/auth/gurd/jwt-auth.guard';
+import { Role } from 'src/auth/gurd/role.enum';
+import { RolesGuard } from 'src/auth/gurd/roles.guard';
 import { CreateProfileDto } from './dto/create-profile.dto';
 import { UpdateProfileDto } from './dto/update-profile.dto';
-import { HasRoles } from 'src/auth/gurd/has-roles.decorator';
-import { Role } from 'src/auth/gurd/role.enum';
-import { AuthGuard } from '@nestjs/passport';
-import { RolesGuard } from 'src/auth/gurd/roles.guard';
-import { JwtAuthGuard } from 'src/auth/gurd/jwt-auth.guard';
 // import { IUser } from '../interface/user.interface';
 
 @Controller('users')
@@ -153,13 +135,14 @@ export class UsersController {
   @Post('make-admin')
   @HasRoles(Role.SUPER_ADMIN)
   @UseGuards(JwtAuthGuard, RolesGuard)
-  assignORRevoke(@Req() req, @Body('user_id') id: string) {
+  async assignORRevoke(@Req() req, @Body('user_id') id: string) {
     
     try {
       if(id){
-      const user = this.usersService.findById(id)
+      const user = await this.usersService.findById(id)
       if(user){
-        return this.usersService.assignORRevoke(id, user);
+        const updatedUser = await this.usersService.assignORRevoke(id, user);
+        return updatedUser
 
       }else{
         throw new HttpException('No user found', HttpStatus.NOT_FOUND)

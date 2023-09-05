@@ -264,7 +264,8 @@ export class UsersService {
       user.permissions = [...user.permissions, Permission.SUPER_ADMIN];
     }
 
-    return await user.save();
+    const updatedUser =  await user.save();
+    return updatedUser;
   }
 
   async banUser(id: string) {
