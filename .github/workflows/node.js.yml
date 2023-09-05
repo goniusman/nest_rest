@@ -12,8 +12,8 @@ jobs:
     runs-on: self-hosted 
 
     steps:
-    - name: 'Cleanup build folder'
-      run: sudo chown -R $USER:$USER /var/www/rest/_working/nest_rest
+    # - name: 'Cleanup build folder'
+    #   run: sudo chown -R $USER:$USER /var/www/rest/_working/nest_rest
     #   run: |
     #     ls -la ./
     #     rm -rf ./* || true
