@@ -1,8 +1,8 @@
 import { ValidationPipe } from '@nestjs/common';
-import { HttpAdapterHost, NestFactory } from '@nestjs/core';
+import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { WinstonModule } from 'nest-winston';
-import { transports, format } from 'winston';
+import { format, transports } from 'winston';
 import { AppModule } from './app.module';
 // import session from 'express-session';
 // import passport from 'passport';
@@ -12,16 +12,12 @@ import { AppModule } from './app.module';
 
 import 'winston-daily-rotate-file';
 
-import { ExceptionsLoggerFilter } from './utils/Exeption/exceptionsLogger.filter';
-
-
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
     cors: true,
 
     logger: WinstonModule.createLogger({
       transports: [
-
         // file on daily rotation (error only)
         new transports.DailyRotateFile({
           // %DATE will be replaced by the current date
@@ -52,12 +48,10 @@ async function bootstrap() {
             }),
           ),
         }),
-
       ],
     }),
 
     // snapshot: true,
-    
   });
 
   // const sess = session.Session
@@ -76,9 +70,7 @@ async function bootstrap() {
   // const { httpAdapter } = app.get(HttpAdapterHost);
   // app.useGlobalFilters(new ExceptionsLoggerFilter(httpAdapter));
 
-
   app.setGlobalPrefix('api');
-
 
   app.useGlobalPipes(new ValidationPipe());
 
@@ -86,9 +78,9 @@ async function bootstrap() {
     .setTitle('Marvel')
     .setDescription('Marvel Mock API')
     .setVersion('1.0')
+    .addBearerAuth()
     .addTag('Marvel')
     .build();
-
 
   const document = SwaggerModule.createDocument(app, config);
 
