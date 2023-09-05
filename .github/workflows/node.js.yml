@@ -13,11 +13,13 @@ jobs:
 
     steps:
     # - name: 'Cleanup build folder'
-    #   run: |
-    #     ls -la ./
-    #     rm -rf ./* || true
-    #     rm -rf ./.??* || true
-    #     ls -la ./
+    #   run: sudo chown -R $USER:$USER /var/www/rest/_working/nest_rest
+      # run: |
+      #   ls -la ./
+      #   rm -rf ./* || true
+      #   rm -rf ./.??* || true
+      #   ls -la ./
+
     - uses: actions/checkout@v2
     - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v1
