@@ -1,18 +1,18 @@
-import { Injectable } from '@nestjs/common';
-import { Manufacturer } from './entities/manufacturer.entity';
 import manufacturersJson from '@db/manufacturers.json';
+import { Injectable } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
 import { plainToClass } from 'class-transformer';
 import Fuse from 'fuse.js';
-import { GetTopManufacturersDto } from './dto/get-top-manufacturers.dto';
+import { Model } from 'mongoose';
+import { paginate } from '../common/pagination/paginate';
+import { CreateManufacturerDto } from './dto/create-manufacturer.dto';
 import {
   GetManufacturersDto,
   ManufacturerPaginator,
 } from './dto/get-manufactures.dto';
-import { paginate } from '../common/pagination/paginate';
-import { CreateManufacturerDto } from './dto/create-manufacturer.dto';
+import { GetTopManufacturersDto } from './dto/get-top-manufacturers.dto';
 import { UpdateManufacturerDto } from './dto/update-manufacturer.dto';
-import {InjectModel} from '@nestjs/mongoose';
-import {Model} from 'mongoose';
+import { Manufacturer } from './entities/manufacturer.entity';
 
 const manufacturers = plainToClass(Manufacturer, manufacturersJson);
 
@@ -46,7 +46,7 @@ export class ManufacturersService {
       return createMenufac
       
     } catch (error) {
-      console.log(error);
+      throw error;
     }
   }
 

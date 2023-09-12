@@ -2,7 +2,6 @@ import productsJson from '@db/products.json';
 import { HttpException, HttpStatus, Injectable, Req } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { plainToClass } from 'class-transformer';
-import Fuse from 'fuse.js';
 import { Model } from 'mongoose';
 import { AuthorsService } from 'src/authors/authors.service';
 import { paginate } from 'src/common/pagination/paginate';
@@ -52,19 +51,22 @@ export class ProductsService {
 
         if(createProductDto?.author_id){
              const author = await this.authorService.getAuthorById(createProductDto.author_id);
-        author.products_count.push(createdProduct._id.toString())
+        author?.products_count.push(createdProduct._id.toString())
         this.authorService.updateAuthor(author?._id.toString(), author)
         }
      
         if(createProductDto?.manufacturer_id){
           const manufacturer = await this.manufacturerService.getManufacturesById(createProductDto.manufacturer_id);
-          manufacturer.products_count.push(createdProduct._id.toString())
-          this.manufacturerService.update(manufacturer?._id.toString(), manufacturer)
+          manufacturer?.products_count.push(createdProduct._id.toString())
+          await this.manufacturerService.update(manufacturer?._id.toString(), manufacturer)
         }
-        
-        const shop = await this.shopService.getShop(createProductDto.shop);
-        shop.products_count.push(createdProduct._id.toString())
-        this.shopService.update(shop?._id.toString(), shop)
+        if(createProductDto.shop_id){
+            const shopId = createProductDto.shop_id.toString()
+          const shop = await this.shopService.getShopById(shopId);
+          shop?.products_count.push(createdProduct._id.toString())
+          await this.shopService.update(shop?._id.toString(), shop) 
+        }
+  
 
 
         return createdProduct;
@@ -81,8 +83,8 @@ export class ProductsService {
     const startIndex = (page - 1) * limit;
     const endIndex = page * limit;
     // let data: Product[] = this.products;
-    let data: Product[] = await this._product.find().populate('shop').populate('type_id').populate('manufacturer_id');
-    const fuse = new Fuse(data, options);
+    let data: Product[] = await this._product.find().populate('type_id').populate('manufacturer_id').populate('shop_id');
+    // const fuse = new Fuse(data, options);
     if (search) {
       const parseSearchParams = search.split(';');
       const searchText: any = [];
@@ -94,17 +96,17 @@ export class ProductsService {
             [key]: value,
           });
         }
-
-
       }
 
-      data = fuse
-        .search({
-          $and: searchText,
-        })
-        ?.map(({ item }) => item);
+      // data = fuse
+      //   .search({
+      //     $and: searchText,
+      //   })?.map(({ item }) => item);
 
-      data = await this._product.find({ shop_id: searchText[0].shop_id }).populate('type_id').populate('shop_id').populate('manufacturer_id')
+        const [one, two] = searchText;
+
+      data = await this._product.find( {$and:[two, one]} ).populate('type_id').populate('shop_id').populate('manufacturer_id')
+      // data = await this._product.find({ shop_id: searchText[0].shop_id }).populate('type_id').populate('shop_id').populate('manufacturer_id')
     }
 
     const results = data.slice(startIndex, endIndex);

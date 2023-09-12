@@ -12,25 +12,25 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { ManufacturersService } from './manufacturers.service';
-import { GetTopManufacturersDto } from './dto/get-top-manufacturers.dto';
-import { Manufacturer } from './entities/manufacturer.entity';
+import { HasRoles } from 'src/auth/gurd/has-roles.decorator';
+import { JwtAuthGuard } from 'src/auth/gurd/jwt-auth.guard';
+import { Role } from 'src/auth/gurd/role.enum';
+import { RolesGuard } from 'src/auth/gurd/roles.guard';
+import { CreateManufacturerDto } from './dto/create-manufacturer.dto';
 import {
   GetManufacturersDto,
   ManufacturerPaginator,
 } from './dto/get-manufactures.dto';
-import { CreateManufacturerDto } from './dto/create-manufacturer.dto';
+import { GetTopManufacturersDto } from './dto/get-top-manufacturers.dto';
 import { UpdateManufacturerDto } from './dto/update-manufacturer.dto';
-import {Role} from 'src/auth/gurd/role.enum';
-import {JwtAuthGuard} from 'src/auth/gurd/jwt-auth.guard';
-import {RolesGuard} from 'src/auth/gurd/roles.guard';
-import {HasRoles} from 'src/auth/gurd/has-roles.decorator';
+import { Manufacturer } from './entities/manufacturer.entity';
+import { ManufacturersService } from './manufacturers.service';
 
 @Controller('manufacturers')
 @HasRoles(Role.STORE_OWNER, Role.SUPER_ADMIN)
 @UseGuards(JwtAuthGuard, RolesGuard)
 export class ManufacturersController {
-  private readonly logger = new Logger()
+  private readonly logger = new Logger() 
   constructor(private readonly manufacturersService: ManufacturersService) {}
 
   @Post()

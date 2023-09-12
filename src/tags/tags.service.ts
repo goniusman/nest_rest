@@ -1,16 +1,15 @@
+import tagsJson from '@db/tags.json';
 import { Injectable } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { plainToClass } from 'class-transformer';
+import Fuse from 'fuse.js';
+import { Model } from 'mongoose';
 import { paginate } from 'src/common/pagination/paginate';
 import { CreateTagDto } from './dto/create-tag.dto';
 import { GetTagsDto } from './dto/get-tags.dto';
 import { UpdateTagDto } from './dto/update-tag.dto';
 import { Tag } from './entities/tag.entity';
-import tagsJson from '@db/tags.json';
-import { plainToClass } from 'class-transformer';
-import Fuse from 'fuse.js';
-import {InjectModel} from '@nestjs/mongoose';
-import {Model} from 'mongoose';
 
-import {TypesService} from 'src/types/types.service';
 
 const tags = plainToClass(Tag, tagsJson);
 
@@ -28,22 +27,15 @@ export class TagsService {
     // private _typeService: TypesService
       ){}
 
+
   async create(createTagDto: CreateTagDto) {
 
-    try {
-      const exist = await this._tag.findOne({name: createTagDto.name})
-
-      if(!exist){
-        const createTag = await this._tag.create(createTagDto);
-      }
-
-        return {
-          id: this.tags.length + 1,
-          ...createTagDto,
-        };
-
+    try { 
+     
+        const tagCreated = await this._tag.create(createTagDto);
+      return tagCreated;
     } catch (error) {
-      console.log(error);
+      throw error; 
     }
    
   }
@@ -78,7 +70,7 @@ export class TagsService {
         ?.map(({ item }) => item);
 
 
-        data = await this._tag.find({ "type.slug": searcValue}).populate('type').exec()
+        data = await this._tag.find({ "type.slug": searcValue}).populate('type')
     }
 
     const url = `/tags?limit=${limit}`;
@@ -92,8 +84,13 @@ export class TagsService {
     
   }
 
-  async findOne(param: string, language: string) {
-    return await this._tag.findOne({slug: param});
+  async  findOne(param: string) {
+    try {
+      return await this._tag.findOne({name: param});
+      
+    } catch (error) {
+      throw error;
+    }
   }
 
 
