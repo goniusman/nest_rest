@@ -181,15 +181,15 @@ ProductSchema.pre("save", function(next) {
 
 export { ProductSchema };
 
-export class File extends CoreEntity {
+export class File  {
 
-  @Prop({type: Number, required: false})
+  // @Prop({type: Number, required: false})
   attachment_id: number;
 
-  @Prop({type: String, required: false})
+  // @Prop({type: String, required: false})
   url: string;
 
-  @Prop({type: Number, required: false})
+  // @Prop({type: Number, required: false})
   fileable_id: number;
 
 }

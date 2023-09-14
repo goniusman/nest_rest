@@ -67,8 +67,6 @@ export class ProductsService {
           await this.shopService.update(shop?._id.toString(), shop) 
         }
   
-
-
         return createdProduct;
       }
 

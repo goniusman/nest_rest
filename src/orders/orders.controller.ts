@@ -4,12 +4,20 @@ import {
   Delete,
   Get,
   HttpCode,
+  HttpException,
+  HttpStatus,
+  Logger,
   Param,
   ParseIntPipe,
   Post,
   Put,
   Query,
+  UseGuards,
 } from '@nestjs/common';
+import { HasRoles } from 'src/auth/gurd/has-roles.decorator';
+import { JwtAuthGuard } from 'src/auth/gurd/jwt-auth.guard';
+import { Role } from 'src/auth/gurd/role.enum';
+import { RolesGuard } from 'src/auth/gurd/roles.guard';
 import { CreateOrderStatusDto } from './dto/create-order-status.dto';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { GetOrderFilesDto, OrderFilesPaginator } from './dto/get-downloads.dto';
@@ -22,42 +30,122 @@ import { Order } from './entities/order.entity';
 import { OrdersService } from './orders.service';
 
 @Controller('orders')
+@HasRoles(Role.STORE_OWNER, Role.SUPER_ADMIN, Role.STAFF, Role.CUSTOMER)
+@UseGuards(JwtAuthGuard, RolesGuard)
 export class OrdersController {
+
+  private readonly logger = new Logger()
+
   constructor(private readonly ordersService: OrdersService) {}
 
   @Post()
   async create(@Body() createOrderDto: CreateOrderDto): Promise<Order> {
-    return this.ordersService.create(createOrderDto);
+    try {
+      
+      if(createOrderDto != null){
+        return this.ordersService.create(createOrderDto);
+      
+    } else {
+      throw new HttpException('Order body shuld not be empty', HttpStatus.BAD_REQUEST)
+
+    }
+
+  } catch (error) {
+
+    this.logger.error(`orderController/create error is + ${error.message}`)
+    throw error;
+
+  }
+
   }
 
   @Get()
   async getOrders(@Query() query: GetOrdersDto): Promise<OrderPaginator> {
-    return this.ordersService.getOrders(query);
+    try {
+      
+      return this.ordersService.getOrders(query);
+    } catch (error) {
+      this.logger.error(`orderController/getOrders error is + ${error.message}`)
+    throw error;
+    }
   }
 
   @Get(':id')
-  getOrderById(@Param('id') id: number) {
-    return this.ordersService.getOrderByIdOrTrackingNumber(Number(id));
+  getOrderById(@Param('id') id: any) {
+    try {
+      if(id){
+
+        return this.ordersService.getOrderByIdOrTrackingNumber(id);
+      }else{
+        throw new HttpException('Order id shuld not be empty', HttpStatus.BAD_REQUEST)
+
+      }
+      
+    } catch (error) {
+      this.logger.error(`orderController/getOrderById error is + ${error.message}`)
+    throw error;
+    }
   }
 
   @Get('tracking-number/:tracking_id')
   getOrderByTrackingNumber(@Param('tracking_id') tracking_id: number) {
-    return this.ordersService.getOrderByIdOrTrackingNumber(tracking_id);
+    try {
+      return this.ordersService.getOrderByIdOrTrackingNumber(tracking_id);
+      
+    } catch (error) {
+      this.logger.error(`orderController/update error is + ${error.message}`)
+      throw error;
+    }
   }
 
   @Put(':id')
   update(@Param('id') id: string, @Body() updateOrderDto: UpdateOrderDto) {
-    return this.ordersService.update(+id, updateOrderDto);
+    try {
+      if(id){
+
+        return this.ordersService.update(id, updateOrderDto);
+      }else{
+        throw new HttpException('Order id shuld not be empty', HttpStatus.BAD_REQUEST)
+
+      }
+      
+    } catch (error) {
+      this.logger.error(`orderController/update error is + ${error.message}`)
+    throw error;
+    }
+
+
   }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.ordersService.remove(+id);
+
+    try {
+      if(id){
+
+        return this.ordersService.remove(id);
+      }else{
+        throw new HttpException('Order id shuld not be empty', HttpStatus.BAD_REQUEST)
+
+      }
+      
+    } catch (error) {
+      this.logger.error(`orderController/remove error is + ${error.message}`)
+    throw error;
+    }
+
+
   }
 
   @Post('checkout/verify')
   verifyCheckout(@Query() query: CheckoutVerificationDto) {
-    return this.ordersService.verifyCheckout(query);
+    try {
+      
+      return this.ordersService.verifyCheckout(query);
+    } catch (error) {
+      this.logger.error(`orderController/verifyCheckout error is + ${error.message}`)
+      throw error;
+    }
   }
   @Post('/payment')
   @HttpCode(200)

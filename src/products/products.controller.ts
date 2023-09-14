@@ -1,52 +1,114 @@
 import {
-  Controller,
-  Get,
-  Post,
   Body,
-  Param,
+  Controller,
   Delete,
-  Query,
+  Get,
+  HttpException,
+  HttpStatus,
+  Logger,
+  Param,
+  Post,
   Put,
+  Query,
   Req,
   UseGuards,
 } from '@nestjs/common';
-import { ProductsService } from './products.service';
-import { CreateProductDto } from './dto/create-product.dto';
-import { UpdateProductDto } from './dto/update-product.dto';
-import { GetProductsDto, ProductPaginator } from './dto/get-products.dto';
-import { Product } from './entities/product.entity';
-import { GetPopularProductsDto } from './dto/get-popular-products.dto';
+import { HasRoles } from 'src/auth/gurd/has-roles.decorator';
 import { JwtAuthGuard } from 'src/auth/gurd/jwt-auth.guard';
+import { Role } from 'src/auth/gurd/role.enum';
 import { RolesGuard } from 'src/auth/gurd/roles.guard';
+import { CreateProductDto } from './dto/create-product.dto';
+import { GetPopularProductsDto } from './dto/get-popular-products.dto';
+import { GetProductsDto, ProductPaginator } from './dto/get-products.dto';
+import { UpdateProductDto } from './dto/update-product.dto';
+import { Product } from './entities/product.entity';
+import { ProductsService } from './products.service';
 
 @Controller('products')
+@HasRoles(Role.STORE_OWNER, Role.SUPER_ADMIN, Role.STAFF)
+@UseGuards(JwtAuthGuard, RolesGuard)
 export class ProductsController {
+
+  private readonly logger = new Logger()
+  
   constructor(private readonly productsService: ProductsService) {}
 
   @Post()
-  @UseGuards(JwtAuthGuard)
-  createProduct(@Req() req: any, @Body() createProductDto: CreateProductDto) {
-    return this.productsService.create(createProductDto, req.user);
+  async createProduct(@Req() req: any, @Body() createProductDto: CreateProductDto) {
+    try {
+
+      const existProduct = await this.productsService.getProductBySlug(createProductDto.slug)
+      if (!existProduct) {
+
+        return this.productsService.create(createProductDto, req.user);
+
+      } else {
+        throw new HttpException('User Already Exists', HttpStatus.BAD_REQUEST)
+
+      }
+
+    } catch (error) {
+
+      this.logger.error(`productController/create error is + ${error.message}`)
+      throw error;
+
+    }
   }
 
   @Get()
   async getProducts(@Query() query: GetProductsDto, @Req() req:any): Promise<ProductPaginator> {
-    return this.productsService.getProducts(query);
+    try {
+      return this.productsService.getProducts(query);
+      
+    } catch (error) {
+      this.logger.error(`productController/getProducts error is + ${error.message}`)
+      throw error;
+    }
   }
 
   @Get(':slug')
   async getProductBySlug(@Param('slug') slug: string): Promise<Product> {
-    return this.productsService.getProductBySlug(slug);
+    try {
+      
+      return this.productsService.getProductBySlug(slug);
+    } catch (error) {
+      this.logger.error(`productController/getProductBySlug error is + ${error.message}`)
+      throw error;
+    }
   }
 
   @Put(':id')
   update(@Param('id') id: string, @Body() updateProductDto: UpdateProductDto) {
-    return this.productsService.update(id, updateProductDto);
+    try {
+      if(id){
+
+        return this.productsService.update(id, updateProductDto);
+      }else{
+        throw new HttpException('Product Id Not Found', HttpStatus.BAD_REQUEST)
+
+      }
+      
+    } catch (error) {
+      this.logger.error(`productController/update error is + ${error.message}`)
+      throw error;
+    }
   }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.productsService.remove(id);
+    try {
+      if(id){
+
+        return this.productsService.remove(id);
+      }else{
+        throw new HttpException('Product Id Not Found', HttpStatus.BAD_REQUEST)
+
+      }
+      
+    } catch (error) {
+      this.logger.error(`productController/remove error is + ${error.message}`)
+      throw error;
+    }
   }
 }
 

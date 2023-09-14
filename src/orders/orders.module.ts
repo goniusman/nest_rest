@@ -1,6 +1,11 @@
 import { Module } from '@nestjs/common';
+import { MongooseModule } from '@nestjs/mongoose';
 import { AuthModule } from 'src/auth/auth.module';
+import { PaymentIntentSchema } from 'src/payment-intent/entries/payment-intent.entity';
+import { PaymentGateWaySchema } from 'src/payment-method/entities/payment-gateway.entity';
 import { PaymentModule } from 'src/payment/payment.module';
+import { OrderStatusSchema } from './entities/order-status.entity';
+import { OrderFilesSchema, OrderSchema } from './entities/order.entity';
 import {
   DownloadInvoiceController,
   OrderExportController,
@@ -9,18 +14,21 @@ import {
   OrderStatusController,
 } from './orders.controller';
 import { OrdersService } from './orders.service';
-import { OrderFilesSchema, OrderSchema } from './entities/order.entity';
-import { MongooseModule } from '@nestjs/mongoose';
-import { OrderStatusSchema } from './entities/order-status.entity';
+import { SettingsModule } from 'src/settings/settings.module';
 
 @Module({
   imports: [
     MongooseModule.forFeature([
-      {name: 'Order', schema: OrderSchema},
-      {name: 'OrderFiles', schema: OrderFilesSchema},
-      {name: 'OrderStatus', schema: OrderStatusSchema}
+      { name: 'Order', schema: OrderSchema },
+      { name: 'OrderFiles', schema: OrderFilesSchema },
+      { name: 'OrderStatus', schema: OrderStatusSchema },
+      { name: 'PaymentGateWay', schema: PaymentGateWaySchema },
+      { name: 'PaymentIntent', schema: PaymentIntentSchema },
     ]),
-    AuthModule, PaymentModule],
+    AuthModule,
+    PaymentModule,
+    SettingsModule,
+  ],
   controllers: [
     OrdersController,
     OrderStatusController,
@@ -32,5 +40,3 @@ import { OrderStatusSchema } from './entities/order-status.entity';
   exports: [OrdersService],
 })
 export class OrdersModule {}
-
-

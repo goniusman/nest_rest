@@ -49,8 +49,8 @@ export class Order extends CoreEntity {
   @Prop({ type: String, required: false })
   tracking_number: string;
 
-  @Prop({ type: Number, required: false })
-  customer_id: number;
+  @Prop({ type: String, required: false })
+  customer_id: string;
 
   @Prop({ type: String, required: false })
   customer_contact: string;
@@ -106,8 +106,8 @@ export class Order extends CoreEntity {
   @Prop({ type: String, required: false })
   delivery_time: string;
 
-  @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Product' }], default: [] })
-  products: Product[];
+  @Prop({ type: Array, default: [] })
+  products: any[];
 
   @Prop({ required: false, type: UserAddress })
   billing_address: UserAddress;
@@ -115,15 +115,15 @@ export class Order extends CoreEntity {
   @Prop({ required: false, type: UserAddress })
   shipping_address: UserAddress;
 
+  
+  @Prop({ required: false, type: PaymentIntent })
+  payment_intent: PaymentIntent;
+  
   @Prop({ type: String, required: false })
   language: string;
 
   @Prop({ type: String, required: false })
   translated_languages: string[];
-
-  @Prop({ required: false, type: PaymentIntent })
-  payment_intent: PaymentIntent;
-
 }
 
 const OrderSchema = SchemaFactory.createForClass(Order)
@@ -145,7 +145,7 @@ export class OrderFiles extends CoreEntity {
   @Prop({ type: Number, required: false })
   customer_id: number;
 
-  @Prop({ required: false, type: mongoose.Schema.Types.ObjectId, ref: 'File', })
+  @Prop({ required: false, type: File })
   file: File;
 
   @Prop({ required: false, type: mongoose.Schema.Types.ObjectId, ref: 'Product', })
@@ -157,3 +157,4 @@ export class OrderFiles extends CoreEntity {
 const OrderFilesSchema = SchemaFactory.createForClass(OrderFiles)
 
 export { OrderFilesSchema };
+

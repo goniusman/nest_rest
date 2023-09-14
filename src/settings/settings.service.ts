@@ -1,11 +1,10 @@
-import { Injectable } from '@nestjs/common';
-import { plainToClass } from 'class-transformer';
-import { CreateSettingDto } from './dto/create-setting.dto';
-import { UpdateSettingDto } from './dto/update-setting.dto';
-import { Setting } from './entities/setting.entity';
 import settingsJson from '@db/settings.json';
-import {InjectModel} from '@nestjs/mongoose';
-import {Model} from 'mongoose';
+import { Injectable } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { plainToClass } from 'class-transformer';
+import { Model } from 'mongoose';
+import { CreateSettingDto } from './dto/create-setting.dto';
+import { Setting } from './entities/setting.entity';
 
 const settings = plainToClass(Setting, settingsJson);
 
@@ -14,8 +13,6 @@ export class SettingsService {
   private settings: Setting = settings;
 
   constructor(@InjectModel('Setting') private _setting : Model<Setting>){}
-
-
 
   async create(createSettingDto: CreateSettingDto) {
     try {

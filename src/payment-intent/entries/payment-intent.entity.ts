@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
-import mongoose, { Mongoose } from "mongoose";
+import mongoose from "mongoose";
 import { CoreEntity } from "src/common/entities/core.entity";
 
 
@@ -24,7 +24,7 @@ export class PaymentIntentInfo extends mongoose.Document {
 
 
 @Schema({timestamps: true})
-export class PaymentIntent  {
+export class PaymentIntent extends CoreEntity  {
 
   @Prop({type: Number, required: false})
   id: number;
@@ -47,4 +47,4 @@ export class PaymentIntent  {
 
 const PaymentIntentSchema = SchemaFactory.createForClass(PaymentIntent)
 
-export {PaymentIntentSchema}
+export { PaymentIntentSchema };
