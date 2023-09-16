@@ -11,7 +11,7 @@ import {
   Put,
   Query,
   Req,
-  UseGuards,
+  UseGuards
 } from '@nestjs/common';
 import {HasRoles} from 'src/auth/gurd/has-roles.decorator';
 import {JwtAuthGuard} from 'src/auth/gurd/jwt-auth.guard';
@@ -25,8 +25,8 @@ import {Product} from './entities/product.entity';
 import {ProductsService} from './products.service';
 
 @Controller('products')
-@HasRoles(Role.STORE_OWNER, Role.SUPER_ADMIN, Role.STAFF)
-@UseGuards(JwtAuthGuard, RolesGuard)
+// @HasRoles(Role.STORE_OWNER, Role.SUPER_ADMIN, Role.STAFF)
+// @UseGuards(JwtAuthGuard, RolesGuard)
 export class ProductsController {
 
   private readonly logger = new Logger()
@@ -34,6 +34,8 @@ export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
 
   @Post()
+  @HasRoles(Role.STORE_OWNER, Role.SUPER_ADMIN, Role.STAFF)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   async createProduct(@Req() req: any, @Body() createProductDto: CreateProductDto) {
     try {
 
@@ -77,6 +79,8 @@ export class ProductsController {
   }
 
   @Put(':id')
+  @HasRoles(Role.STORE_OWNER, Role.SUPER_ADMIN, Role.STAFF)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   update(@Param('id') id: string, @Body() updateProductDto: UpdateProductDto) {
     try {
       if(id){
@@ -94,6 +98,8 @@ export class ProductsController {
   }
 
   @Delete(':id')
+  @HasRoles(Role.STORE_OWNER, Role.SUPER_ADMIN, Role.STAFF)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   remove(@Param('id') id: string) {
     try {
       if(id){
