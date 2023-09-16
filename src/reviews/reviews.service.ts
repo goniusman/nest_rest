@@ -1,12 +1,14 @@
-import { Injectable } from '@nestjs/common';
-import { plainToClass } from 'class-transformer';
-import Fuse from 'fuse.js';
-import { paginate } from 'src/common/pagination/paginate';
-import { CreateReviewDto } from './dto/create-review.dto';
-import { UpdateReviewDto } from './dto/update-review.dto';
-import { GetReviewsDto, ReviewPaginator } from './dto/get-reviews.dto';
 import reviewJSON from '@db/reviews.json';
-import { Review } from './entities/review.entity';
+import {Injectable} from '@nestjs/common';
+import {InjectModel} from '@nestjs/mongoose';
+import {plainToClass} from 'class-transformer';
+import Fuse from 'fuse.js';
+import {Model} from 'mongoose';
+import {paginate} from 'src/common/pagination/paginate';
+import {CreateReviewDto} from './dto/create-review.dto';
+import {GetReviewsDto} from './dto/get-reviews.dto';
+import {UpdateReviewDto} from './dto/update-review.dto';
+import {Review} from './entities/review.entity';
 
 const reviews = plainToClass(Review, reviewJSON);
 const options = {
@@ -17,14 +19,19 @@ const fuse = new Fuse(reviews, options);
 
 @Injectable()
 export class ReviewService {
-  private reviews: Review[] = reviews;
+  // private reviews: Review[] = reviews;
 
-  findAllReviews({ limit, page, search, product_id }: GetReviewsDto) {
+  constructor(
+    @InjectModel('Review') private _reviews: Model<Review>
+  ) {}
+  
+
+  async findAllReviews({ limit, page, search, product_id }: GetReviewsDto) {
     if (!page) page = 1;
     if (!limit) limit = 30;
     const startIndex = (page - 1) * limit;
     const endIndex = page * limit;
-    let data: Review[] = this.reviews;
+    let data: Review[] = await this._reviews.find();
 
     if (search) {
       const parseSearchParams = search.split(';');
@@ -46,19 +53,19 @@ export class ReviewService {
     };
   }
 
-  findReview(id: number) {
-    return this.reviews.find((p) => p.id === id);
+  findReview(id: any) {
+    return this._reviews.findById(id);
   }
 
   create(createReviewDto: CreateReviewDto) {
-    return this.reviews[0];
+    return this._reviews.create(createReviewDto);
   }
 
-  update(id: number, updateReviewDto: UpdateReviewDto) {
-    return this.reviews[0];
+  update(id: any, updateReviewDto: UpdateReviewDto) {
+    return this._reviews.findByIdAndDelete(id, updateReviewDto);
   }
 
-  delete(id: number) {
-    return this.reviews[0];
+  delete(id: any) {
+    return this._reviews.findByIdAndDelete(id);
   }
 }

@@ -1,17 +1,17 @@
 import productsJson from '@db/products.json';
-import { HttpException, HttpStatus, Injectable, Req } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { plainToClass } from 'class-transformer';
-import { Model } from 'mongoose';
-import { AuthorsService } from 'src/authors/authors.service';
-import { paginate } from 'src/common/pagination/paginate';
-import { ManufacturersService } from 'src/manufacturers/manufacturers.service';
-import { ShopsService } from 'src/shops/shops.service';
-import { CreateProductDto } from './dto/create-product.dto';
-import { GetPopularProductsDto } from './dto/get-popular-products.dto';
-import { GetProductsDto, ProductPaginator } from './dto/get-products.dto';
-import { UpdateProductDto } from './dto/update-product.dto';
-import { Product, ProductDocument } from './entities/product.entity';
+import {HttpException,HttpStatus,Injectable,Req} from '@nestjs/common';
+import {InjectModel} from '@nestjs/mongoose';
+import {plainToClass} from 'class-transformer';
+import {Model} from 'mongoose';
+import {AuthorsService} from 'src/authors/authors.service';
+import {paginate} from 'src/common/pagination/paginate';
+import {ManufacturersService} from 'src/manufacturers/manufacturers.service';
+import {ShopsService} from 'src/shops/shops.service';
+import {CreateProductDto} from './dto/create-product.dto';
+import {GetPopularProductsDto} from './dto/get-popular-products.dto';
+import {GetProductsDto,ProductPaginator} from './dto/get-products.dto';
+import {UpdateProductDto} from './dto/update-product.dto';
+import {Product,ProductDocument} from './entities/product.entity';
 
 const products = plainToClass(Product, productsJson);
 
@@ -75,15 +75,28 @@ export class ProductsService {
     }
   }
 
-  async getProducts({ limit, page, search }: GetProductsDto, @Req() req:any = "test" ): Promise<ProductPaginator> {
+  async getProducts({ limit, page, search, shop_id }: GetProductsDto, @Req() req:any = "test" ): Promise<ProductPaginator> {
     if (!page) page = 1;
     if (!limit) limit = 30;
     const startIndex = (page - 1) * limit;
     const endIndex = page * limit;
-    // let data: Product[] = this.products;
-    let data: Product[] = await this._product.find().populate('type_id').populate('manufacturer_id').populate('shop_id');
-    // const fuse = new Fuse(data, options);
-    if (search) {
+
+    var data: Product[];
+
+    if(shop_id){
+
+      
+       data = await this._product.find({shop_id})
+       .populate('type_id')
+       .populate('manufacturer_id')
+       .populate('shop_id')
+       .populate('author_id')
+       .populate('categories')
+      //  .exec( err:any => console.log(err));
+
+
+
+    }else if(search){
       const parseSearchParams = search.split(';');
       const searchText: any = [];
       for (const searchParam of parseSearchParams) {
@@ -103,9 +116,14 @@ export class ProductsService {
 
         const [one, two] = searchText;
 
-      data = await this._product.find( {$and:[two, one]} ).populate('type_id').populate('shop_id').populate('manufacturer_id')
+      data = await this._product.find( {$and:[two, one]} ).populate('type_id').populate('shop_id').populate('manufacturer_id').populate('categories').populate('author_id')
       // data = await this._product.find({ shop_id: searchText[0].shop_id }).populate('type_id').populate('shop_id').populate('manufacturer_id')
+    }else{
+      data = await this._product.find().populate('type_id').populate('manufacturer_id').populate('shop_id').populate('author_id').populate('categories');
     }
+
+    // const fuse = new Fuse(data, options);
+  
 
     const results = data.slice(startIndex, endIndex);
     const url = `/products?search=${search}&limit=${limit}`;
@@ -117,10 +135,10 @@ export class ProductsService {
 
   async getProductBySlug(slug: string): Promise<Product> {
     // const product = this.products.find((p) => p.slug === slug);
-    const test = await this._product.findOne({ slug: slug }).populate('shop_id').populate('type_id');
+    const test = (await this._product.findOne({ slug: slug }).populate('shop_id').populate('type_id')).populate('author_id');
     // let product
     // if(test && test?._doc){
-     const product = await test?._doc
+     const product = (await test)?._doc
     // }
 
     // const related_products = this.products
@@ -128,7 +146,7 @@ export class ProductsService {
     //   .slice(0, 20);
     const related_products = await this._product.find({
       type_id: product?.type_id
-    })
+    }).limit(10)
 
     // return product;
 

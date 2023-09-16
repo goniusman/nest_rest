@@ -1,14 +1,14 @@
 import tagsJson from '@db/tags.json';
-import { Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { plainToClass } from 'class-transformer';
+import {Injectable} from '@nestjs/common';
+import {InjectModel} from '@nestjs/mongoose';
+import {plainToClass} from 'class-transformer';
 import Fuse from 'fuse.js';
-import { Model } from 'mongoose';
-import { paginate } from 'src/common/pagination/paginate';
-import { CreateTagDto } from './dto/create-tag.dto';
-import { GetTagsDto } from './dto/get-tags.dto';
-import { UpdateTagDto } from './dto/update-tag.dto';
-import { Tag } from './entities/tag.entity';
+import {Model} from 'mongoose';
+import {paginate} from 'src/common/pagination/paginate';
+import {CreateTagDto} from './dto/create-tag.dto';
+import {GetTagsDto} from './dto/get-tags.dto';
+import {UpdateTagDto} from './dto/update-tag.dto';
+import {Tag} from './entities/tag.entity';
 
 
 const tags = plainToClass(Tag, tagsJson);
@@ -28,16 +28,22 @@ export class TagsService {
       ){}
 
 
-  async create(createTagDto: CreateTagDto) {
+  async createTag(createTagDto: CreateTagDto) {
 
-    try { 
+    try {  
      
-        const tagCreated = await this._tag.create(createTagDto);
-      return tagCreated;
-    } catch (error) {
+      const tagC = await new this._tag(createTagDto);
+      // categoryModel.slug = createCategoryDto.name;
+      tagC.save()
+
+        // const tagC = await this._tag.create(createTagDto);
+
+        return tagC;
+
+    } catch (error) { 
       throw error; 
     }
-   
+    
   }
 
   async findAll({ page, limit, search }: GetTagsDto) {

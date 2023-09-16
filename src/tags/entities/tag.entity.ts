@@ -1,11 +1,11 @@
-import {Prop, Schema, SchemaFactory} from '@nestjs/mongoose';
+import {Prop,Schema,SchemaFactory} from '@nestjs/mongoose';
 import mongoose from 'mongoose';
 // import URLSlug from 'mongoose-slug-generator'
 
-import { Attachment } from 'src/common/entities/attachment.entity';
-import { CoreEntity } from 'src/common/entities/core.entity';
-import { Product } from 'src/products/entities/product.entity';
-import { Type } from 'src/types/entities/type.entity';
+import {Attachment} from 'src/common/entities/attachment.entity';
+import {CoreEntity} from 'src/common/entities/core.entity';
+import {Product} from 'src/products/entities/product.entity';
+import {Type} from 'src/types/entities/type.entity';
 
 @Schema({timestamps: true})
 export class Tag extends CoreEntity {
@@ -13,14 +13,17 @@ export class Tag extends CoreEntity {
   @Prop({type: String, required: true})
   name: string;
 
-  @Prop({type: String, required: false, slug: "name", unique: true})
-  slug: string;
+  @Prop({type: String, required: false, unique: true})
+  slug?: string;
 
-  @Prop({type: Number, required: false})
-  parent: number;
+  @Prop({type: mongoose.Schema.Types.ObjectId, ref: 'Tag'})  
+  parent?: Tag;
+
+  @Prop({type: [{type: mongoose.Schema.Types.ObjectId, ref: 'Tag'}], default: []})
+  children?: Tag[] =[];
 
   @Prop({type: String, required: false})
-  details: string;
+  details?: string;
 
   @Prop({type: Attachment, required: false})
   image: Attachment;
@@ -34,8 +37,8 @@ export class Tag extends CoreEntity {
   // @Prop({type: mongoose.Schema.Types.ObjectId, ref: 'Type', required: false})
   // type_id: Type;
 
-  // @Prop({type: [{type: mongoose.Schema.Types.ObjectId, ref: 'Product'}], required: false, default:[]})
-  // products: Product[] = [];
+  @Prop({type: [{type: mongoose.Schema.Types.ObjectId, ref: 'Product'}], required: false, default:[]})
+  products: Product[] = [];
 
   @Prop({type: String, required: false})
   language: string;
@@ -54,4 +57,5 @@ TagSchema.pre("save", function(next) {
 
 // TagSchema.plugin(URLSlug("title", {field: "Slug"}))
 
-export {TagSchema} 
+export {TagSchema};
+

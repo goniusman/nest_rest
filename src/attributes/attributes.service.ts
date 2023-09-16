@@ -1,14 +1,12 @@
-import { Injectable } from '@nestjs/common';
-import { CreateAttributeDto } from './dto/create-attribute.dto';
-import { UpdateAttributeDto } from './dto/update-attribute.dto';
-import attributesJson from '@db/attributes.json';
-import { Attribute } from './entities/attribute.entity';
-import { plainToClass } from 'class-transformer';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import { GetAttributesArgs } from './dto/get-attributes.dto';
-import { paginate } from 'src/common/pagination/paginate';
+import {Injectable} from '@nestjs/common';
+import {InjectModel} from '@nestjs/mongoose';
 import Fuse from 'fuse.js';
+import {Model} from 'mongoose';
+import {paginate} from 'src/common/pagination/paginate';
+import {CreateAttributeDto} from './dto/create-attribute.dto';
+import {GetAttributesArgs} from './dto/get-attributes.dto';
+import {UpdateAttributeDto} from './dto/update-attribute.dto';
+import {Attribute} from './entities/attribute.entity';
 
 // const attributes = plainToClass(Attribute, attributesJson);
 const options = {
@@ -63,10 +61,7 @@ export class AttributesService {
           // data = await this._attr.find({ name: value }).exec()
         }
       }
-
-
       const results = data.slice(startIndex, endIndex);
-
       const url = `/attributes?search=${search}&limit=${limit}`;
       return {
         data: results,
@@ -86,7 +81,6 @@ export class AttributesService {
 
   findById(id: string) {
     try {
-
       return this._attr.findById(id);
     } catch (error) {
       throw error

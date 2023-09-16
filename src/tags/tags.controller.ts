@@ -12,14 +12,14 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { HasRoles } from 'src/auth/gurd/has-roles.decorator';
-import { JwtAuthGuard } from 'src/auth/gurd/jwt-auth.guard';
-import { Role } from 'src/auth/gurd/role.enum';
-import { RolesGuard } from 'src/auth/gurd/roles.guard';
-import { CreateTagDto } from './dto/create-tag.dto';
-import { GetTagsDto, TagPaginator } from './dto/get-tags.dto';
-import { UpdateTagDto } from './dto/update-tag.dto';
-import { TagsService } from './tags.service';
+import {HasRoles} from 'src/auth/gurd/has-roles.decorator';
+import {JwtAuthGuard} from 'src/auth/gurd/jwt-auth.guard';
+import {Role} from 'src/auth/gurd/role.enum';
+import {RolesGuard} from 'src/auth/gurd/roles.guard';
+import {CreateTagDto} from './dto/create-tag.dto';
+import {GetTagsDto,TagPaginator} from './dto/get-tags.dto';
+import {UpdateTagDto} from './dto/update-tag.dto';
+import {TagsService} from './tags.service';
 
 @Controller('tags')
 @HasRoles(Role.STORE_OWNER, Role.SUPER_ADMIN, Role.STAFF)
@@ -32,12 +32,12 @@ export class TagsController {
 
   @Post()
   async create(@Body() createTagDto: CreateTagDto) {
-    
+     
     try {
       const exist = await this.tagsService.findOne(createTagDto.name)
 
       if(!exist){
-           return await this.tagsService.create(createTagDto);
+           return await this.tagsService.createTag(createTagDto);
         } else {
           throw new HttpException('User Already Exists', HttpStatus.BAD_REQUEST)
        } 

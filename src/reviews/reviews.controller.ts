@@ -1,21 +1,28 @@
 import {
+  Body,
   Controller,
+  Delete,
   Get,
   Param,
-  Query,
-  Put,
   Post,
-  Body,
-  Delete,
+  Put,
+  Query,
 } from '@nestjs/common';
-import { CreateReviewDto } from './dto/create-review.dto';
-import { GetReviewsDto, ReviewPaginator } from './dto/get-reviews.dto';
-import { UpdateReviewDto } from './dto/update-review.dto';
-import { ReviewService } from './reviews.service';
+import {CreateReviewDto} from './dto/create-review.dto';
+import {GetReviewsDto} from './dto/get-reviews.dto';
+import {UpdateReviewDto} from './dto/update-review.dto';
+import {ReviewService} from './reviews.service';
 
 @Controller('reviews')
 export class ReviewController {
   constructor(private readonly reviewService: ReviewService) {}
+
+
+  //  create a new review
+  @Post()
+  create(@Body() createReviewDto: CreateReviewDto) {
+    return this.reviewService.create(createReviewDto);
+  }
 
   //   find all reviews
   // TODO: there is a bug in displaying all reviews
@@ -29,23 +36,19 @@ export class ReviewController {
   //   find one review by ID
   @Get(':id')
   find(@Param('id') id: string) {
-    return this.reviewService.findReview(+id);
-  }
-
-  //  create a new review
-  @Post()
-  create(@Body() createReviewDto: CreateReviewDto) {
-    return this.reviewService.create(createReviewDto);
+    return this.reviewService.findReview(id);
   }
 
   @Put(':id')
   update(@Param('id') id: string, @Body() updateReviewDto: UpdateReviewDto) {
-    return this.reviewService.update(+id, updateReviewDto);
+    return this.reviewService.update(id, updateReviewDto);
   }
 
   // delete a review
   @Delete(':id')
   delete(@Param('id') id: string) {
-    return this.reviewService.delete(+id);
+    return this.reviewService.delete(id);
   }
+
+  
 }

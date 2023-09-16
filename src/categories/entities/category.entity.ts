@@ -1,10 +1,9 @@
-import {Prop, Schema, SchemaFactory} from '@nestjs/mongoose';
-import mongoose, { Types } from 'mongoose';
+import {Prop,Schema,SchemaFactory} from '@nestjs/mongoose';
+import mongoose from 'mongoose';
 
-import { Attachment } from 'src/common/entities/attachment.entity';
-import { CoreEntity } from 'src/common/entities/core.entity';
-import { Product } from 'src/products/entities/product.entity';
-import { Type } from 'src/types/entities/type.entity';
+import {Attachment} from 'src/common/entities/attachment.entity';
+import {CoreEntity} from 'src/common/entities/core.entity';
+import {Type} from 'src/types/entities/type.entity';
 
 @Schema({ timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' }})
 export class Category extends CoreEntity {
@@ -34,15 +33,16 @@ export class Category extends CoreEntity {
   
   @Prop({required: false, type:String})  
   icon?: string;
-
+  
+  @Prop({required: false, type: Attachment, default:{}})   
+  image?: Attachment;
+  
   @Prop({required: false, type:String})  
   language: string;
 
   @Prop({required: false, type: [String], default:["en"]})  
   translated_languages: string[] = [];
 
-  @Prop({required: false, type: Attachment, default:{}})   
-  image?: Attachment;
 
 }
 
@@ -51,8 +51,8 @@ const CategorySchema = SchemaFactory.createForClass(Category)
 CategorySchema.pre("save", function(next) {
   this.slug = this.name.split(" ").join("-")
   next()
-})
+}) 
 
-export {CategorySchema}
+export {CategorySchema};
 
 

@@ -1,12 +1,14 @@
-import { Injectable } from '@nestjs/common';
-import { plainToClass } from 'class-transformer';
-import Fuse from 'fuse.js';
-import { paginate } from 'src/common/pagination/paginate';
-import { Question } from './entities/question.entity';
-import { GetQuestionDto } from './dto/get-questions.dto';
-import { CreateQuestionDto } from './dto/create-question.dto';
-import { UpdateQuestionDto } from './dto/update-question.dto';
 import questionsJSON from '@db/questions.json';
+import {Injectable} from '@nestjs/common';
+import {InjectModel} from '@nestjs/mongoose';
+import {plainToClass} from 'class-transformer';
+import Fuse from 'fuse.js';
+import {Model} from 'mongoose';
+import {paginate} from 'src/common/pagination/paginate';
+import {CreateQuestionDto} from './dto/create-question.dto';
+import {GetQuestionDto} from './dto/get-questions.dto';
+import {UpdateQuestionDto} from './dto/update-question.dto';
+import {Question} from './entities/question.entity';
 
 const questions = plainToClass(Question, questionsJSON);
 const options = {
@@ -19,7 +21,10 @@ const fuse = new Fuse(questions, options);
 export class QuestionService {
   private question: Question[] = questions;
 
-  findAllQuestions({
+constructor (@InjectModel('Question') private _questions: Model<Question>) {}
+
+
+  async findAllQuestions({
     limit,
     page,
     search,
@@ -30,7 +35,7 @@ export class QuestionService {
     if (!limit) limit = 10;
     const startIndex = (page - 1) * limit;
     const endIndex = page * limit;
-    let data: Question[] = this.question;
+    let data: Question[] = await this._questions.find();
 
     if (search) {
       const parseSearchParams = search.split(';');
@@ -52,19 +57,19 @@ export class QuestionService {
     };
   }
 
-  findQuestion(id: number) {
-    return this.question.find((p) => p.id === id);
+  findQuestion(id: any) {
+    return this._questions.findById(id);
   }
 
   create(createQuestionDto: CreateQuestionDto) {
-    return this.question[0];
+    return this._questions.create(createQuestionDto);
   }
 
-  update(id: number, updateQuestionDto: UpdateQuestionDto) {
-    return this.question[0];
+  update(id: any, updateQuestionDto: UpdateQuestionDto) {
+    return this._questions.findByIdAndUpdate(id, updateQuestionDto);
   }
 
-  delete(id: number) {
-    return this.question[0];
+  delete(id: any) {
+    return this._questions.findByIdAndDelete(id);
   }
 }
