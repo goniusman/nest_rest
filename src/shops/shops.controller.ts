@@ -29,8 +29,8 @@ import {ShopsService} from './shops.service';
 @Controller('shops')
 @ApiBearerAuth()
 @ApiTags("Shops")  
-@HasRoles(Role.STORE_OWNER, Role.SUPER_ADMIN, Role.STAFF)
-@UseGuards(JwtAuthGuard, RolesGuard)
+// @HasRoles(Role.STORE_OWNER, Role.SUPER_ADMIN, Role.STAFF)
+// @UseGuards(JwtAuthGuard, RolesGuard)
 export class ShopsController {
 
   private readonly logger = new Logger()
@@ -40,6 +40,8 @@ export class ShopsController {
   }
 
   @Post()
+  @HasRoles(Role.STORE_OWNER, Role.SUPER_ADMIN, Role.STAFF)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   async create(@Body() createShopDto: CreateShopDto, @Req() request) {
     try {
       const isAdminOrOwner = await this.shopsService.isAdminOrOwner(createShopDto.owner_id)
@@ -81,11 +83,15 @@ export class ShopsController {
   }
 
   @Put(':id')
+  @HasRoles(Role.STORE_OWNER, Role.SUPER_ADMIN, Role.STAFF)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   update(@Param('id') id: string, @Body() updateShopDto: UpdateShopDto) {
     return this.shopsService.update(id, updateShopDto);
   }
 
   @Delete(':id')
+  @HasRoles(Role.STORE_OWNER, Role.SUPER_ADMIN, Role.STAFF)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   remove(@Param('id') id: string) {
     try {
       return this.shopsService.remove(id);
@@ -173,6 +179,8 @@ export class StaffsController {
 }
 
 @Controller('disapprove-shop')
+@HasRoles(Role.STORE_OWNER, Role.SUPER_ADMIN, Role.STAFF)
+@UseGuards(JwtAuthGuard, RolesGuard)
 export class DisapproveShopController {
   constructor(private shopsService: ShopsService) {}
 

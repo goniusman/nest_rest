@@ -95,8 +95,8 @@ export class Product extends CoreEntity {
   @Prop({ required: false, type: mongoose.Schema.Types.Array, default: [] })
   variation_options?: Variation[];
 
-  @Prop({ required: false, type: OrderProductPivot, default: {} })
-  pivot?: OrderProductPivot;
+  // @Prop({ required: false, type: OrderProductPivot, default: {} })
+  // pivot?: OrderProductPivot;
 
   @Prop({type: [{type: mongoose.Schema.Types.ObjectId, ref: 'Order'}], default: []})
   orders?: Order[];
