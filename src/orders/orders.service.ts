@@ -6,35 +6,35 @@ import orderStatusJson from '@db/order-statuses.json';
 // import paymentGatewayJson from '@db/payment-gateway.json';
 // import paymentIntentJson from '@db/payment-intent.json';
 import setting from '@db/settings.json';
-import { Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { plainToClass } from 'class-transformer';
-import { Model } from 'mongoose';
-import { AuthService } from 'src/auth/auth.service';
-import { paginate } from 'src/common/pagination/paginate';
-import { PaymentIntent } from 'src/payment-intent/entries/payment-intent.entity';
-import { PaymentGateWay } from 'src/payment-method/entities/payment-gateway.entity';
-import { PaypalPaymentService } from 'src/payment/paypal-payment.service';
-import { StripePaymentService } from 'src/payment/stripe-payment.service';
-import { Setting } from 'src/settings/entities/setting.entity';
-import { SettingsService } from 'src/settings/settings.service';
+import {Injectable} from '@nestjs/common';
+import {InjectModel} from '@nestjs/mongoose';
+import {plainToClass} from 'class-transformer';
+import {Model} from 'mongoose';
+import {AuthService} from 'src/auth/auth.service';
+import {paginate} from 'src/common/pagination/paginate';
+import {PaymentIntent} from 'src/payment-intent/entries/payment-intent.entity';
+import {PaymentGateWay} from 'src/payment-method/entities/payment-gateway.entity';
+import {PaypalPaymentService} from 'src/payment/paypal-payment.service';
+import {StripePaymentService} from 'src/payment/stripe-payment.service';
+import {Setting} from 'src/settings/entities/setting.entity';
+import {SettingsService} from 'src/settings/settings.service';
 import {
   CreateOrderStatusDto,
   UpdateOrderStatusDto,
 } from './dto/create-order-status.dto';
-import { CreateOrderDto } from './dto/create-order.dto';
-import { GetOrderFilesDto } from './dto/get-downloads.dto';
+import {CreateOrderDto} from './dto/create-order.dto';
+import {GetOrderFilesDto} from './dto/get-downloads.dto';
 import {
   GetOrderStatusesDto,
   OrderStatusPaginator,
 } from './dto/get-order-statuses.dto';
-import { GetOrdersDto, OrderPaginator } from './dto/get-orders.dto';
-import { UpdateOrderDto } from './dto/update-order.dto';
+import {GetOrdersDto,OrderPaginator} from './dto/get-orders.dto';
+import {UpdateOrderDto} from './dto/update-order.dto';
 import {
   CheckoutVerificationDto,
   VerifiedCheckoutData,
 } from './dto/verify-checkout.dto';
-import { OrderStatus } from './entities/order-status.entity';
+import {OrderStatus} from './entities/order-status.entity';
 import {
   Order,
   OrderFiles,
@@ -79,11 +79,11 @@ export class OrdersService {
     // console.log(setting);
   }
 
-  async create(createOrderInput: CreateOrderDto): Promise<Order> {
+  async create(createOrderInput: CreateOrderDto): Promise<any> {
 
     try {
 
-     const settings =  this.settingService.findAll()[0]
+    //  const settings =  this.settingService.findAll()[0]
       // const order = await this._orders.find();
 
       const payment_gateway_type = createOrderInput.payment_gateway
@@ -92,6 +92,7 @@ export class OrdersService {
 
       createOrderInput.payment_gateway = payment_gateway_type;
       createOrderInput.payment_intent = null;
+      createOrderInput.tracking_number = this.trackingNumber()
       // set the order type and payment type
 
       switch (payment_gateway_type) {
@@ -129,7 +130,7 @@ export class OrdersService {
         //   createOrderInput.payment_intent = paymentIntent;
         // }
 
-       return  this._orders.create(createOrderInput)
+       return await this._orders.create(createOrderInput)
 
     } catch (error) {
 
@@ -164,11 +165,24 @@ export class OrdersService {
     };
   }
 
-  async getOrderByIdOrTrackingNumber(id: any): Promise<Order> {
+  async getOrderByIdOrTrackingNumber(tracking_number: any): Promise<any> {
     try {
-      return await this._orders.findById(id)
+
+      
+      const order = await this._orders.findOne({tracking_number}).populate('status').populate({
+        path: 'products.product_id',
+        model: 'Product' }
+      )
+      
+    //   .exec(function(err, data){
+    //     if (err) return console.log(err);
+    //     res.json(data);
+    // });
+
+
+      return order;
     } catch (error) {
-      console.log(error);
+      throw error;
     }
   }
 
@@ -223,11 +237,11 @@ export class OrdersService {
   }
 
   update(id: any, updateOrderInput: UpdateOrderDto) {
-    return this._orders[0];
+    return this._orders.findByIdAndUpdate(id, updateOrderInput)
   }
 
   remove(id: any) {
-    return `This action removes a #${id} order`;
+    return this._orders.findByIdAndDelete(id)
   }
 
   verifyCheckout(input: CheckoutVerificationDto): VerifiedCheckoutData {
@@ -414,6 +428,27 @@ export class OrdersService {
     this._orders[0]['order_status'] = orderStatus;
     this._orders[0]['payment_status'] = paymentStatus;
   }
+
+
+
+   trackingNumber (pr = "UB775", su = "HK") {
+
+
+    for(let i=0; i<5; i++) pr += ~~(Math.random() * 10);
+    return pr + su;
+
+    // console.log(trackingNumber()); 
+    // console.log(trackingNumber());
+    // console.log(trackingNumber());
+    // console.log(trackingNumber());
+    
+    // // Example changing prefix and suffix:
+    // console.log(trackingNumber("ZA001", "PD"));
+
+
+  };
+  
+
 
 
 }
