@@ -1,28 +1,36 @@
-import { Injectable } from '@nestjs/common';
-import { CreateRefundDto } from './dto/create-refund.dto';
-import { UpdateRefundDto } from './dto/update-refund.dto';
+import {Injectable} from '@nestjs/common';
+import {InjectModel} from '@nestjs/mongoose';
+import {Model} from 'mongoose';
+import {CreateRefundDto} from './dto/create-refund.dto';
+import {UpdateRefundDto} from './dto/update-refund.dto';
+import {Refund} from './entities/refund.entity';
 
 @Injectable()
 export class RefundsService {
+
+
+  constructor (@InjectModel('') private _refund : Model<Refund>) {
+    
+  }
+
+
   create(createRefundDto: CreateRefundDto) {
-    return 'This action adds a new refund';
+    return this._refund.create(createRefundDto)
   }
 
   findAll() {
-    return {
-      data: [],
-    };
+    return this._refund.find()
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} refund`;
+  findOne(id: any) {
+    return this._refund.findById(id)
   }
 
-  update(id: number, updateRefundDto: UpdateRefundDto) {
-    return `This action updates a #${id} refund`;
+  update(id: any, updateRefundDto: UpdateRefundDto) {
+    return this._refund.findByIdAndUpdate(id, updateRefundDto)
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} refund`;
+  remove(id: any) {
+    return this._refund.findByIdAndDelete(id)
   }
 }

@@ -1,5 +1,5 @@
+import { CacheModule } from '@nestjs/cache-manager';
 import { Module } from '@nestjs/common';
-import { CacheModule, CacheInterceptor } from '@nestjs/cache-manager';
 import { ConfigModule } from '@nestjs/config';
 import { StripeModule } from 'nestjs-stripe';
 import { AddressesModule } from './addresses/addresses.module';
@@ -36,35 +36,30 @@ import { WebHookModule } from './web-hook/web-hook.module';
 import { WishlistsModule } from './wishlists/wishlists.module';
 import { WithdrawsModule } from './withdraws/withdraws.module';
 
+import { MiddlewareConsumer } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { MulterModule } from '@nestjs/platform-express';
-import { ServeStaticModule } from '@nestjs/serve-static';
-import { join } from 'path';
-import { MiddlewareConsumer, NestModule } from '@nestjs/common';
-import * as cors from 'cors';
 
 import config from './config/cloudinary';
-import env from './config/env';
 import database from './config/database';
+import env from './config/env';
 import mailer from './config/mailer';
 
 // import { UserSchema } from './schemas/user.schema';
-import { CloudinaryModule } from './cloudinary/cloudinary.module';
-import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
-import { JwtAuthGuard } from './auth/gurd/jwt-auth.guard';
-import { ContactusModule } from './contactus/contactus.module';
-import { RequestLoggerMiddleware } from './utils/Middleware/Request-Middleware.logger';
-import { MailService } from './mail/mail.service';
-import { MailModule } from './mail/mail.module';
-import type { RedisClientOptions } from 'redis';
-import { redisStore } from 'cache-manager-redis-store';
 import { HttpModule } from '@nestjs/axios';
+import { redisStore } from 'cache-manager-redis-store';
+import type { RedisClientOptions } from 'redis';
+import { CloudinaryModule } from './cloudinary/cloudinary.module';
+import { ContactusModule } from './contactus/contactus.module';
+import { ConversationsModule } from './conversations/conversations.module';
+import { MailModule } from './mail/mail.module';
+import { MailService } from './mail/mail.service';
+import { MessagesModule } from './messages/messages.module';
+import { StoreNoticesModule } from './store-notices/store-notices.module';
+import { RequestLoggerMiddleware } from './utils/Middleware/Request-Middleware.logger';
 
+const { db, redis } = env();
 
-const {db, redis} = env()
-
-const mongo = db.host ? `${db.host}:${db.port}`  : 
- 'mongodb://127.0.0.1:27018'
+const mongo = db.host ? `${db.host}:${db.port}` : 'mongodb://127.0.0.1:27018';
 
 // console.log(database.port);
 @Module({
@@ -77,11 +72,11 @@ const mongo = db.host ? `${db.host}:${db.port}`  :
       isGlobal: true,
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
-      store: redisStore, 
+      store: redisStore,
       socket: {
-        host: redis.host,    // This is ignored and `127.0.0.1` is used instead
-        port: Number(redis.port)
-      }
+        host: redis.host, // This is ignored and `127.0.0.1` is used instead
+        port: Number(redis.port),
+      },
       // host: 'localhost',
       // port: 6379,
       // username: process.env.REDIS_USERNAME, // new property
@@ -103,7 +98,7 @@ const mongo = db.host ? `${db.host}:${db.port}`  :
     //   }
 
     // }),
-    
+
     MongooseModule.forRoot(mongo, {
       dbName: 'pickbazar',
       connectionFactory: (connection) => {
@@ -160,6 +155,9 @@ const mongo = db.host ? `${db.host}:${db.port}`  :
     CloudinaryModule,
     ContactusModule,
     MailModule,
+    StoreNoticesModule,
+    ConversationsModule,
+    MessagesModule,
   ],
   controllers: [],
   providers: [

@@ -14,23 +14,25 @@ import {
   UseGuards
 } from '@nestjs/common';
 
-import { UsersService } from './users.service';
+import {UsersService} from './users.service';
 // import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
+import {UpdateUserDto} from './dto/update-user.dto';
 // import { CreateProfileDto } from './dto/create-profile.dto';
 // import { UpdateProfileDto } from './dto/update-profile.dto';
 // import { CreateUserDto } from '../dto/create-user.dto';
 // import { LocalAuthGuard } from '../auth/local/local.auth.guard';
 // import { AuthenticatedGuard } from '../auth/local/authenticated.guard';
-import { HasRoles } from 'src/auth/gurd/has-roles.decorator';
-import { JwtAuthGuard } from 'src/auth/gurd/jwt-auth.guard';
-import { Role } from 'src/auth/gurd/role.enum';
-import { RolesGuard } from 'src/auth/gurd/roles.guard';
-import { CreateProfileDto } from './dto/create-profile.dto';
-import { UpdateProfileDto } from './dto/update-profile.dto';
+import {HasRoles} from 'src/auth/gurd/has-roles.decorator';
+import {JwtAuthGuard} from 'src/auth/gurd/jwt-auth.guard';
+import {Role} from 'src/auth/gurd/role.enum';
+import {RolesGuard} from 'src/auth/gurd/roles.guard';
+import {CreateProfileDto} from './dto/create-profile.dto';
+import {UpdateProfileDto} from './dto/update-profile.dto';
 // import { IUser } from '../interface/user.interface';
 
 @Controller('users')
+@HasRoles(Role.STORE_OWNER, Role.SUPER_ADMIN, Role.CUSTOMER)
+@UseGuards(JwtAuthGuard, RolesGuard)
 export class UsersController {
 
   private readonly logger = new Logger();
@@ -42,8 +44,6 @@ export class UsersController {
 
 
   @Get()
-  @HasRoles(Role.STORE_OWNER, Role.SUPER_ADMIN)
-  @UseGuards(JwtAuthGuard, RolesGuard)
   getAllUsers(@Req() req, @Query() query: any) {
     try {
     
