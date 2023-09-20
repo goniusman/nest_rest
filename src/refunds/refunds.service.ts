@@ -9,7 +9,7 @@ import {Refund} from './entities/refund.entity';
 export class RefundsService {
 
 
-  constructor (@InjectModel('') private _refund : Model<Refund>) {
+  constructor (@InjectModel('Refund') private _refund : Model<Refund>) {
     
   }
 

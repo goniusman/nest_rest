@@ -1,11 +1,11 @@
-import {Injectable} from '@nestjs/common';
-import {InjectModel} from '@nestjs/mongoose';
-import {Model} from 'mongoose';
-import {paginate} from 'src/common/pagination/paginate';
-import {CreateWishlistDto} from './dto/create-wishlists.dto';
-import {GetWishlistDto} from './dto/get-wishlists.dto';
-import {UpdateWishlistDto} from './dto/update-wishlists.dto';
-import {Wishlist} from './entities/wishlist.entity';
+import { Injectable } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
+import { paginate } from 'src/common/pagination/paginate';
+import { CreateWishlistDto } from './dto/create-wishlists.dto';
+import { GetWishlistDto } from './dto/get-wishlists.dto';
+import { UpdateWishlistDto } from './dto/update-wishlists.dto';
+import { Wishlist } from './entities/wishlist.entity';
 @Injectable()
 export class WishlistsService {
 
@@ -65,10 +65,10 @@ export class WishlistsService {
   }
 
   toggle({ products_id }: CreateWishlistDto) {
-    const product = this.products.find((p) => p.id === Number(products_id));
+    const wislis = this._wishlist.findById(products_id);
 
-    product.in_wishlist = !product?.in_wishlist;
+    // wislis.in_wishlist = !product?.in_wishlist;
 
-    return product.in_wishlist;
+    return {};
   }
 }
