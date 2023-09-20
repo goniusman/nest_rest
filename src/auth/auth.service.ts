@@ -1,39 +1,30 @@
 
-import { HttpException, HttpStatus, Injectable, Logger, NotAcceptableException, NotFoundException, Req, UnauthorizedException, UseGuards, UseInterceptors } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
 // import * as bcrypt from '@types/bcrypt'; 
-import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
+import * as bcrypt from 'bcrypt';
 
+import { plainToClass } from 'class-transformer';
 import { UsersService } from '../users/users.service';
 import {
   AuthResponse,
-  ChangePasswordDto,
-  ForgetPasswordDto,
-  LoginDto,
   CoreResponse,
-  RegisterDto,
-  ResetPasswordDto,
-  VerifyForgetPasswordDto,
-  SocialLoginDto,
+  ForgetPasswordDto,
+  OtpDto,
   OtpLoginDto,
   OtpResponse,
-  VerifyOtpDto,
-  OtpDto,
+  ResetPasswordDto,
+  SocialLoginDto,
+  VerifyForgetPasswordDto,
+  VerifyOtpDto
 } from './dto/create-auth.dto';
-import { v4 as uuidv4 } from 'uuid';
-import { plainToClass } from 'class-transformer';
 // import { User } from 'src/users/entities/user.entity';
-import { User } from 'src/users/entities/user.entity';
 import usersJson from '@db/users.json';
 import { CommonHelper } from 'src/helper/commonHelper';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import { CreateUserDto } from 'src/users/dto/create-user.dto';
-import { JwtAuthGuard } from './gurd/jwt-auth.guard';
-import { ShopsService } from 'src/shops/shops.service';
-import { AnyARecord } from 'dns';
-import { LocalAuthGuard } from './local/local.auth.guard';
 import { MailService } from 'src/mail/mail.service';
+import { ShopsService } from 'src/shops/shops.service';
+import { CreateUserDto } from 'src/users/dto/create-user.dto';
+import { User } from 'src/users/entities/user.entity';
 import { jwtConstants } from './gurd/constants';
 // import { TransformInterceptor } from 'src/utils/Response.Interceptor';
 const users = plainToClass(User, usersJson);
@@ -236,16 +227,23 @@ export class AuthService {
     };
   }
 
-  async verifyOtpCode(verifyOtpInput: VerifyOtpDto): Promise<CoreResponse> {
-    console.log(verifyOtpInput);
+  async verifyOtpCode(verifyOtpInput: VerifyOtpDto, user: any): Promise<CoreResponse> {
+   
+    const usr = await this.usersService.findById(user.id)
+
+    usr.profile.contact = verifyOtpInput.phone_number
+    await this.usersService.updatePhoneNumber(user.id, usr)
+
     return {
+      ...usr,
       message: 'success',
       success: true,
     };
+    
   }
 
-  async sendOtpCode(otpInput: OtpDto): Promise<OtpResponse> {
-    console.log(otpInput);
+  async sendOtpCode(otpInput: OtpDto, user:any): Promise<OtpResponse> {
+    // console.log(otpInput);
     return {
       message: 'success',
       success: true,

@@ -2,7 +2,6 @@ import shopsJson from '@db/shops.json';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { plainToClass } from 'class-transformer';
-import Fuse from 'fuse.js';
 import { Model } from 'mongoose';
 import { paginate } from 'src/common/pagination/paginate';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
@@ -75,36 +74,40 @@ export class ShopsService {
 
   async getShops({ search, limit, page }: GetShopsDto) {
 
-
-    // this._shop.aggregate([{ $lookup: {
-    //   from: 
-    // }}])
-
-
     if (!page) page = 1;
 
     const startIndex = (page - 1) * limit;
     const endIndex = page * limit;
-
-    let data: Shop[] = await this._shop.find().populate('owner_id');
-    // console.log(data);
-    const fuse = new Fuse(data, options);
+    let data: Shop[] = [];
+ 
     if (search) {
       const parseSearchParams = search.split(';');
+      const searchText: any = [];
       for (const searchParam of parseSearchParams) {
         const [key, value] = searchParam.split(':');
-        // data = data.filter((item) => item[key] === value);
-        data = fuse.search(value)?.map(({ item }) => item);
+        // TODO: Temp Solution
+        if (key !== 'slug') {
+          searchText.push({
+            [key]: value == "1" ? true : false,
+          });
+        }
       }
+
+      data = await this._shop.find({$and:searchText}).populate('owner_id');
+      
+    }else{
+       data = await this._shop.find().populate('owner_id');
+      // console.log(data);
+      // const fuse = new Fuse(data, options);
     }
     // if (text?.replace(/%/g, '')) {
     //   data = fuse.search(text)?.map(({ item }) => item);
     // }
 
 
-    for (const item of data) {
-      // const owner = await this.userService.findById(item.owner_id)
-    }
+    // for (const item of data) {
+    //   // const owner = await this.userService.findById(item.owner_id)
+    // }
 
 
     const results = data.slice(startIndex, endIndex);

@@ -11,7 +11,7 @@ export class GetOrdersDto extends PaginationArgs {
   tracking_number?: string;
   orderBy?: string;
   sortedBy?: string;
-  customer_id?: number;
-  shop_id?: string;
+  customer_id?: any;
+  shop_id?: any;
   search?: string;
 }

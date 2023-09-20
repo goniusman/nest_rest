@@ -336,14 +336,18 @@ export class AuthController {
 
 
   @Post('send-otp-code')
-  sendOtpCode(@Body() otpDto: OtpDto) {
-    return this.authService.sendOtpCode(otpDto);
+  @HasRoles(Role.SUPER_ADMIN, Role.CUSTOMER, Role.STORE_OWNER)
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  sendOtpCode(@Body() otpDto: OtpDto, @Req() req) {
+    return this.authService.sendOtpCode(otpDto, req?.user);
   }
 
 
   @Post('verify-otp-code')
-  verifyOtpCode(@Body() verifyOtpDto: VerifyOtpDto) {
-    return this.authService.verifyOtpCode(verifyOtpDto);
+  @HasRoles(Role.SUPER_ADMIN, Role.CUSTOMER, Role.STORE_OWNER)
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  verifyOtpCode(@Body() verifyOtpDto: VerifyOtpDto, @Req() req) {
+    return this.authService.verifyOtpCode(verifyOtpDto, req?.user);
   }
 
 

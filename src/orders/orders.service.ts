@@ -146,16 +146,21 @@ export class OrdersService {
     search,
     shop_id,
   }: GetOrdersDto): Promise<OrderPaginator> {
+
     if (!page) page = 1;
     if (!limit) limit = 15;
     const startIndex = (page - 1) * limit;
     const endIndex = page * limit;
+    let data: Order[] = []
 
-    let data: Order[] = await this._orders.find();
-    console.log('hello get order method');
-    if (shop_id && shop_id !== 'undefined') {
-      // data = this._orders?.filter((p) => p?.shop?.id === Number(shop_id));
+    if( customer_id && customer_id !== undefined ){
+       data = await this._orders.find({customer:customer_id});
+    }else if(shop_id && shop_id !== undefined) {
+      data = await this._orders.find({shop: shop_id});
+    }else{
+      data = await this._orders.find();
     }
+
     const results = data.slice(startIndex, endIndex);
     const url = `/orders?search=${search}&limit=${limit}`;
     return {

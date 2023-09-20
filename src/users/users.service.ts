@@ -195,13 +195,13 @@ export class UsersService {
     try {
 
       const user = await this.findById(id)
-      const imageId = user?.profile?.avatar?.id
-      if (imageId) {
-        const imageDoc = await this.uploader.findOne(imageId)
-        const deletedImageCloud = await
-          this.cloudinary.deleteCloudinaryImage(`${imageDoc.public_id}.jpg`, imageDoc.signature)
-        console.log(deletedImageCloud);
-      }
+      // const imageId = user?.profile?.avatar?.id
+      // if (imageId) {
+      //   const imageDoc = await this.uploader.findOne(imageId)
+      //   const deletedImageCloud = await
+      //     this.cloudinary.deleteCloudinaryImage(`${imageDoc?.public_id}.jpg`, imageDoc.signature)
+      //   // console.log(deletedImageCloud);
+      // }
 
       if (updateUserDto?.address) {
         user?.address.push(updateUserDto?.address[0])
@@ -216,6 +216,11 @@ export class UsersService {
       console.log(error);
     }
 
+  }
+
+
+  updatePhoneNumber(id: string, updateContent){
+    return this.users.findByIdAndUpdate(id, updateContent)
   }
 
   async updateUserWithShopId(userId: any, shop: any): Promise<any> {
@@ -249,7 +254,7 @@ export class UsersService {
 
   }
 
-  async remove(id: string): Promise<any> {
+  async remove(id: any): Promise<any> {
     return await this.users.deleteOne({ _id: id })
   }
 
@@ -272,6 +277,22 @@ export class UsersService {
     const user = await this.users.findById({ _id: id });
     user.is_active = !user.is_active;
     return user.save();
+  } 
+  
+  
+  async removeAddress(id: string, usr) {
+    const user = await this.users.findById({ _id: usr.id });
+      let newAddress = {...user}.address.filter(address => address.id.toString() !== id)
+      
+      // user.address = newAddress
+
+      // const newUser = {
+      //   ...user,
+      //   address: newAddress
+      // }
+      
+      return await this.users.findByIdAndUpdate(usr.id, newAddress)
+    
   }
 
   async updateEmailVerified(id: string) {

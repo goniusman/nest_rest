@@ -73,7 +73,7 @@ export class UsersController {
 
   @Delete(':id')
   @UseGuards(JwtAuthGuard)
-  async removeUser(@Param('id') id: string) {
+  async removeUser(@Param('id') id: any) {
     return await this.usersService.remove(id);
   }
 
@@ -158,6 +158,24 @@ export class UsersController {
     }
 
   }
+
+  @Delete('remove-address/:id')
+  @HasRoles(Role.SUPER_ADMIN, Role.CUSTOMER, Role.STORE_OWNER)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  removeAddress(@Param('id') id: any, @Req() req : any){
+    try {
+      if(id){
+        return this.usersService.removeAddress(id, req?.user)
+      }else{
+        throw new HttpException('ID Should not be emapty', HttpStatus.BAD_REQUEST)
+      }
+    } catch (error) {
+      this.logger.error(`users/remove-address failed: ${error} user is ${req.user.id}`)
+      throw error
+    }
+  }
+
+
 
   // @Post('profile-picture')
   // @ApiConsumes('multipart/form-data')
