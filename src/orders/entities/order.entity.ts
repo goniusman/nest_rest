@@ -46,7 +46,7 @@ export enum PaymentStatusType {
 @Schema({ timestamps: true })
 export class Order extends CoreEntity {
 
-  @Prop({ type: String, required: false })
+  @Prop({ type: String, required: false, unique:true })
   tracking_number: string;
 
   // @Prop({ type: String, required: false })
@@ -106,11 +106,8 @@ export class Order extends CoreEntity {
   @Prop({ type: String, required: false })
   delivery_time: string;
 
-  @Prop({ type: Array, default: [] })
-  products: any[];
-
-  @Prop({ required: false, type: OrderProductPivot, default: {} })
-  pivot?: OrderProductPivot;
+  @Prop({ required: false, type: mongoose.Schema.Types.Array, default: [] })   
+  products: OrderProductPivot[];
 
   @Prop({ required: false, type: UserAddress })
   billing_address: UserAddress;
@@ -118,15 +115,15 @@ export class Order extends CoreEntity {
   @Prop({ required: false, type: UserAddress })
   shipping_address: UserAddress;
 
-  
   @Prop({ required: false, type: PaymentIntent })
   payment_intent: PaymentIntent;
   
-  @Prop({ type: String, required: false })
+  @Prop({ type: String, required: false, default: 'en' })
   language: string;
 
   @Prop({ type: String, required: false })
   translated_languages: string[];
+  
 }
 
 const OrderSchema = SchemaFactory.createForClass(Order)

@@ -42,7 +42,7 @@ export class ReviewService {
     }
 
     if (product_id) {
-      data = data.filter((p) => p.product_id === Number(product_id));
+      // data = data.filter((p) => p.product_id === Number(product_id));
     }
 
     const results = data.slice(startIndex, endIndex);

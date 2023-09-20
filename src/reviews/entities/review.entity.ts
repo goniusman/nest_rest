@@ -1,13 +1,13 @@
-import { CoreEntity } from 'src/common/entities/core.entity';
-import { Order } from 'src/orders/entities/order.entity';
-import { Shop } from 'src/shops/entities/shop.entity';
-import { User } from 'src/users/entities/user.entity';
-import { Product } from 'src/products/entities/product.entity';
-import { Attachment } from 'src/common/entities/attachment.entity';
-import { Report } from './reports.entity';
-import { Feedback } from 'src/feedbacks/entities/feedback.entity';
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import {Prop,Schema,SchemaFactory} from '@nestjs/mongoose';
 import mongoose from 'mongoose';
+import {Attachment} from 'src/common/entities/attachment.entity';
+import {CoreEntity} from 'src/common/entities/core.entity';
+import {Feedback} from 'src/feedbacks/entities/feedback.entity';
+import {Order} from 'src/orders/entities/order.entity';
+import {Product} from 'src/products/entities/product.entity';
+import {Shop} from 'src/shops/entities/shop.entity';
+import {User} from 'src/users/entities/user.entity';
+import {Report} from './reports.entity';
 
 
 @Schema({timestamps:true})
@@ -22,6 +22,12 @@ export class Review extends CoreEntity {
   @Prop({ required: false, type: String })
   comment: string;
 
+  @Prop({  type: Attachment, required: false})
+  photos: Attachment[];
+
+  @Prop({  type: mongoose.Schema.Types.ObjectId, ref: 'Product' , required: false})
+  product: Product;
+
   @Prop({  type: mongoose.Schema.Types.ObjectId, ref: 'Shop' , required: false})
   shop: Shop;
 
@@ -30,15 +36,6 @@ export class Review extends CoreEntity {
 
   @Prop({  type: mongoose.Schema.Types.ObjectId, ref: 'User' , required: false})
   customer: User;
-
-  @Prop({  type: Attachment, required: false})
-  photos: Attachment[];
-
-  @Prop({  type: mongoose.Schema.Types.ObjectId, ref: 'User' , required: false})
-  user: User;
-
-  @Prop({  type: mongoose.Schema.Types.ObjectId, ref: 'Product' , required: false})
-  product: Product;
 
   @Prop({type: [{type: mongoose.Schema.Types.ObjectId, ref: 'Feedback'}], default: []})
   feedbacks: Feedback[];
@@ -52,20 +49,9 @@ export class Review extends CoreEntity {
   @Prop({ required: false, type: Number })
   negative_feedbacks_count: number;
 
-  @Prop({ required: false, type: Number })
-  user_id: number;
-
-  @Prop({ required: false, type: Number })
-  product_id: number;
-
   @Prop({type: [{type: mongoose.Schema.Types.ObjectId, ref: 'Report'}], default: []})
   abusive_reports: Report[];
 
-  
-  @Prop({ required: false, type: String })
-  shop_id: string;
-
-  
   @Prop({ required: false, type: String })
   variation_option_id: string;
 
@@ -77,4 +63,5 @@ export class Review extends CoreEntity {
 
 const ReviewSchema = SchemaFactory.createForClass(Review)
 
-export {ReviewSchema}
+export {ReviewSchema};
+

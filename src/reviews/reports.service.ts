@@ -1,26 +1,34 @@
-import { Injectable } from '@nestjs/common';
-import { CreateReportDto } from './dto/create-report.dto';
-import { UpdateReportDto } from './dto/update-report.dto';
+import {Injectable} from '@nestjs/common';
+import {InjectModel} from '@nestjs/mongoose';
+import {Model} from 'mongoose';
+import {CreateReportDto} from './dto/create-report.dto';
+import {UpdateReportDto} from './dto/update-report.dto';
+import {Report} from './entities/reports.entity';
 
 @Injectable()
 export class AbusiveReportService {
+
+constructor (@InjectModel('Report') private _reports : Model<Report>) {
+  
+}
+
   findAllReports() {
-    return 'this route returns all abusive report';
+    return this._reports.find();
   }
 
-  findReport(id: number) {
-    return `This action returns a #${id} report`;
+  findReport(id: any) {
+    return this._reports.findById(id);
   }
 
   create(createReportDto: CreateReportDto) {
-    return 'This action adds a new report';
+    return this._reports.create(createReportDto);
   }
 
-  update(id: number, updateReportDto: UpdateReportDto) {
-    return `This action updates a #${id} report`;
+  update(id: any, updateReportDto: UpdateReportDto) {
+    return this._reports.findByIdAndUpdate(id, updateReportDto);
   }
 
-  delete(id: number) {
-    return `This action removes a #${id} report`;
+  delete(id: any) {
+    return this._reports.findByIdAndDelete(id);
   }
 }

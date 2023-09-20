@@ -3,44 +3,90 @@ import {
   Controller,
   Delete,
   Get,
+  Logger,
   Param,
   Post,
   Put,
+  UseGuards,
 } from '@nestjs/common';
-import { CreateReportDto } from './dto/create-report.dto';
-import { UpdateReportDto } from './dto/update-report.dto';
-import { AbusiveReportService } from './reports.service';
+import {HasRoles} from 'src/auth/gurd/has-roles.decorator';
+import {JwtAuthGuard} from 'src/auth/gurd/jwt-auth.guard';
+import {Role} from 'src/auth/gurd/role.enum';
+import {RolesGuard} from 'src/auth/gurd/roles.guard';
+import {CreateReportDto} from './dto/create-report.dto';
+import {UpdateReportDto} from './dto/update-report.dto';
+import {AbusiveReportService} from './reports.service';
 
 @Controller('abusive_reports')
+@HasRoles(Role.STORE_OWNER, Role.SUPER_ADMIN, Role.CUSTOMER, Role.STAFF)
+@UseGuards(JwtAuthGuard, RolesGuard)
 export class AbusiveReportsController {
+
+  private readonly logger = new Logger();
+  
   constructor(private reportService: AbusiveReportService) {}
 
   @Get()
   async findAll() {
-    return this.reportService.findAllReports();
+    try {
+
+      return this.reportService.findAllReports();
+       } catch (error) {
+         this.logger.error(`reports/findAll failed: ${error}`)
+         throw error
+       }
+
   }
 
   // get single feedback
   @Get(':id')
-  find(@Param('id') id: number) {
-    return this.reportService.findReport(id);
+  find(@Param('id') id: any) {
+
+   
+    try {
+
+       return this.reportService.findReport(id);
+       } catch (error) {
+         this.logger.error(`reports/find failed: ${error}`)
+         throw error
+       }
   }
 
   // create a new feedback
   @Post()
   create(@Body() createReportDto: CreateReportDto) {
-    return this.reportService.create(createReportDto);
+    try {
+
+      return this.reportService.create(createReportDto);
+       } catch (error) {
+         this.logger.error(`reports/create failed: ${error}`)
+         throw error
+       }
+
   }
 
   // update a feedback
   @Put(':id')
-  update(@Param('id') id: string, @Body() updateReportDto: UpdateReportDto) {
-    return this.reportService.update(+id, updateReportDto);
+  update(@Param('id') id: any, @Body() updateReportDto: UpdateReportDto) {
+    try {
+   return this.reportService.update(id, updateReportDto);
+  
+       } catch (error) {
+         this.logger.error(`reports/update failed: ${error}`)
+         throw error
+       }
+ 
   }
 
   // delete a feedback
   @Delete(':id')
-  delete(@Param('id') id: string) {
-    return this.reportService.delete(+id);
+  delete(@Param('id') id: any) {
+    try {
+    return this.reportService.delete(id);
+       } catch (error) {
+         this.logger.error(`reports/delete failed: ${error}`)
+         throw error
+       }
+
   }
 }

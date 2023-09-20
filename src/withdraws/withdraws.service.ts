@@ -1,11 +1,11 @@
-import { Injectable } from '@nestjs/common';
-import { CreateWithdrawDto } from './dto/create-withdraw.dto';
-import { ApproveWithdrawDto } from './dto/approve-withdraw.dto';
-import { Withdraw } from './entities/withdraw.entity';
-import { GetWithdrawsDto, WithdrawPaginator } from './dto/get-withdraw.dto';
-import { paginate } from 'src/common/pagination/paginate';
+import {Injectable} from '@nestjs/common';
 import {InjectModel} from '@nestjs/mongoose';
 import {Model} from 'mongoose';
+import {paginate} from 'src/common/pagination/paginate';
+import {ApproveWithdrawDto} from './dto/approve-withdraw.dto';
+import {CreateWithdrawDto} from './dto/create-withdraw.dto';
+import {GetWithdrawsDto,WithdrawPaginator} from './dto/get-withdraw.dto';
+import {Withdraw} from './entities/withdraw.entity';
 
 @Injectable()
 export class WithdrawsService {
@@ -71,4 +71,5 @@ export class WithdrawsService {
   remove(id: string) {
     return this._withdraw.findByIdAndDelete(id)
   }
+  
 }

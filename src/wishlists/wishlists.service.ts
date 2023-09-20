@@ -1,75 +1,71 @@
-import { Injectable } from '@nestjs/common';
-import { plainToClass } from 'class-transformer';
-import Fuse from 'fuse.js';
-import { paginate } from 'src/common/pagination/paginate';
-import { Wishlist } from './entities/wishlist.entity';
-import { GetWishlistDto } from './dto/get-wishlists.dto';
-import { CreateWishlistDto } from './dto/create-wishlists.dto';
-import { UpdateWishlistDto } from './dto/update-wishlists.dto';
-import wishlistsJSON from '@db/wishlists.json';
-import productsJson from '@db/products.json';
-import { Product } from '../products/entities/product.entity';
-
-const wishlists = plainToClass(Wishlist, wishlistsJSON);
-const products = plainToClass(Product, productsJson);
-const options = {
-  keys: ['answer'],
-  threshold: 0.3,
-};
-const fuse = new Fuse(wishlists, options);
-
+import {Injectable} from '@nestjs/common';
+import {InjectModel} from '@nestjs/mongoose';
+import {Model} from 'mongoose';
+import {paginate} from 'src/common/pagination/paginate';
+import {CreateWishlistDto} from './dto/create-wishlists.dto';
+import {GetWishlistDto} from './dto/get-wishlists.dto';
+import {UpdateWishlistDto} from './dto/update-wishlists.dto';
+import {Wishlist} from './entities/wishlist.entity';
 @Injectable()
 export class WishlistsService {
-  private wishlist: Wishlist[] = wishlists;
-  private products: any = products;
 
-  findAllWishlists({ limit, page, search }: GetWishlistDto) {
+  
+  constructor(
+    @InjectModel('Wishlist') private _wishlist: Model<Wishlist>
+  ) {}
+
+
+  create(createWishlistDto: CreateWishlistDto) {
+    try {
+      return this._wishlist.create(createWishlistDto)
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async findAMyWishlists({ limit, page, search }: GetWishlistDto) {
     if (!page) page = 1;
     if (!limit) limit = 30;
     const startIndex = (page - 1) * limit;
     const endIndex = page * limit;
-    let data: Wishlist[] = this.wishlist;
 
-    if (search) {
-      const parseSearchParams = search.split(';');
-      for (const searchParam of parseSearchParams) {
-        const [key, value] = searchParam.split(':');
-        data = fuse.search(value)?.map(({ item }) => item);
-      }
-    }
-
+    let data: Wishlist[] = await this._wishlist.find().populate('products_id').populate('user');
     const results = data.slice(startIndex, endIndex);
-    const url = `/wishlists?with=shop&orderBy=created_at&sortedBy=desc`;
+    const url = `/my-wishlists?with=shop&orderBy=created_at&sortedBy=desc`;
     return {
       data: results,
       ...paginate(data.length, page, limit, results.length, url),
     };
   }
 
-  findWishlist(id: number) {
-    return this.wishlist.find((p) => p.id === id);
+  async findAMyWishlist(id: any) {
+    return await this._wishlist.findById(id);
   }
 
-  create(createWishlistDto: CreateWishlistDto) {
-    return this.wishlist[0];
+  async update(id: any, updateWishlistDto: UpdateWishlistDto) {
+    try {
+      let wisItem = await this._wishlist.findOne({user: id});
+      // wisItem.products_id.push(updateWishlistDto.products_id)
+      return await this._wishlist.findOneAndUpdate(id, wisItem)
+      
+    } catch (error) {
+      throw error;
+    }
   }
 
-  update(id: number, updateWishlistDto: UpdateWishlistDto) {
-    return this.wishlist[0];
+  delete(id: any) {
+    return this._wishlist.findByIdAndDelete(id);
   }
 
-  delete(id: number) {
-    return this.wishlist[0];
+  async isInWishlist(product_id: any) {
+
+    let isInWishlist = await this._wishlist.find({products_id:{ $in : {product_id}}})
+
+    return isInWishlist;
   }
 
-  isInWishlist(product_id: number) {
-    const product = this.products.find((p) => p.id === Number(product_id));
-
-    return product?.in_wishlist;
-  }
-
-  toggle({ product_id }: CreateWishlistDto) {
-    const product = this.products.find((p) => p.id === Number(product_id));
+  toggle({ products_id }: CreateWishlistDto) {
+    const product = this.products.find((p) => p.id === Number(products_id));
 
     product.in_wishlist = !product?.in_wishlist;
 
