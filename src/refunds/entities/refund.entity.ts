@@ -12,27 +12,35 @@ export enum RefundStatus {
   PROCESSING = 'Processing',
 }
 
-@Schema({timestamps:true})
+@Schema({ timestamps: true })
 export class Refund extends CoreEntity {
+  @Prop({ required: false, type: String })
+  title: string;
 
-  @Prop({ required: true, type: String })
-  amount: string;
+  @Prop({ required: false, type: String })
+  description: string;
 
-  @Prop({ required: false, type: String , enum: RefundStatus })
+  // @Prop({ required: false, type:  })
+  // iamges: [];
+
+  @Prop({
+    required: false,
+    type: String,
+    enum: RefundStatus,
+    default: RefundStatus.PENDING,
+  })
   status: RefundStatus;
 
-  @Prop({  type: mongoose.Schema.Types.ObjectId, ref: 'Shop' , required: false})
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Shop', required: false })
   shop: Shop;
 
-  @Prop({  type: mongoose.Schema.Types.ObjectId, ref: 'Order' , required: false})
-  order: Order;
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Order', required: false })
+  order_id: Order;
 
-  @Prop({  type: mongoose.Schema.Types.ObjectId, ref: 'User' , required: false})
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User', required: false })
   customer: User;
 }
 
+const RefundSchema = SchemaFactory.createForClass(Refund);
 
-
-const RefundSchema = SchemaFactory.createForClass(Refund)
-
-export {RefundSchema}
+export { RefundSchema };

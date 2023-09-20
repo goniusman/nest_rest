@@ -153,7 +153,7 @@ export class AuthService {
   }
 
 
-  async me(id: string = "645edc9c9f206888102d1782"): Promise<any> {
+  async me(id: any = "645edc9c9f206888102d1782"): Promise<any> {
     // const id: string = "this is test id"
     try {
       const user = await this.usersService.getUser(id);

@@ -1,14 +1,14 @@
 import questionsJSON from '@db/questions.json';
-import {Injectable} from '@nestjs/common';
-import {InjectModel} from '@nestjs/mongoose';
-import {plainToClass} from 'class-transformer';
+import { Injectable } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { plainToClass } from 'class-transformer';
 import Fuse from 'fuse.js';
-import {Model} from 'mongoose';
-import {paginate} from 'src/common/pagination/paginate';
-import {CreateQuestionDto} from './dto/create-question.dto';
-import {GetQuestionDto} from './dto/get-questions.dto';
-import {UpdateQuestionDto} from './dto/update-question.dto';
-import {Question} from './entities/question.entity';
+import { Model } from 'mongoose';
+import { paginate } from 'src/common/pagination/paginate';
+import { CreateQuestionDto } from './dto/create-question.dto';
+import { GetQuestionDto } from './dto/get-questions.dto';
+import { UpdateQuestionDto } from './dto/update-question.dto';
+import { Question } from './entities/question.entity';
 
 const questions = plainToClass(Question, questionsJSON);
 const options = {
@@ -19,7 +19,7 @@ const fuse = new Fuse(questions, options);
 
 @Injectable()
 export class QuestionService {
-  private question: Question[] = questions;
+  // private question: Question[] = questions;
 
 constructor (@InjectModel('Question') private _questions: Model<Question>) {}
 
@@ -46,7 +46,7 @@ constructor (@InjectModel('Question') private _questions: Model<Question>) {}
     }
 
     if (product_id) {
-      data = data.filter((p) => p.product_id === Number(product_id));
+      // data = data.filter((p) => p.product_id === Number(product_id));
     }
 
     const results = data.slice(startIndex, endIndex);
@@ -61,7 +61,8 @@ constructor (@InjectModel('Question') private _questions: Model<Question>) {}
     return this._questions.findById(id);
   }
 
-  create(createQuestionDto: CreateQuestionDto) {
+  create(createQuestionDto: CreateQuestionDto, user: any) {
+    createQuestionDto.user = user.id
     return this._questions.create(createQuestionDto);
   }
 

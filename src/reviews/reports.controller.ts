@@ -6,20 +6,15 @@ import {
   Logger,
   Param,
   Post,
-  Put,
-  UseGuards,
+  Put
 } from '@nestjs/common';
-import {HasRoles} from 'src/auth/gurd/has-roles.decorator';
-import {JwtAuthGuard} from 'src/auth/gurd/jwt-auth.guard';
-import {Role} from 'src/auth/gurd/role.enum';
-import {RolesGuard} from 'src/auth/gurd/roles.guard';
-import {CreateReportDto} from './dto/create-report.dto';
-import {UpdateReportDto} from './dto/update-report.dto';
-import {AbusiveReportService} from './reports.service';
+import { CreateReportDto } from './dto/create-report.dto';
+import { UpdateReportDto } from './dto/update-report.dto';
+import { AbusiveReportService } from './reports.service';
 
 @Controller('abusive_reports')
-@HasRoles(Role.STORE_OWNER, Role.SUPER_ADMIN, Role.CUSTOMER, Role.STAFF)
-@UseGuards(JwtAuthGuard, RolesGuard)
+// @HasRoles(Role.STORE_OWNER, Role.SUPER_ADMIN, Role.CUSTOMER, Role.STAFF)
+// @UseGuards(JwtAuthGuard, RolesGuard)
 export class AbusiveReportsController {
 
   private readonly logger = new Logger();

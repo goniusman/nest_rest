@@ -1,36 +1,30 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { Controller, Get, Post, Body, HttpCode, HttpStatus, Param, Req, Query, UseInterceptors, Res, HttpException, Logger, UseFilters } from '@nestjs/common';
-import { AuthService } from './auth.service';
-import { Request, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, HttpException, HttpStatus, Logger, Param, Post, Query, Req, Request, Res, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
+import { AuthService } from './auth.service';
 
 // import { AuthGuard } from './auth.guard';
 
+import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import {
   ChangePasswordDto,
   ForgetPasswordDto,
   LoginDto,
   OtpDto,
   OtpLoginDto,
-  RegisterDto,
   ResetPasswordDto,
   SocialLoginDto,
   VerifyForgetPasswordDto,
-  VerifyOtpDto,
+  VerifyOtpDto
 } from './dto/create-auth.dto';
-import { CreateUserDto } from 'src/users/dto/create-user.dto';
 
+import { ApiTags } from '@nestjs/swagger';
+import { IGetUserAuthInfoRequest } from 'src/helper/typeDefinition';
+import { MailService } from 'src/mail/mail.service';
 import { HasRoles } from './gurd/has-roles.decorator';
+import { JwtAuthGuard } from './gurd/jwt-auth.guard';
 import { Role } from './gurd/role.enum';
 import { RolesGuard } from './gurd/roles.guard';
-import { LocalAuthGuard } from './local/local.auth.guard'
-import { JwtAuthGuard } from './gurd/jwt-auth.guard'
-import { IGetUserAuthInfoRequest } from 'src/helper/typeDefinition';
-import { ApiTags } from '@nestjs/swagger';
-import passport from 'passport';
-import { MailService } from 'src/mail/mail.service';
-import { ok } from 'assert';
-import { HttpExceptionFilter } from 'src/utils/Exeption/httpExceptionFilter';
 // import { query } from 'express';
 // import { ApiConsumes } from '@nestjs/swagger';
 // import { TransformInterceptor } from 'src/utils/Response.Interceptor';
@@ -222,7 +216,7 @@ export class AuthController {
 
   @UseGuards(JwtAuthGuard)
   @Get('me/:id')
-  async me(@Param('id') id?: string) {
+  async me(@Param('id') id?: any) {
 
     try {
       const user = await this.authService.me(id);

@@ -1,12 +1,12 @@
 import {
-  Controller,
-  Get,
-  Post,
-  Param,
-  Query,
   Body,
-  Put,
+  Controller,
   Delete,
+  Get,
+  Param,
+  Post,
+  Put,
+  Query,
 } from '@nestjs/common';
 import { CreateQuestionDto } from './dto/create-question.dto';
 import { GetQuestionDto } from './dto/get-questions.dto';
@@ -22,7 +22,7 @@ export class MyQuestionsController {
   @Get()
   findAll(@Query() query: GetQuestionDto) {
     return this.myQuestionService.findMyQuestions(query);
-  }
+  } 
   // show one
   @Get(':id')
   find(@Param('id') id: string) {
@@ -37,15 +37,15 @@ export class MyQuestionsController {
   // update
   @Put(':id')
   update(
-    @Param('id') id: string,
+    @Param('id') id: any,
     @Body() updateQuestionDto: UpdateQuestionDto,
   ) {
-    return this.myQuestionService.update(+id, updateQuestionDto);
+    return this.myQuestionService.update(id, updateQuestionDto);
   }
 
   // delete
   @Delete(':id')
-  delete(@Param('id') id: string) {
-    return this.myQuestionService.delete(+id);
+  delete(@Param('id') id: any) {
+    return this.myQuestionService.delete(id);
   }
 }

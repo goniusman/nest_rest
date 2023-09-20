@@ -53,22 +53,78 @@ export class WishlistsService {
     }
   }
 
-  delete(id: any) {
-    return this._wishlist.findByIdAndDelete(id);
+  async delete(id: any, user: any) {
+    
+      
+      try {
+        let userWishlist = await this._wishlist.findOne({user: user.id})
+        if(userWishlist){
+          
+            if(!userWishlist.products_id.includes(id) ){
+              // userWishlist.products_id.push(createWishlistDto.product_id);
+              // const wishlists = await userWishlist.save();
+              return userWishlist;
+            }else{
+              let filterdWishlists = await userWishlist.products_id.filter(item => item != id)
+              userWishlist.products_id = filterdWishlists;
+
+              const wishlists = await userWishlist.save();
+              return wishlists
+            }
+
+        }else{
+          return userWishlist;
+        }
+
+    } catch (error) {
+      throw error;
+    }
+
+   
   }
+  
 
   async isInWishlist(product_id: any) {
 
-    let isInWishlist = await this._wishlist.find({products_id:{ $in : {product_id}}})
+    let isInWishlist = await this._wishlist.find({products_id:product_id})
+    if(isInWishlist.length> 0){
+      return true;
+    }else{
+      return false;
+    }
 
-    return isInWishlist;
   }
 
-  toggle({ products_id }: CreateWishlistDto) {
-    const wislis = this._wishlist.findById(products_id);
+  async toggle(createWishlistDto: CreateWishlistDto, user?: any) {
 
-    // wislis.in_wishlist = !product?.in_wishlist;
+    try {
+        let userWishlist = await this._wishlist.findOne({user:user.id})
+        if(userWishlist){
+          
+        if(!userWishlist.products_id.includes(createWishlistDto.product_id)){
+          userWishlist.products_id.push(createWishlistDto.product_id);
+          const wishlists = await userWishlist.save();
+          return wishlists;
+        }else{
+          let filterdWishlists = await userWishlist.products_id.filter(item => item != createWishlistDto.product_id)
+          userWishlist.products_id = filterdWishlists;
 
-    return {};
+          const wishlists = await userWishlist.save();
+          return wishlists
+        }
+
+        }else{
+          createWishlistDto.user = user.id
+          createWishlistDto.products_id.push(createWishlistDto.product_id)
+          return await this._wishlist.create(createWishlistDto)
+        }
+    } catch (error) {
+      throw error;
+    }
+  
+
+
   }
+
+
 }

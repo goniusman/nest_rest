@@ -7,15 +7,17 @@ import {
   Param,
   Patch,
   Post,
+  Query,
+  Req,
   UseGuards,
 } from '@nestjs/common';
-import {HasRoles} from 'src/auth/gurd/has-roles.decorator';
-import {JwtAuthGuard} from 'src/auth/gurd/jwt-auth.guard';
-import {Role} from 'src/auth/gurd/role.enum';
-import {RolesGuard} from 'src/auth/gurd/roles.guard';
-import {CreateRefundDto} from './dto/create-refund.dto';
-import {UpdateRefundDto} from './dto/update-refund.dto';
-import {RefundsService} from './refunds.service';
+import { HasRoles } from 'src/auth/gurd/has-roles.decorator';
+import { JwtAuthGuard } from 'src/auth/gurd/jwt-auth.guard';
+import { Role } from 'src/auth/gurd/role.enum';
+import { RolesGuard } from 'src/auth/gurd/roles.guard';
+import { CreateRefundDto } from './dto/create-refund.dto';
+import { UpdateRefundDto } from './dto/update-refund.dto';
+import { RefundsService } from './refunds.service';
 
 @Controller('refunds')
 @HasRoles(Role.STORE_OWNER, Role.SUPER_ADMIN, Role.CUSTOMER)
@@ -27,10 +29,10 @@ export class RefundsController {
   constructor(private readonly refundsService: RefundsService) {}
 
   @Post()
-  create(@Body() createRefundDto: CreateRefundDto) {
+  create(@Body() createRefundDto: CreateRefundDto, @Req() req: any) {
     try {
 
-      return this.refundsService.create(createRefundDto);
+      return this.refundsService.create(createRefundDto, req?.user);
        } catch (error) {
          this.logger.error(`refunds/create failed: ${error}`)
          throw error
@@ -39,10 +41,10 @@ export class RefundsController {
   }
 
   @Get()
-  findAll() {
+  async findAll(@Query('user_id') userid) {
     try {
 
-      return this.refundsService.findAll();
+         return await this.refundsService.findAll(userid);
        } catch (error) {
          this.logger.error(`refunds/findall failed: ${error}`)
          throw error
@@ -85,4 +87,6 @@ export class RefundsController {
        }
 
   }
+
+  
 }

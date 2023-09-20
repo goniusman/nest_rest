@@ -12,11 +12,15 @@ export class Wishlist extends CoreEntity {
   })
   products_id: Product[] = [];
 
+  // @Prop({
+  //   type: mongoose.Schema.Types.ObjectId,
+  //   ref: 'Product',
+  // })
+  // product_id: Product;
+
   @Prop({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
-    default: {},
-    required: true,
   })
   user: User;
 }

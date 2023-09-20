@@ -7,21 +7,16 @@ import {
   Param,
   Post,
   Put,
-  Query,
-  UseGuards,
+  Query
 } from '@nestjs/common';
-import {HasRoles} from 'src/auth/gurd/has-roles.decorator';
-import {JwtAuthGuard} from 'src/auth/gurd/jwt-auth.guard';
-import {Role} from 'src/auth/gurd/role.enum';
-import {RolesGuard} from 'src/auth/gurd/roles.guard';
-import {CreateReviewDto} from './dto/create-review.dto';
-import {GetReviewsDto} from './dto/get-reviews.dto';
-import {UpdateReviewDto} from './dto/update-review.dto';
-import {ReviewService} from './reviews.service';
+import { CreateReviewDto } from './dto/create-review.dto';
+import { GetReviewsDto } from './dto/get-reviews.dto';
+import { UpdateReviewDto } from './dto/update-review.dto';
+import { ReviewService } from './reviews.service';
 
 @Controller('reviews')
-@HasRoles(Role.STORE_OWNER, Role.SUPER_ADMIN, Role.CUSTOMER)
-@UseGuards(JwtAuthGuard, RolesGuard)
+// @HasRoles(Role.STORE_OWNER, Role.SUPER_ADMIN, Role.CUSTOMER)
+// @UseGuards(JwtAuthGuard, RolesGuard)
 export class ReviewController {
 
     

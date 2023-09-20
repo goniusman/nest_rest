@@ -3,18 +3,28 @@ import {
   Controller,
   Delete,
   Get,
+  Logger,
   Param,
   Post,
   Put,
   Query,
+  Req,
+  UseGuards,
 } from '@nestjs/common';
 import {CreateQuestionDto} from './dto/create-question.dto';
 import {GetQuestionDto} from './dto/get-questions.dto';
 import {UpdateQuestionDto} from './dto/update-question.dto';
 import {QuestionService} from './questions.service';
+import { HasRoles } from 'src/auth/gurd/has-roles.decorator';
+import { Role } from 'src/auth/gurd/role.enum';
+import { JwtAuthGuard } from 'src/auth/gurd/jwt-auth.guard';
+import { RolesGuard } from 'src/auth/gurd/roles.guard';
 
 @Controller('questions')
 export class QuestionController {
+
+  private readonly logger = new Logger();
+  
   constructor(private questionService: QuestionService) {}
   // show all
   // TODO: there is a bug in displaying all questions
@@ -30,8 +40,16 @@ export class QuestionController {
   }
   // create
   @Post()
-  create(@Body() createQuestionDto: CreateQuestionDto) {
-    return this.questionService.create(createQuestionDto);
+  @HasRoles(Role.STORE_OWNER, Role.SUPER_ADMIN, Role.CUSTOMER, Role.STAFF)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  create(@Body() createQuestionDto: CreateQuestionDto, @Req() req: any) {
+    try {
+      
+      return this.questionService.create(createQuestionDto, req.user);
+    } catch (error) {
+      this.logger.error(`questions/create failed: ${error}`)
+      throw error
+    }
   }
 
   // update

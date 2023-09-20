@@ -8,19 +8,20 @@ import {
   Post,
   Put,
   Query,
-  UseGuards,
+  Req,
+  UseGuards
 } from '@nestjs/common';
-import {HasRoles} from 'src/auth/gurd/has-roles.decorator';
-import {JwtAuthGuard} from 'src/auth/gurd/jwt-auth.guard';
-import {Role} from 'src/auth/gurd/role.enum';
-import {RolesGuard} from 'src/auth/gurd/roles.guard';
-import {CreateWishlistDto} from './dto/create-wishlists.dto';
-import {GetWishlistDto} from './dto/get-wishlists.dto';
-import {UpdateWishlistDto} from './dto/update-wishlists.dto';
-import {WishlistsService} from './wishlists.service';
+import { HasRoles } from 'src/auth/gurd/has-roles.decorator';
+import { JwtAuthGuard } from 'src/auth/gurd/jwt-auth.guard';
+import { Role } from 'src/auth/gurd/role.enum';
+import { RolesGuard } from 'src/auth/gurd/roles.guard';
+import { CreateWishlistDto } from './dto/create-wishlists.dto';
+import { GetWishlistDto } from './dto/get-wishlists.dto';
+import { UpdateWishlistDto } from './dto/update-wishlists.dto';
+import { WishlistsService } from './wishlists.service';
 @Controller('wishlists')
-@HasRoles(Role.STORE_OWNER, Role.SUPER_ADMIN, Role.CUSTOMER)
-@UseGuards(JwtAuthGuard, RolesGuard)
+// @HasRoles(Role.STORE_OWNER, Role.SUPER_ADMIN, Role.CUSTOMER)
+// @UseGuards(JwtAuthGuard, RolesGuard)
 export class WishlistsController {
   
   private readonly logger = new Logger();
@@ -87,22 +88,26 @@ export class WishlistsController {
 
   // delete
   @Delete(':id')
-  delete(@Param('id') id: any) {
+  @HasRoles(Role.STORE_OWNER, Role.SUPER_ADMIN, Role.CUSTOMER)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  delete(@Param('id') id: any, @Req() req: any) {
     try {
       
-      return this.wishlistService.delete(id);
+      return this.wishlistService.delete(id, req?.user);
     } catch (error) {
       this.logger.error(`wishlists/delete failed: ${error}`)
       throw error
     }
 
-  }
+  } 
 
   // wishlists/toggle
   @Post('/toggle')
-  toggle(@Body() CreateWishlistDto: CreateWishlistDto) {
+  @HasRoles(Role.STORE_OWNER, Role.SUPER_ADMIN, Role.CUSTOMER)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  toggle(@Body() CreateWishlistDto: CreateWishlistDto, @Req() req) {
     try {
-     return this.wishlistService.toggle(CreateWishlistDto);
+     return this.wishlistService.toggle(CreateWishlistDto, req.user);
     } catch (error) {
       this.logger.error(`wishlists/toggle failed: ${error}`)
       throw error

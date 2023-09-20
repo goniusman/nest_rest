@@ -7,20 +7,15 @@ import {
   Param,
   Post,
   Put,
-  Query,
-  UseGuards
+  Query
 } from '@nestjs/common';
-import {HasRoles} from 'src/auth/gurd/has-roles.decorator';
-import {JwtAuthGuard} from 'src/auth/gurd/jwt-auth.guard';
-import {Role} from 'src/auth/gurd/role.enum';
-import {RolesGuard} from 'src/auth/gurd/roles.guard';
-import {CreateWishlistDto} from './dto/create-wishlists.dto';
-import {GetWishlistDto} from './dto/get-wishlists.dto';
-import {UpdateWishlistDto} from './dto/update-wishlists.dto';
-import {MyWishlistService} from './my-wishlists.service';
+import { CreateWishlistDto } from './dto/create-wishlists.dto';
+import { GetWishlistDto } from './dto/get-wishlists.dto';
+import { UpdateWishlistDto } from './dto/update-wishlists.dto';
+import { MyWishlistService } from './my-wishlists.service';
 @Controller('my-wishlists')
-@HasRoles(Role.STORE_OWNER, Role.SUPER_ADMIN, Role.CUSTOMER)
-@UseGuards(JwtAuthGuard, RolesGuard)
+// @HasRoles(Role.STORE_OWNER, Role.SUPER_ADMIN, Role.CUSTOMER)
+// @UseGuards(JwtAuthGuard, RolesGuard)
 export class MyWishlistsController {
 
   private readonly logger = new Logger();
