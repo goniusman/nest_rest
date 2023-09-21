@@ -1,5 +1,5 @@
-import {Prop, Schema} from '@nestjs/mongoose';
-import { Type, Transform } from 'class-transformer';
+import { Prop, Schema } from '@nestjs/mongoose';
+import { Transform } from 'class-transformer';
 
 @Schema({timestamps:true})
 export class CoreEntity {

@@ -1,9 +1,9 @@
-import {Prop,Schema,SchemaFactory} from '@nestjs/mongoose';
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose from 'mongoose';
 
-import {Attachment} from 'src/common/entities/attachment.entity';
-import {CoreEntity} from 'src/common/entities/core.entity';
-import {Type} from 'src/types/entities/type.entity';
+import { Attachment } from 'src/common/entities/attachment.entity';
+import { CoreEntity } from 'src/common/entities/core.entity';
+import { Type } from 'src/types/entities/type.entity';
 
 @Schema({ timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' }})
 export class Category extends CoreEntity {
@@ -53,6 +53,6 @@ CategorySchema.pre("save", function(next) {
   next()
 }) 
 
-export {CategorySchema};
+export { CategorySchema };
 
 

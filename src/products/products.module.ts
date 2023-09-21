@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AuthorsModule } from 'src/authors/authors.module';
+import { CategoriesModule } from 'src/categories/categories.module';
 import { ManufacturersModule } from 'src/manufacturers/manufacturers.module';
 import { ShopsModule } from 'src/shops/shops.module';
 import { ProductSchema } from './entities/product.entity';
@@ -16,6 +17,7 @@ import { ProductsService } from './products.service';
     AuthorsModule,
     ManufacturersModule,
     ShopsModule,
+    CategoriesModule,
     // AuthorsService,
     // ManufacturersService
   ],

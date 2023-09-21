@@ -1,22 +1,15 @@
 
-import { BadRequestException, Inject, Injectable } from '@nestjs/common';
-import { plainToClass } from 'class-transformer';
+import { Inject, Injectable } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
+import { CommonService } from 'src/common/common.service';
+import { paginate } from 'src/common/pagination/paginate';
+import { CommonHelper } from 'src/helper/commonHelper';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { GetCategoriesDto } from './dto/get-categories.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 import { Category } from './entities/category.entity';
-import { ICategory } from './interface/category.interface'
-import Fuse from 'fuse.js';
-import categoriesJson from '@db/categories.json';
-import { paginate } from 'src/common/pagination/paginate';
-import {InjectModel} from '@nestjs/mongoose';
-import {Model} from 'mongoose';
-import { CommonService } from 'src/common/common.service';
-import {CommonHelper} from 'src/helper/commonHelper';
-import { CloudinaryService } from '../cloudinary/cloudinary.service';
 
-import { Stats } from 'fs';
-import { catchError } from 'rxjs';
 // const categories = plainToClass(Category, categoriesJson);
 // const options = {
 //   keys: ['name', 'type.slug'],
@@ -169,6 +162,13 @@ export class CategoriesService {
 
   async getCategory(param: string, language: string): Promise< Category> {
     const category = (await this._cat.findById(param).exec()).populate('type');
+    return category;
+    //   (p) => p.id === Number(param) || p.slug === param,
+    // );
+  }
+
+  async getCategoryBySlug(param: string): Promise< any> {
+    const category = (await this._cat.findOne({slug: param}).exec()).populate('type');
     return category;
     //   (p) => p.id === Number(param) || p.slug === param,
     // );

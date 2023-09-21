@@ -1,31 +1,28 @@
 /* eslint-disable prettier/prettier */
-import {HttpService} from '@nestjs/axios';
-import {CACHE_MANAGER} from '@nestjs/cache-manager';
-import {BadRequestException,HttpException,HttpStatus,Inject,Injectable,Logger} from '@nestjs/common';
-import {Cache} from 'cache-manager';
+import { HttpService } from '@nestjs/axios';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { BadRequestException, HttpException, HttpStatus, Inject, Injectable, Logger } from '@nestjs/common';
+import { Cache } from 'cache-manager';
 // import { plainToClass } from 'class-transformer';
-import {CreateUserDto} from './dto/create-user.dto';
+import { CreateUserDto } from './dto/create-user.dto';
 // import {  UserPaginator } from './dto/get-users.dto';
-import {InjectModel} from '@nestjs/mongoose';
+import { InjectModel } from '@nestjs/mongoose';
 import * as bcrypt from 'bcrypt';
 import Fuse from 'fuse.js';
-import {Model} from 'mongoose';
-import {CloudinaryService} from '../cloudinary/cloudinary.service';
-import {User,UserDocument} from './entities/user.entity';
+import { Model } from 'mongoose';
+import { CloudinaryService } from '../cloudinary/cloudinary.service';
+import { User, UserDocument } from './entities/user.entity';
 // import { CreateUserDto } from '../dto/create-user.dto';
 // import { IUser } from '../interface/user.interface';
 
 // import { User } from './entities/user.entity';
 // import usersJson from '@db/users.json';
-import {paginate} from 'src/common/pagination/paginate';
-import {UploadsService} from 'src/uploads/uploads.service';
-import {GetUsersDto,UserPaginator} from './dto/get-users.dto';
+import { paginate } from 'src/common/pagination/paginate';
+import { UploadsService } from 'src/uploads/uploads.service';
+import { GetUsersDto, UserPaginator } from './dto/get-users.dto';
 // const users = plainToClass(UserSchema, usersJson);
 
-const options = {
-  keys: ['name', '_id', 'permissions', 'is_active', 'email'],
-  threshold: 0.3,
-};
+
 
 export enum Permission {
   SUPER_ADMIN = 'super_admin',
@@ -33,10 +30,16 @@ export enum Permission {
   STAFF = 'staff',
   CUSTOMER = 'customer',
 }
+const options = {
+  keys: ['name', '_id', 'permissions', 'is_active', 'email'],
+  threshold: 0.3,
+};
+
 
 @Injectable()
 export class UsersService {
   // private users: User[];
+  private readonly fuse;
   private readonly logger = new Logger();
   private NAME: string;
   constructor(
@@ -52,6 +55,10 @@ export class UsersService {
     //  const NAME = this.configService.get<string>('NMAILER_USER_NAME')
     //  if(!NAME) throw new Error('Mailer user name is not specified')
     //  this.NAME = NAME
+
+    // fuse initializer
+  
+
   }
 
   // @InjectModel('Student') private studentModel:Model<IStudent>
@@ -84,18 +91,19 @@ export class UsersService {
     const startIndex = (page - 1) * limit;
     const endIndex = page * limit;
 
-    let userData = await this.users.find();
+    let userData = await this.users.find().lean().populate("");
 
     if(userData || userData.length != 0) {
 
     const fuse = new Fuse(userData, options);
+
 
     if (text?.replace(/%/g, '')) {
       userData = fuse.search(text)?.map(({ item }) => item);
     }
 
     if (search) {
-      const parseSearchParams = search.split(':');
+      const parseSearchParams = search.split(';');
       const searchText: any = [];
       for (const searchParam of parseSearchParams) {
         const [key, value] = searchParam.split(':');
@@ -107,11 +115,8 @@ export class UsersService {
         }
       }
 
-      userData = fuse.search(parseSearchParams[1])?.map(({ item }) => item);;
+      userData = fuse.search({$and: searchText})?.map(({ item }) => item);
 
-      // userData =  userData
-      //   .find({name: searchText})
-      //   ?.map(({ item }) => item);
     }
 
     const results = userData.slice(startIndex, endIndex);

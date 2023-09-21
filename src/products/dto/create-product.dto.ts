@@ -7,10 +7,6 @@ export class CreateProductDto extends PartialType(Product) {
   
   // @ApiProperty()
   // name: string;
-
-
-
-
   // categories: Category[];
   // tags: Tag[];
 }

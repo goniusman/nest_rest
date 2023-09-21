@@ -1,19 +1,17 @@
-import productsJson from '@db/products.json';
-import {HttpException,HttpStatus,Injectable,Req} from '@nestjs/common';
-import {InjectModel} from '@nestjs/mongoose';
-import {plainToClass} from 'class-transformer';
-import {Model} from 'mongoose';
-import {AuthorsService} from 'src/authors/authors.service';
-import {paginate} from 'src/common/pagination/paginate';
-import {ManufacturersService} from 'src/manufacturers/manufacturers.service';
-import {ShopsService} from 'src/shops/shops.service';
-import {CreateProductDto} from './dto/create-product.dto';
-import {GetPopularProductsDto} from './dto/get-popular-products.dto';
-import {GetProductsDto,ProductPaginator} from './dto/get-products.dto';
-import {UpdateProductDto} from './dto/update-product.dto';
-import {Product,ProductDocument} from './entities/product.entity';
-
-const products = plainToClass(Product, productsJson);
+import { HttpException, HttpStatus, Injectable, Req } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
+import { AuthorsService } from 'src/authors/authors.service';
+import { CategoriesService } from 'src/categories/categories.service';
+import { paginate } from 'src/common/pagination/paginate';
+import { ManufacturersService } from 'src/manufacturers/manufacturers.service';
+import { ShopsService } from 'src/shops/shops.service';
+import { CreateProductDto } from './dto/create-product.dto';
+import { GetPopularProductsDto } from './dto/get-popular-products.dto';
+import { GetProductsDto, ProductPaginator } from './dto/get-products.dto';
+import { UpdateProductDto } from './dto/update-product.dto';
+import { Product, ProductDocument } from './entities/product.entity';
+// const products = plainToClass(Product, productsJson);
 
 const options = {
   keys: [
@@ -32,13 +30,14 @@ const options = {
 
 @Injectable()
 export class ProductsService {
-  private products: any = products;
+  // private products: any = products;
 
   constructor(
     @InjectModel('Product') private _product: Model<ProductDocument>,
     private authorService: AuthorsService,
     private manufacturerService: ManufacturersService,
-    private shopService: ShopsService
+    private shopService: ShopsService,
+    private catService: CategoriesService
 
   ) { }
 
@@ -84,46 +83,81 @@ export class ProductsService {
     var data: Product[];
 
     if(shop_id){
-
-      
-       data = await this._product.find({shop_id})
+       data = await this._product.find({shop_id}).lean()
        .populate('type_id')
        .populate('manufacturer_id')
        .populate('shop_id')
        .populate('author_id')
        .populate('categories')
-      //  .exec( err:any => console.log(err));
-
-
-
+     
     }else if(search){
+
+      data = await this._product.find().lean().populate('type_id manufacturer_id categories author_id shop_id')
+      // let fuse = new Fuse(data, options);
+
       const parseSearchParams = search.split(';');
-      const searchText: any = [];
-      for (const searchParam of parseSearchParams) {
-        const [key, value] = searchParam.split(':');
-        // TODO: Temp Solution
-        if (key !== 'slug') {
-          searchText.push({
-            [key]: value,
-          });
+      // console.log( parseSearchParams);
+      for (const [i, searchParam] of parseSearchParams.entries()) {
+        // console.log( searchParam);
+        if(searchParam.includes("type")){
+          // const index = searchParam.findIndex(word => word == "type");
+          // console.log('yes');
+          // return index;
+          // console.log(parseSearchParams[i]);
+        
+        }else if(searchParam.includes("categories")){
+          const categoryStr = parseSearchParams[i]
+          const [key, value] = categoryStr.split(':');
+
+          const category = await this.catService.getCategoryBySlug(value)
+
+          data = await this._product.find({
+            categories: {
+              $elemMatch: {
+                $in: [category?._id] 
+              }
+            }
+          }).lean().populate('type_id manufacturer_id categories author_id shop_id')
+          
+
+        }else{
+
         }
       }
+   
+      
+      //  fuse = new Fuse(data, options);
 
+      // const searchText: any = [];
+      // for (const searchParam of parseSearchParams) {
+      //   const [key, value] = searchParam.split(':');
+      //   // TODO: Temp Solution
+      //   if (key !== 'slug') {
+      //     searchText.push({
+      //       [key]: value,
+      //     });
+      //   }
+      // }
+
+ 
       // data = fuse
+      // .search({
+      //   $and: searchText,
+      // })?.map(({ item }) => item)
+      
+      // console.log("searching....");
+      // console.log( fuse
       //   .search({
       //     $and: searchText,
-      //   })?.map(({ item }) => item);
+      //   })?.map(({ item }) => item));
 
-        const [one, two] = searchText;
+        // const [one, two] = searchText;
 
-      data = await this._product.find( {$and:[two, one]} ).populate('type_id').populate('shop_id').populate('manufacturer_id').populate('categories').populate('author_id')
+      // data = await this._product.find( {$and:[two, one]} ).populate('type_id').populate('shop_id').populate('manufacturer_id').populate('categories').populate('author_id')
       // data = await this._product.find({ shop_id: searchText[0].shop_id }).populate('type_id').populate('shop_id').populate('manufacturer_id')
     }else{
-      data = await this._product.find().populate('type_id').populate('manufacturer_id').populate('shop_id').populate('author_id').populate('categories');
+      // data = await this._product.find({status:"publish"}).populate('type_id shop_id manufacturer_id author_id categories')
     }
-
-    // const fuse = new Fuse(data, options);
-  
 
     const results = data.slice(startIndex, endIndex);
     const url = `/products?search=${search}&limit=${limit}`;
