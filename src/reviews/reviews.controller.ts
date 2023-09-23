@@ -7,12 +7,16 @@ import {
   Param,
   Post,
   Put,
-  Query
+  Query,
+  Req,
+  UseGuards
 } from '@nestjs/common';
-import { CreateReviewDto } from './dto/create-review.dto';
-import { GetReviewsDto } from './dto/get-reviews.dto';
-import { UpdateReviewDto } from './dto/update-review.dto';
-import { ReviewService } from './reviews.service';
+import {JwtAuthGuard} from 'src/auth/gurd/jwt-auth.guard';
+import {RolesGuard} from 'src/auth/gurd/roles.guard';
+import {CreateReviewDto} from './dto/create-review.dto';
+import {GetReviewsDto} from './dto/get-reviews.dto';
+import {UpdateReviewDto} from './dto/update-review.dto';
+import {ReviewService} from './reviews.service';
 
 @Controller('reviews')
 // @HasRoles(Role.STORE_OWNER, Role.SUPER_ADMIN, Role.CUSTOMER)
@@ -27,10 +31,12 @@ export class ReviewController {
 
   //  create a new review
   @Post()
-  create(@Body() createReviewDto: CreateReviewDto) {
+  // @HasRoles(Role.STORE_OWNER, Role.SUPER_ADMIN, Role.CUSTOMER)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  create(@Body() createReviewDto: CreateReviewDto, @Req() req: any) {
     try {
-
-    return this.reviewService.create(createReviewDto);
+      createReviewDto.customer = req.user.id;
+      return this.reviewService.create(createReviewDto);
      } catch (error) {
        this.logger.error(`shippings/findAll failed: ${error}`)
        throw error

@@ -31,7 +31,7 @@ export class ReviewService {
     if (!limit) limit = 30;
     const startIndex = (page - 1) * limit;
     const endIndex = page * limit;
-    let data: Review[] = await this._reviews.find();
+    let data: Review[] = await this._reviews.find().populate('customer');
 
     if (search) {
       const parseSearchParams = search.split(';');

@@ -1,8 +1,6 @@
-import {Prop, Schema, SchemaFactory} from '@nestjs/mongoose';
+import {Prop,Schema,SchemaFactory} from '@nestjs/mongoose';
 import mongoose from 'mongoose';
-import { Attachment } from 'src/common/entities/attachment.entity';
-import { CoreEntity } from 'src/common/entities/core.entity';
-import { Order } from 'src/orders/entities/order.entity';
+import {CoreEntity} from 'src/common/entities/core.entity';
 import {User} from 'src/users/entities/user.entity';
 
 
@@ -21,23 +19,23 @@ export class Contactus extends CoreEntity {
   @Prop({type: String, required: true})
   description?: string;
 
-  @Prop({type: Boolean, required: false, default: 0})
+  @Prop({type: Boolean, required: false, default: false})
   status: boolean; 
   
   @Prop({type: mongoose.Types.ObjectId, ref: 'User', required: false})
   updatedBy?: User;
 
-  // @Prop({type: String, required: false})
-  // language: string;
+  @Prop({type: String, required: false})
+  language: string;
 
-  // @Prop({type: [String], required: false})
-  // translated_languages: string[];
+  @Prop({type: [String], required: false})
+  translated_languages: string[];
 }
 
 
 const ContactusSchema = SchemaFactory.createForClass(Contactus)
 
-export {ContactusSchema}
+export {ContactusSchema};
 
 
 

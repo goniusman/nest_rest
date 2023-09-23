@@ -43,11 +43,11 @@ export class Review extends CoreEntity {
   @Prop({  type: mongoose.Schema.Types.ObjectId, ref: 'Feedback' , required: false})
   my_feedback: Feedback;
 
-  @Prop({ required: false, type: Number })
-  positive_feedbacks_count: number;
+  @Prop({type: [{  type: mongoose.Schema.Types.ObjectId, ref: 'User' , required: false}], default: []})
+  positive_feedbacks_count: User[] = [];
 
-  @Prop({ required: false, type: Number })
-  negative_feedbacks_count: number;
+  @Prop({type: [{  type: mongoose.Schema.Types.ObjectId, ref: 'User' , required: false}], default: []})
+  negative_feedbacks_count: User[] = [];
 
   @Prop({type: [{type: mongoose.Schema.Types.ObjectId, ref: 'Report'}], default: []})
   abusive_reports: Report[];

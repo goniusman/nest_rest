@@ -155,11 +155,22 @@ export class OrdersService {
     let data: Order[] = []
 
     if( customer_id && customer_id !== undefined ){
-       data = await this._orders.find({customer:customer_id});
+       data = await this._orders.find({customer:customer_id})
+       .populate('status customer')
+       .populate({
+        path: 'products.product',
+        model: 'Product' });
     }else if(shop_id && shop_id !== undefined) {
-      data = await this._orders.find({shop: shop_id});
+      data = await this._orders.find({shop: shop_id})
+      .populate('status customer')
+      .populate({
+       path: 'products.product',
+       model: 'Product' });;
     }else{
-      data = await this._orders.find();
+      data = await this._orders.find().populate('status customer')
+      .populate({
+       path: 'products.product',
+       model: 'Product' });;
     }
 
     const results = data.slice(startIndex, endIndex);
@@ -174,9 +185,15 @@ export class OrdersService {
     try {
 
       
-      const order = await this._orders.findOne({tracking_number}).populate('status').populate({
-        path: 'products.product_id',
-        model: 'Product' }
+      const order = await this._orders.findOne({tracking_number})
+      .populate({
+        path: 'status',
+        model: 'OrderStatus'
+       })
+      .populate({
+        path: 'products.product',
+        model: 'Product'
+       }
       )
       
     //   .exec(function(err, data){
@@ -237,12 +254,27 @@ export class OrdersService {
     };
   }
 
-  getOrderStatus(param: string, language: string) {
-    return this._orderStatus.find((p) => p.slug === param);
+  async getOrderStatus(param: string, language: string = 'en') {
+    // return await this._orderStatus.findOne({name: param}).select('name email').exec();
+  //  let sta =  OrderStatusType[param] == param;
+  //  console.log(sta);
+    return await this._orderStatus.findOne({slug: param});
   }
 
-  update(id: any, updateOrderInput: UpdateOrderDto) {
-    return this._orders.findByIdAndUpdate(id, updateOrderInput)
+  async update(id: any, updateOrderInput: UpdateOrderDto) {
+    try {
+        let status = updateOrderInput.order_status
+    if(status){
+      let statusId = await this.getOrderStatus(status)
+      updateOrderInput.status = statusId;
+      return this._orders.findByIdAndUpdate(id, updateOrderInput)
+    }else{
+      return this._orders.findByIdAndUpdate(id, updateOrderInput)
+    }
+    } catch (error) {
+      throw error;
+    }
+  
   }
 
   remove(id: any) {
@@ -360,10 +392,11 @@ export class OrdersService {
      */
 
     this._paymentIntents.create(paymentIntentInfo);
-    const user = await this.authService.me()
+    // const user = await this.authService.me()
     const paymentGateway: PaymentGateWay = {
       // id: Number(Date.now()),
-      user_id: user._id.toString(),
+      // user_id: user._id.toString(),
+      user_id: "345345",
       customer_id: customer,
       gateway_name: setting.options.paymentGateway,
       created_at: new Date(),
@@ -381,7 +414,7 @@ export class OrdersService {
    * @param paymentGateway
    */
   async savePaymentIntent(order: Order, paymentGateway?: string): Promise<any> {
-    const me = await this.authService.me();
+    const me = await this.authService.me("dsfaf");
     switch (order.payment_gateway) {
       case PaymentGatewayType.STRIPE:
         const paymentIntentParam =

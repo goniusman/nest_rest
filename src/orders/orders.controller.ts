@@ -30,8 +30,8 @@ import {Order} from './entities/order.entity';
 import {OrdersService} from './orders.service';
 
 @Controller('orders')
-@HasRoles(Role.STORE_OWNER, Role.SUPER_ADMIN, Role.STAFF, Role.CUSTOMER)
-@UseGuards(JwtAuthGuard, RolesGuard)
+// @HasRoles(Role.STORE_OWNER, Role.SUPER_ADMIN, Role.STAFF, Role.CUSTOMER)
+// @UseGuards(JwtAuthGuard, RolesGuard)
 export class OrdersController {
 
   private readonly logger = new Logger()
@@ -39,6 +39,8 @@ export class OrdersController {
   constructor(private readonly ordersService: OrdersService) {}
 
   @Post()
+  @HasRoles(Role.STORE_OWNER, Role.SUPER_ADMIN, Role.STAFF, Role.CUSTOMER)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   async create(@Body() createOrderDto: CreateOrderDto): Promise<Order> {
     try {
       
@@ -99,6 +101,8 @@ export class OrdersController {
   // }
 
   @Put(':id')
+  @HasRoles(Role.STORE_OWNER, Role.SUPER_ADMIN, Role.STAFF, Role.CUSTOMER)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   update(@Param('id') id: string, @Body() updateOrderDto: UpdateOrderDto) {
     try {
       if(id){
@@ -111,13 +115,15 @@ export class OrdersController {
       
     } catch (error) {
       this.logger.error(`orderController/update error is + ${error.message}`)
-    throw error;
+      throw error;
     }
 
 
   }
 
   @Delete(':id')
+  @HasRoles(Role.STORE_OWNER, Role.SUPER_ADMIN, Role.STAFF, Role.CUSTOMER)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   remove(@Param('id') id: string) {
 
     try {

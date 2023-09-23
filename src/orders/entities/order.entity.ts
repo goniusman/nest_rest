@@ -65,7 +65,7 @@ export class Order extends CoreEntity {
   children: Order[];
 
   @Prop({ required: false, type: mongoose.Schema.Types.ObjectId, ref: 'OrderStatus', })
-  status: OrderStatus;
+  status?: OrderStatus;
 
   @Prop({ required: false, type: String, enum: OrderStatusType })
   order_status: OrderStatusType;

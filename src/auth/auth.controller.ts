@@ -1,11 +1,11 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { Body, Controller, Get, HttpException, HttpStatus, Logger, Param, Post, Query, Req, Request, Res, UseGuards } from '@nestjs/common';
-import { AuthGuard } from '@nestjs/passport';
-import { AuthService } from './auth.service';
+import {Body,Controller,Get,HttpException,HttpStatus,Logger,Post,Query,Req,Request,Res,UseGuards} from '@nestjs/common';
+import {AuthGuard} from '@nestjs/passport';
+import {AuthService} from './auth.service';
 
 // import { AuthGuard } from './auth.guard';
 
-import { CreateUserDto } from 'src/users/dto/create-user.dto';
+import {CreateUserDto} from 'src/users/dto/create-user.dto';
 import {
   ChangePasswordDto,
   ForgetPasswordDto,
@@ -18,13 +18,13 @@ import {
   VerifyOtpDto
 } from './dto/create-auth.dto';
 
-import { ApiTags } from '@nestjs/swagger';
-import { IGetUserAuthInfoRequest } from 'src/helper/typeDefinition';
-import { MailService } from 'src/mail/mail.service';
-import { HasRoles } from './gurd/has-roles.decorator';
-import { JwtAuthGuard } from './gurd/jwt-auth.guard';
-import { Role } from './gurd/role.enum';
-import { RolesGuard } from './gurd/roles.guard';
+import {ApiTags} from '@nestjs/swagger';
+import {IGetUserAuthInfoRequest} from 'src/helper/typeDefinition';
+import {MailService} from 'src/mail/mail.service';
+import {HasRoles} from './gurd/has-roles.decorator';
+import {JwtAuthGuard} from './gurd/jwt-auth.guard';
+import {Role} from './gurd/role.enum';
+import {RolesGuard} from './gurd/roles.guard';
 // import { query } from 'express';
 // import { ApiConsumes } from '@nestjs/swagger';
 // import { TransformInterceptor } from 'src/utils/Response.Interceptor';
@@ -210,16 +210,16 @@ export class AuthController {
       this.logger.error(`authController/token user login error: ${err.message}`);
       throw err;
     }
-
   }
 
 
-  @UseGuards(JwtAuthGuard)
-  @Get('me/:id')
-  async me(@Param('id') id?: any) {
+  @Get('me')
+  @HasRoles(Role.STORE_OWNER, Role.SUPER_ADMIN, Role.CUSTOMER, Role.STAFF)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  async me(@Req() req ) {
 
     try {
-      const user = await this.authService.me(id);
+      const user = await this.authService.me(req);
       if (user) {
         return user;
       } else {
@@ -231,7 +231,6 @@ export class AuthController {
       throw err;
     }
 
-
   }
 
 
@@ -241,6 +240,7 @@ export class AuthController {
   onlyAdmin(@Request() req) {
     return req.user;
   }
+
 
   @HasRoles(Role.CUSTOMER)
   @UseGuards(AuthGuard('jwt'), RolesGuard)
@@ -255,7 +255,6 @@ export class AuthController {
   async changePassword(@Req() req: IGetUserAuthInfoRequest, @Body() changePasswordDto: ChangePasswordDto) {
 
     const email = req?.user?.email;
-
     try {
       if (changePasswordDto.newPassword && changePasswordDto.oldPassword) {
 

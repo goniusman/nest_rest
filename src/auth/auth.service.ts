@@ -1,11 +1,10 @@
 
-import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
+import {HttpException,HttpStatus,Injectable,Logger,Req} from '@nestjs/common';
 // import * as bcrypt from '@types/bcrypt'; 
-import { JwtService } from '@nestjs/jwt';
+import {JwtService} from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 
-import { plainToClass } from 'class-transformer';
-import { UsersService } from '../users/users.service';
+import {UsersService} from '../users/users.service';
 import {
   AuthResponse,
   CoreResponse,
@@ -19,20 +18,20 @@ import {
   VerifyOtpDto
 } from './dto/create-auth.dto';
 // import { User } from 'src/users/entities/user.entity';
-import usersJson from '@db/users.json';
-import { CommonHelper } from 'src/helper/commonHelper';
-import { MailService } from 'src/mail/mail.service';
-import { ShopsService } from 'src/shops/shops.service';
-import { CreateUserDto } from 'src/users/dto/create-user.dto';
-import { User } from 'src/users/entities/user.entity';
-import { jwtConstants } from './gurd/constants';
+import {CommonHelper} from 'src/helper/commonHelper';
+import {MailService} from 'src/mail/mail.service';
+import {ShopsService} from 'src/shops/shops.service';
+import {CreateUserDto} from 'src/users/dto/create-user.dto';
+import {User} from 'src/users/entities/user.entity';
+import {jwtConstants} from './gurd/constants';
 // import { TransformInterceptor } from 'src/utils/Response.Interceptor';
-const users = plainToClass(User, usersJson);
+// const users = plainToClass(User, usersJson);
+
 
 @Injectable()
 // @UseInterceptors(TransformInterceptor)
 export class AuthService {
-  private users: User[] = users;
+  // private users: User[] = users;
   private readonly _commonHelper = new CommonHelper()
   private readonly logger = new Logger();
   constructor(
@@ -153,10 +152,11 @@ export class AuthService {
   }
 
 
-  async me(id: any = "645edc9c9f206888102d1782"): Promise<any> {
+  async me(@Req() req): Promise<any> {
     // const id: string = "this is test id"
+    // console.log(req?.user);
     try {
-      const user = await this.usersService.getUser(id);
+      const user = await this.usersService.getUser(req?.user?.id);
       if (user) {
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const { _doc, ...others } = user;

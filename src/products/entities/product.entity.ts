@@ -32,6 +32,7 @@ export class OrderProductPivot extends mongoose.Document{
   order_quantity: number;
   unit_price: number;
   subtotal: number;
+  product: string
 }
 
 export class Variation extends mongoose.Document {
