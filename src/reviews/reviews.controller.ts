@@ -11,13 +11,14 @@ import {
   Req,
   UseGuards
 } from '@nestjs/common';
-import {JwtAuthGuard} from 'src/auth/gurd/jwt-auth.guard';
-import {RolesGuard} from 'src/auth/gurd/roles.guard';
-import {CreateReviewDto} from './dto/create-review.dto';
-import {GetReviewsDto} from './dto/get-reviews.dto';
-import {UpdateReviewDto} from './dto/update-review.dto';
-import {ReviewService} from './reviews.service';
-
+import { HasRoles } from 'src/auth/gurd/has-roles.decorator';
+import { JwtAuthGuard } from 'src/auth/gurd/jwt-auth.guard';
+import { Role } from 'src/auth/gurd/role.enum';
+import { RolesGuard } from 'src/auth/gurd/roles.guard';
+import { CreateReviewDto } from './dto/create-review.dto';
+import { GetReviewsDto } from './dto/get-reviews.dto';
+import { UpdateReviewDto } from './dto/update-review.dto';
+import { ReviewService } from './reviews.service';
 @Controller('reviews')
 // @HasRoles(Role.STORE_OWNER, Role.SUPER_ADMIN, Role.CUSTOMER)
 // @UseGuards(JwtAuthGuard, RolesGuard)
@@ -62,18 +63,22 @@ export class ReviewController {
 
   //   find one review by ID
   @Get(':id')
-  find(@Param('id') id: string) {
+  @HasRoles(Role.STORE_OWNER, Role.SUPER_ADMIN, Role.CUSTOMER)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  async find(@Param('id') id: any, @Req() req: any) {
     try {
 
-    return this.reviewService.findReview(id);
+    return await this.reviewService.findReview(id, req?.user);
      } catch (error) {
-       this.logger.error(`shippings/findAll failed: ${error}`)
+       this.logger.error(`shippings/find failed: ${error}`)
        throw error
      }
 
   }
 
   @Put(':id')
+  @HasRoles(Role.STORE_OWNER, Role.SUPER_ADMIN, Role.CUSTOMER)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   update(@Param('id') id: string, @Body() updateReviewDto: UpdateReviewDto) {
     try {
     return this.reviewService.update(id, updateReviewDto);

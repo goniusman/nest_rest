@@ -1,17 +1,19 @@
-import {Prop,Schema,SchemaFactory} from '@nestjs/mongoose';
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose from 'mongoose';
-import {Attachment} from 'src/common/entities/attachment.entity';
-import {CoreEntity} from 'src/common/entities/core.entity';
-import {Feedback} from 'src/feedbacks/entities/feedback.entity';
-import {Order} from 'src/orders/entities/order.entity';
-import {Product} from 'src/products/entities/product.entity';
-import {Shop} from 'src/shops/entities/shop.entity';
-import {User} from 'src/users/entities/user.entity';
-import {Report} from './reports.entity';
+import { Attachment } from 'src/common/entities/attachment.entity';
+import { CoreEntity } from 'src/common/entities/core.entity';
+import { Feedback } from 'src/feedbacks/entities/feedback.entity';
+import { Order } from 'src/orders/entities/order.entity';
+import { Product } from 'src/products/entities/product.entity';
+import { Shop } from 'src/shops/entities/shop.entity';
+import { User } from 'src/users/entities/user.entity';
+import { Report } from './reports.entity';
 
 
 @Schema({timestamps:true})
 export class Review extends CoreEntity {
+
+  _id: any
 
   @Prop({ required: true, type: Number })
   rating: number;
@@ -63,5 +65,5 @@ export class Review extends CoreEntity {
 
 const ReviewSchema = SchemaFactory.createForClass(Review)
 
-export {ReviewSchema};
+export { ReviewSchema };
 

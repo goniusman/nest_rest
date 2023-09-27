@@ -1,21 +1,19 @@
-import reviewJSON from '@db/reviews.json';
-import {Injectable} from '@nestjs/common';
-import {InjectModel} from '@nestjs/mongoose';
-import {plainToClass} from 'class-transformer';
+import { Injectable } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
 import Fuse from 'fuse.js';
-import {Model} from 'mongoose';
-import {paginate} from 'src/common/pagination/paginate';
-import {CreateReviewDto} from './dto/create-review.dto';
-import {GetReviewsDto} from './dto/get-reviews.dto';
-import {UpdateReviewDto} from './dto/update-review.dto';
-import {Review} from './entities/review.entity';
+import { Model } from 'mongoose';
+import { paginate } from 'src/common/pagination/paginate';
+import { CreateReviewDto } from './dto/create-review.dto';
+import { GetReviewsDto } from './dto/get-reviews.dto';
+import { UpdateReviewDto } from './dto/update-review.dto';
+import { Review } from './entities/review.entity';
 
-const reviews = plainToClass(Review, reviewJSON);
+// const reviews = plainToClass(Review, reviewJSON);
 const options = {
-  keys: ['product_id'],
+  keys: ['product'],
   threshold: 0.3,
 };
-const fuse = new Fuse(reviews, options);
+
 
 @Injectable()
 export class ReviewService {
@@ -31,8 +29,8 @@ export class ReviewService {
     if (!limit) limit = 30;
     const startIndex = (page - 1) * limit;
     const endIndex = page * limit;
-    let data: Review[] = await this._reviews.find().populate('customer');
-
+    let data = await this._reviews.find().populate('customer');
+    const fuse = new Fuse(data, options);
     if (search) {
       const parseSearchParams = search.split(';');
       for (const searchParam of parseSearchParams) {
@@ -42,7 +40,8 @@ export class ReviewService {
     }
 
     if (product_id) {
-      // data = data.filter((p) => p.product_id === Number(product_id));
+      // data = fuse.search({product:product_id})?.map(({ item }) => item);
+       data = await this._reviews.find({product: product_id}).populate('customer product shop');
     }
 
     const results = data.slice(startIndex, endIndex);
@@ -53,8 +52,8 @@ export class ReviewService {
     };
   }
 
-  findReview(id: any) {
-    return this._reviews.findById(id);
+  async findReview(id: any, user: any) {
+    return await this._reviews.findOne({product: id, customer: user.id});
   }
 
   create(createReviewDto: CreateReviewDto) {
@@ -62,7 +61,7 @@ export class ReviewService {
   }
 
   update(id: any, updateReviewDto: UpdateReviewDto) {
-    return this._reviews.findByIdAndDelete(id, updateReviewDto);
+    return this._reviews.findByIdAndUpdate(id, updateReviewDto);
   }
 
   delete(id: any) {

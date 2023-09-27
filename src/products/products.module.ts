@@ -4,6 +4,7 @@ import { AuthorsModule } from 'src/authors/authors.module';
 import { CategoriesModule } from 'src/categories/categories.module';
 import { ManufacturersModule } from 'src/manufacturers/manufacturers.module';
 import { ShopsModule } from 'src/shops/shops.module';
+import { TypesModule } from 'src/types/types.module';
 import { ProductSchema } from './entities/product.entity';
 import {
   PopularProductsController,
@@ -18,10 +19,11 @@ import { ProductsService } from './products.service';
     ManufacturersModule,
     ShopsModule,
     CategoriesModule,
-    // AuthorsService,
+    TypesModule,
     // ManufacturersService
   ],
   controllers: [ProductsController, PopularProductsController],
   providers: [ProductsService],
+  exports: [ProductsService],
 })
 export class ProductsModule {}

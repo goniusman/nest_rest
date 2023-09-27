@@ -1,25 +1,25 @@
 /* eslint-disable prettier/prettier */
-import {HttpService} from '@nestjs/axios';
-import {CACHE_MANAGER} from '@nestjs/cache-manager';
-import {BadRequestException,HttpException,HttpStatus,Inject,Injectable,Logger} from '@nestjs/common';
-import {Cache} from 'cache-manager';
+import { HttpService } from '@nestjs/axios';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { BadRequestException, HttpException, HttpStatus, Inject, Injectable, Logger } from '@nestjs/common';
+import { Cache } from 'cache-manager';
 // import { plainToClass } from 'class-transformer';
-import {CreateUserDto} from './dto/create-user.dto';
+import { CreateUserDto } from './dto/create-user.dto';
 // import {  UserPaginator } from './dto/get-users.dto';
-import {InjectModel} from '@nestjs/mongoose';
+import { InjectModel } from '@nestjs/mongoose';
 import * as bcrypt from 'bcrypt';
 import Fuse from 'fuse.js';
-import {Model} from 'mongoose';
-import {CloudinaryService} from '../cloudinary/cloudinary.service';
-import {User,UserDocument} from './entities/user.entity';
+import { Model } from 'mongoose';
+import { CloudinaryService } from '../cloudinary/cloudinary.service';
+import { User, UserDocument } from './entities/user.entity';
 // import { CreateUserDto } from '../dto/create-user.dto';
 // import { IUser } from '../interface/user.interface';
 
 // import { User } from './entities/user.entity';
 // import usersJson from '@db/users.json';
-import {paginate} from 'src/common/pagination/paginate';
-import {UploadsService} from 'src/uploads/uploads.service';
-import {GetUsersDto,UserPaginator} from './dto/get-users.dto';
+import { paginate } from 'src/common/pagination/paginate';
+import { UploadsService } from 'src/uploads/uploads.service';
+import { GetUsersDto, UserPaginator } from './dto/get-users.dto';
 // const users = plainToClass(UserSchema, usersJson);
 
 
@@ -168,9 +168,9 @@ export class UsersService {
     // return this.users.find((user) => user._id === id);
   }
 
-  async isAdminOrOwner(owner_id): Promise<boolean> {
+  async isAdminOrOwner(user_id): Promise<boolean> {
 
-    const user = await this.users.findById(owner_id)
+    const user = await this.users.findById(user_id)
 
     if(user.permissions.includes(Permission.STORE_OWNER) || user.permissions.includes(Permission.SUPER_ADMIN)){
       return true;

@@ -1,14 +1,13 @@
 import { Module } from '@nestjs/common';
-import { TypesService } from './types.service';
+import { MongooseModule } from '@nestjs/mongoose';
+import { TypeSchema } from './entities/type.entity';
 import { TypesController } from './types.controller';
-import {TypeSchema} from './entities/type.entity';
-import {MongooseModule} from '@nestjs/mongoose';
+import { TypesService } from './types.service';
 
 @Module({
-  imports: [
-    MongooseModule.forFeature([{name: 'Type', schema: TypeSchema}])
-  ],
+  imports: [MongooseModule.forFeature([{ name: 'Type', schema: TypeSchema }])],
   controllers: [TypesController],
   providers: [TypesService],
+  exports: [TypesService],
 })
-export class TypesModule {} 
+export class TypesModule {}

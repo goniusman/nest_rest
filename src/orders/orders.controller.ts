@@ -14,20 +14,20 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import {HasRoles} from 'src/auth/gurd/has-roles.decorator';
-import {JwtAuthGuard} from 'src/auth/gurd/jwt-auth.guard';
-import {Role} from 'src/auth/gurd/role.enum';
-import {RolesGuard} from 'src/auth/gurd/roles.guard';
-import {CreateOrderStatusDto} from './dto/create-order-status.dto';
-import {CreateOrderDto} from './dto/create-order.dto';
-import {GetOrderFilesDto,OrderFilesPaginator} from './dto/get-downloads.dto';
-import {GetOrderStatusesDto} from './dto/get-order-statuses.dto';
-import {GetOrdersDto,OrderPaginator} from './dto/get-orders.dto';
-import {OrderPaymentDto} from './dto/order-payment.dto';
-import {UpdateOrderDto} from './dto/update-order.dto';
-import {CheckoutVerificationDto} from './dto/verify-checkout.dto';
-import {Order} from './entities/order.entity';
-import {OrdersService} from './orders.service';
+import { HasRoles } from 'src/auth/gurd/has-roles.decorator';
+import { JwtAuthGuard } from 'src/auth/gurd/jwt-auth.guard';
+import { Role } from 'src/auth/gurd/role.enum';
+import { RolesGuard } from 'src/auth/gurd/roles.guard';
+import { CreateOrderStatusDto } from './dto/create-order-status.dto';
+import { CreateOrderDto } from './dto/create-order.dto';
+import { GetOrderFilesDto, OrderFilesPaginator } from './dto/get-downloads.dto';
+import { GetOrderStatusesDto } from './dto/get-order-statuses.dto';
+import { GetOrdersDto, OrderPaginator } from './dto/get-orders.dto';
+import { OrderPaymentDto } from './dto/order-payment.dto';
+import { UpdateOrderDto } from './dto/update-order.dto';
+import { CheckoutVerificationDto } from './dto/verify-checkout.dto';
+import { Order } from './entities/order.entity';
+import { OrdersService } from './orders.service';
 
 @Controller('orders')
 // @HasRoles(Role.STORE_OWNER, Role.SUPER_ADMIN, Role.STAFF, Role.CUSTOMER)
@@ -171,7 +171,7 @@ export class OrdersController {
       default:
         break;
     }
-    this.ordersService.processChildrenOrder(order);
+    // this.ordersService.processChildrenOrder(order);
   }
   
 }

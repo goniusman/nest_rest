@@ -13,18 +13,18 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
-import {ApiBearerAuth,ApiTags} from '@nestjs/swagger';
-import {HasRoles} from 'src/auth/gurd/has-roles.decorator';
-import {JwtAuthGuard} from 'src/auth/gurd/jwt-auth.guard';
-import {Role} from 'src/auth/gurd/role.enum';
-import {RolesGuard} from 'src/auth/gurd/roles.guard';
-import {CreateUserDto} from 'src/users/dto/create-user.dto';
-import {UserPaginator} from 'src/users/dto/get-users.dto';
-import {CreateShopDto} from './dto/create-shop.dto';
-import {GetShopsDto,ShopPaginator} from './dto/get-shops.dto';
-import {GetStaffsDto} from './dto/get-staffs.dto';
-import {UpdateShopDto} from './dto/update-shop.dto';
-import {ShopsService} from './shops.service';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { HasRoles } from 'src/auth/gurd/has-roles.decorator';
+import { JwtAuthGuard } from 'src/auth/gurd/jwt-auth.guard';
+import { Role } from 'src/auth/gurd/role.enum';
+import { RolesGuard } from 'src/auth/gurd/roles.guard';
+import { CreateUserDto } from 'src/users/dto/create-user.dto';
+import { UserPaginator } from 'src/users/dto/get-users.dto';
+import { CreateShopDto } from './dto/create-shop.dto';
+import { GetShopsDto, ShopPaginator } from './dto/get-shops.dto';
+import { GetStaffsDto } from './dto/get-staffs.dto';
+import { UpdateShopDto } from './dto/update-shop.dto';
+import { ShopsService } from './shops.service';
 
 @Controller('shops')
 @ApiBearerAuth()
@@ -44,7 +44,7 @@ export class ShopsController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   async create(@Body() createShopDto: CreateShopDto, @Req() request) {
     try {
-      const isAdminOrOwner = await this.shopsService.isAdminOrOwner(createShopDto.owner_id)
+      const isAdminOrOwner = await this.shopsService.isAdminOrOwner(request.user.id)
       if(isAdminOrOwner) {
          const shopName = await this.shopsService.getShop(createShopDto.name)
         if(!shopName?._id) {
@@ -61,7 +61,7 @@ export class ShopsController {
 
         }
       }else{
-        throw new HttpException('This User not exist!'+ request?.user.name, HttpStatus.BAD_REQUEST)
+        throw new HttpException('You are not allowed to create shop!', HttpStatus.BAD_REQUEST)
 
       }
      

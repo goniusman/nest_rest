@@ -6,35 +6,36 @@ import orderStatusJson from '@db/order-statuses.json';
 // import paymentGatewayJson from '@db/payment-gateway.json';
 // import paymentIntentJson from '@db/payment-intent.json';
 import setting from '@db/settings.json';
-import {Injectable} from '@nestjs/common';
-import {InjectModel} from '@nestjs/mongoose';
-import {plainToClass} from 'class-transformer';
-import {Model} from 'mongoose';
-import {AuthService} from 'src/auth/auth.service';
-import {paginate} from 'src/common/pagination/paginate';
-import {PaymentIntent} from 'src/payment-intent/entries/payment-intent.entity';
-import {PaymentGateWay} from 'src/payment-method/entities/payment-gateway.entity';
-import {PaypalPaymentService} from 'src/payment/paypal-payment.service';
-import {StripePaymentService} from 'src/payment/stripe-payment.service';
-import {Setting} from 'src/settings/entities/setting.entity';
-import {SettingsService} from 'src/settings/settings.service';
+import { Injectable } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { plainToClass } from 'class-transformer';
+import { Model } from 'mongoose';
+import { AuthService } from 'src/auth/auth.service';
+import { paginate } from 'src/common/pagination/paginate';
+import { PaymentIntent } from 'src/payment-intent/entries/payment-intent.entity';
+import { PaymentGateWay } from 'src/payment-method/entities/payment-gateway.entity';
+import { PaypalPaymentService } from 'src/payment/paypal-payment.service';
+import { StripePaymentService } from 'src/payment/stripe-payment.service';
+import { ProductsService } from 'src/products/products.service';
+import { Setting } from 'src/settings/entities/setting.entity';
+import { SettingsService } from 'src/settings/settings.service';
 import {
   CreateOrderStatusDto,
   UpdateOrderStatusDto,
 } from './dto/create-order-status.dto';
-import {CreateOrderDto} from './dto/create-order.dto';
-import {GetOrderFilesDto} from './dto/get-downloads.dto';
+import { CreateOrderDto } from './dto/create-order.dto';
+import { GetOrderFilesDto } from './dto/get-downloads.dto';
 import {
   GetOrderStatusesDto,
   OrderStatusPaginator,
 } from './dto/get-order-statuses.dto';
-import {GetOrdersDto,OrderPaginator} from './dto/get-orders.dto';
-import {UpdateOrderDto} from './dto/update-order.dto';
+import { GetOrdersDto, OrderPaginator } from './dto/get-orders.dto';
+import { UpdateOrderDto } from './dto/update-order.dto';
 import {
   CheckoutVerificationDto,
   VerifiedCheckoutData,
 } from './dto/verify-checkout.dto';
-import {OrderStatus} from './entities/order-status.entity';
+import { OrderStatus } from './entities/order-status.entity';
 import {
   Order,
   OrderFiles,
@@ -52,6 +53,12 @@ const options = {
   keys: ['name'],
   threshold: 0.3,
 };
+
+const productOptions = {
+  keys: ['shop_id'],
+  threshold: 0.3,
+};
+
 // const fuse = new Fuse(orderStatus, options);
 
 // const orderFiles = plainToClass(OrderFiles, orderFilesJson);
@@ -74,7 +81,8 @@ export class OrdersService {
     private readonly authService: AuthService,
     private readonly stripeService: StripePaymentService,
     private readonly paypalService: PaypalPaymentService,
-    private readonly settingService: SettingsService,
+    private readonly productService: ProductsService,
+    private readonly settingService: SettingsService, 
   ) {
     // console.log(setting);
   }
@@ -94,7 +102,6 @@ export class OrdersService {
       createOrderInput.payment_intent = null;
       createOrderInput.tracking_number = this.trackingNumber()
       // set the order type and payment type
-
       switch (payment_gateway_type) {
         case PaymentGatewayType.CASH_ON_DELIVERY:
           createOrderInput.order_status = OrderStatusType.PROCESSING;
@@ -113,8 +120,43 @@ export class OrdersService {
           createOrderInput.payment_status = PaymentStatusType.PENDING;
           break;
       }
-
-      // createOrderInput.children = this.processChildrenOrder(createOrderInput);
+      let createdOrder = await this._orders.create(createOrderInput)
+      let parentOrderId = createdOrder._id
+      const allProductsIds = createOrderInput.products.map(product => product.product);
+      let products = await this.productService.getProductByIDs(allProductsIds);
+      // let fuse = new Fuse(products, productOptions);
+      const obj = {}
+      products.forEach(product => {
+        obj[product.shop_id._id] = obj[product.shop_id._id] ? obj[product.shop_id._id] + 1 : 1
+      })
+      let createChildOrder;
+      let objKeys = Object.keys(obj)
+      if(objKeys.length > 1){
+        const productsPrev = createOrderInput.products;
+        for (const key in obj) {
+          if(obj.hasOwnProperty(key)){
+            let shopId = key 
+            createOrderInput.products = productsPrev
+              const shopBaseProductIds = await products.filter((product) => { 
+                return product.shop_id.toString() === shopId
+              }) 
+              let ids = []
+              shopBaseProductIds.forEach(product => ids.push(product?._id.toString()))
+              const filteredProducts = createOrderInput.products.filter(item => ids.includes(item.product) )
+              createOrderInput.products = filteredProducts;
+              const total = await this.calculateTotal(createOrderInput.products)
+              createOrderInput.amount = total;
+              createOrderInput.total = total;
+              createOrderInput.paid_total = total;
+              createChildOrder = await this.processChildrenOrder(createOrderInput, shopId, parentOrderId);
+              createdOrder.children.push(createChildOrder?._id) 
+              await this._orders.findByIdAndUpdate(parentOrderId, createdOrder)
+          }
+        }
+      }else{
+        createdOrder.shop = objKeys[0];
+        this._orders.findByIdAndUpdate(createdOrder._id, createdOrder)
+      }
 
         // if (
         //   [
@@ -130,7 +172,7 @@ export class OrdersService {
         //   createOrderInput.payment_intent = paymentIntent;
         // }
 
-       return await this._orders.create(createOrderInput)
+       return await this._orders.findById(parentOrderId);
 
     } catch (error) {
 
@@ -147,7 +189,7 @@ export class OrdersService {
     search,
     shop_id,
   }: GetOrdersDto): Promise<OrderPaginator> {
-
+// console.log(shop_id);
     if (!page) page = 1;
     if (!limit) limit = 15;
     const startIndex = (page - 1) * limit;
@@ -156,18 +198,18 @@ export class OrdersService {
 
     if( customer_id && customer_id !== undefined ){
        data = await this._orders.find({customer:customer_id})
-       .populate('status customer')
+       .populate('status customer children parent_order')
        .populate({
         path: 'products.product',
         model: 'Product' });
     }else if(shop_id && shop_id !== undefined) {
       data = await this._orders.find({shop: shop_id})
-      .populate('status customer')
+      .populate('status customer children parent_order')
       .populate({
        path: 'products.product',
        model: 'Product' });;
     }else{
-      data = await this._orders.find().populate('status customer')
+      data = await this._orders.find({parent_order: {$exists: false}}).populate('status customer children parent_order')
       .populate({
        path: 'products.product',
        model: 'Product' });;
@@ -186,6 +228,7 @@ export class OrdersService {
 
       
       const order = await this._orders.findOne({tracking_number})
+      .populate('children parent_order')
       .populate({
         path: 'status',
         model: 'OrderStatus'
@@ -339,12 +382,49 @@ export class OrdersService {
    * @param order
    * @returns Children[]
    */
-  processChildrenOrder(order: Order) {
-    return [...order.children].map((child) => {
-      child.order_status = order.order_status;
-      child.payment_status = order.payment_status;
-      return child;
-    });
+  async processChildrenOrder(createOrderInput: CreateOrderDto, shopId, parentOrderId) {
+   
+    try {
+      
+   
+    const payment_gateway_type = createOrderInput.payment_gateway
+        ? createOrderInput.payment_gateway
+        : PaymentGatewayType.CASH_ON_DELIVERY;
+
+      createOrderInput.payment_gateway = payment_gateway_type;
+      createOrderInput.payment_intent = null;
+      createOrderInput.tracking_number = this.trackingNumber()
+      // set the order type and payment type
+
+      switch (payment_gateway_type) {
+        case PaymentGatewayType.CASH_ON_DELIVERY:
+          createOrderInput.order_status = OrderStatusType.PROCESSING;
+          createOrderInput.payment_status = PaymentStatusType.CASH_ON_DELIVERY;
+          break;
+        case PaymentGatewayType.CASH:
+          createOrderInput.order_status = OrderStatusType.PROCESSING;
+          createOrderInput.payment_status = PaymentStatusType.CASH;
+          break;
+        case PaymentGatewayType.FULL_WALLET_PAYMENT:
+          createOrderInput.order_status = OrderStatusType.COMPLETED;
+          createOrderInput.payment_status = PaymentStatusType.WALLET;
+          break;
+        default:
+          createOrderInput.order_status = OrderStatusType.PENDING;
+          createOrderInput.payment_status = PaymentStatusType.PENDING;
+          break;
+      }
+
+      createOrderInput.shop = shopId;
+      createOrderInput.parent_order = parentOrderId
+
+      return await this._orders.create(createOrderInput)
+
+      // return {}
+    } catch (error) {
+      throw error;
+    }
+
   }
   /**
    * This action will return Payment Intent
@@ -487,6 +567,32 @@ export class OrdersService {
   };
   
 
+   calculateItemTotals = (items: any[]) =>
+    items.map((item) => ({
+      ...item,
+      itemTotal: item.price * item.quantity!,
+    }));
 
+  calculateTotal = (items: any[]) =>
+    items.reduce((total, item) => total + item.order_quantity! * item.unit_price, 0);
+
+  calculateTotalItems = (items: any[]) =>
+    items.reduce((sum, item) => sum + item.quantity!, 0);
+
+  calculateUniqueItems = (items: any[]) => items.length;
+  
 
 }
+
+
+
+
+// product: product?.productId ? product?.productId : product?._id,
+// ...(product?.variationId
+//   ? { variation_option_id: product?.variationId }
+//   : {}),
+// order_quantity: product?.quantity,
+// unit_price: product?.price,
+// subtotal: product?.itemTotal,
+
+

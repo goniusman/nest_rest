@@ -4,17 +4,18 @@ import { AuthModule } from 'src/auth/auth.module';
 import { PaymentIntentSchema } from 'src/payment-intent/entries/payment-intent.entity';
 import { PaymentGateWaySchema } from 'src/payment-method/entities/payment-gateway.entity';
 import { PaymentModule } from 'src/payment/payment.module';
+import { ProductsModule } from 'src/products/products.module';
+import { SettingsModule } from 'src/settings/settings.module';
 import { OrderStatusSchema } from './entities/order-status.entity';
 import { OrderFilesSchema, OrderSchema } from './entities/order.entity';
 import {
   DownloadInvoiceController,
   OrderExportController,
   OrderFilesController,
-  OrdersController,
   OrderStatusController,
+  OrdersController,
 } from './orders.controller';
 import { OrdersService } from './orders.service';
-import { SettingsModule } from 'src/settings/settings.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { SettingsModule } from 'src/settings/settings.module';
     AuthModule,
     PaymentModule,
     SettingsModule,
+    ProductsModule,
   ],
   controllers: [
     OrdersController,

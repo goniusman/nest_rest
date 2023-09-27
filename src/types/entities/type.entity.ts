@@ -1,4 +1,4 @@
-import {Prop, Schema, SchemaFactory} from '@nestjs/mongoose';
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose from 'mongoose';
 import { Attachment } from 'src/common/entities/attachment.entity';
 import { CoreEntity } from 'src/common/entities/core.entity';
@@ -48,6 +48,8 @@ export class Type extends CoreEntity {
  
   @Prop({type: [String], required: false, default: ["en"]})
   translated_languages: string[] = ["en"];
+  
+  _id: any;
 }
 
 
@@ -58,5 +60,5 @@ TypeSchema.pre("save", function(next) {
   next()
 })
 
-export {TypeSchema}
+export { TypeSchema };
 

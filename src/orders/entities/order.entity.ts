@@ -1,13 +1,12 @@
-import {Prop,Schema,SchemaFactory} from '@nestjs/mongoose';
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose from 'mongoose';
-import {UserAddress} from 'src/addresses/entities/address.entity';
-import {CoreEntity} from 'src/common/entities/core.entity';
-import {Coupon} from 'src/coupons/entities/coupon.entity';
-import {PaymentIntent} from 'src/payment-intent/entries/payment-intent.entity';
-import {File,OrderProductPivot,Product} from 'src/products/entities/product.entity';
-import {Shop} from 'src/shops/entities/shop.entity';
-import {User} from 'src/users/entities/user.entity';
-import {OrderStatus} from './order-status.entity';
+import { UserAddress } from 'src/addresses/entities/address.entity';
+import { CoreEntity } from 'src/common/entities/core.entity';
+import { Coupon } from 'src/coupons/entities/coupon.entity';
+import { PaymentIntent } from 'src/payment-intent/entries/payment-intent.entity';
+import { File, OrderProductPivot, Product } from 'src/products/entities/product.entity';
+import { User } from 'src/users/entities/user.entity';
+import { OrderStatus } from './order-status.entity';
 
 export enum PaymentGatewayType {
   STRIPE = 'STRIPE',
@@ -49,16 +48,13 @@ export class Order extends CoreEntity {
   @Prop({ type: String, required: false, unique:true })
   tracking_number: string;
 
-  // @Prop({ type: String, required: false })
-  // customer_id: string;
-
   @Prop({ required: false, type: mongoose.Schema.Types.ObjectId, ref: 'User', })
   customer: User;
 
   @Prop({ type: String, required: false })
   customer_contact: string;
 
-  @Prop({ required: false, type: mongoose.Schema.Types.ObjectId, ref: 'Order', })
+  @Prop({ required: false, type: mongoose.Schema.Types.ObjectId, ref: 'Order' })
   parent_order?: Order;
 
   @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Order' }], default: [] })
@@ -94,8 +90,11 @@ export class Order extends CoreEntity {
   @Prop({ required: false, type: mongoose.Schema.Types.ObjectId, ref: 'Coupon', })
   coupon?: Coupon;
 
-  @Prop({ required: false, type: mongoose.Schema.Types.ObjectId, ref: 'Shop', })
-  shop: Shop;
+  // @Prop({ required: false, type: mongoose.Schema.Types.ObjectId, ref: 'Shop', })
+  // shop?: Shop;  
+  
+  @Prop({ required: false, type: String })
+  shop?: string;
 
   @Prop({ type: Number, required: false })
   discount?: number;
@@ -128,7 +127,7 @@ export class Order extends CoreEntity {
 
 const OrderSchema = SchemaFactory.createForClass(Order)
 
-export {OrderSchema};
+export { OrderSchema };
 
 @Schema({ timestamps: true })
 export class OrderFiles extends CoreEntity {
@@ -156,5 +155,5 @@ export class OrderFiles extends CoreEntity {
 
 const OrderFilesSchema = SchemaFactory.createForClass(OrderFiles)
 
-export {OrderFilesSchema};
+export { OrderFilesSchema };
 

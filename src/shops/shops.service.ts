@@ -140,8 +140,8 @@ export class ShopsService {
   }
 
 
-  async isAdminOrOwner(owner_id:any): Promise<boolean>{
-    return await this.userService.isAdminOrOwner(owner_id);
+  async isAdminOrOwner(user_id:any): Promise<boolean>{
+    return await this.userService.isAdminOrOwner(user_id);
   }
 
 

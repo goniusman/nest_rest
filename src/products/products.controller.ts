@@ -39,15 +39,15 @@ export class ProductsController {
   async createProduct(@Req() req: any, @Body() createProductDto: CreateProductDto) {
     try {
 
-      const existProduct = await this.productsService.getProductBySlug(createProductDto.slug)
-      if (!existProduct) {
+      // const existProduct = await this.productsService.getProductBySlug(createProductDto.slug)
+      // if (!existProduct) {
 
-        return this.productsService.create(createProductDto, req.user);
+        return await this.productsService.create(createProductDto, req.user);
 
-      } else {
-        throw new HttpException('User Already Exists', HttpStatus.BAD_REQUEST)
+      // } else {
+      //   throw new HttpException('User Already Exists', HttpStatus.BAD_REQUEST)
 
-      }
+      // }
 
     } catch (error) {
 
@@ -59,7 +59,7 @@ export class ProductsController {
 
   @Get()
   async getProducts(@Query() query: GetProductsDto, @Req() req:any): Promise<ProductPaginator> {
-    console.log(query);
+    // console.log(query);
     try {
       return this.productsService.getProducts(query);
     } catch (error) {

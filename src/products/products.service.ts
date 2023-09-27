@@ -6,6 +6,7 @@ import { CategoriesService } from 'src/categories/categories.service';
 import { paginate } from 'src/common/pagination/paginate';
 import { ManufacturersService } from 'src/manufacturers/manufacturers.service';
 import { ShopsService } from 'src/shops/shops.service';
+import { TypesService } from 'src/types/types.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { GetPopularProductsDto } from './dto/get-popular-products.dto';
 import { GetProductsDto, ProductPaginator } from './dto/get-products.dto';
@@ -37,7 +38,8 @@ export class ProductsService {
     private authorService: AuthorsService,
     private manufacturerService: ManufacturersService,
     private shopService: ShopsService,
-    private catService: CategoriesService
+    private catService: CategoriesService,
+    private typeService: TypesService
 
   ) { }
 
@@ -75,42 +77,31 @@ export class ProductsService {
   }
 
   async getProducts({ limit, page, search, shop_id }: GetProductsDto, @Req() req:any = "test" ): Promise<ProductPaginator> {
+
     if (!page) page = 1;
     if (!limit) limit = 30;
     const startIndex = (page - 1) * limit;
     const endIndex = page * limit;
 
-    var data: Product[];
+    var data: Product[] = []
 
-    if(shop_id){
-       data = await this._product.find({shop_id}).lean()
-       .populate('type_id')
-       .populate('manufacturer_id')
-       .populate('shop_id')
-       .populate('author_id')
-       .populate('categories')
-     
-    }else if(search){
-
-      data = await this._product.find().lean().populate('type_id manufacturer_id categories author_id shop_id')
-      // let fuse = new Fuse(data, options);
+   if(search){
 
       const parseSearchParams = search.split(';');
-      // console.log( parseSearchParams);
       for (const [i, searchParam] of parseSearchParams.entries()) {
-        // console.log( searchParam);
+        console.log( searchParam);
         if(searchParam.includes("type")){
-          // const index = searchParam.findIndex(word => word == "type");
-          // console.log('yes');
-          // return index;
-          // console.log(parseSearchParams[i]);
-        
+          const typeStr = parseSearchParams[i]
+          const [key, value] = typeStr.split(':');
+          console.log(typeStr);
+          let type = await this.typeService.getTypeBySlug(value)
+          data = await this._product.find({type_id: type?._id}).lean().populate('type_id manufacturer_id categories author_id shop_id')
+
         }else if(searchParam.includes("categories")){
           const categoryStr = parseSearchParams[i]
           const [key, value] = categoryStr.split(':');
-
+ 
           const category = await this.catService.getCategoryBySlug(value)
-
           data = await this._product.find({
             categories: {
               $elemMatch: {
@@ -119,44 +110,36 @@ export class ProductsService {
             }
           }).lean().populate('type_id manufacturer_id categories author_id shop_id')
           
+        }else if(searchParam.includes("shop_id")){
 
-        }else{
+          const shopStr = parseSearchParams[i]
+          const [key, value] = shopStr.split(':');
+          console.log(shopStr);
+          data = await this._product.find({shop_id: value}).lean().populate('type_id manufacturer_id categories author_id shop_id')
+       
+       
+        }else if(searchParam.includes("name")){
+          const shopStr = parseSearchParams[i]
+          const [key, value] = shopStr.split(':');
+          
+          var re = new RegExp(value, 'i');
+          data = await this._product.find(
+            {$or: [{name: re },{description: re}, {status: re}]}
+          )
+          .lean()
+          .populate('type_id manufacturer_id categories author_id shop_id')
+          .exec();
+
+          // { $and: [ { $or: [{title: re },{description: re}] }, {category: value.category}, {city:value.city} ] } // working with multiple query
+          // .or([{ 'name': { $regex: re }}, { 'description': { $regex: re }}]) //// not working as expected, it's work on mongo database client
+          // console.log(data.length);
 
         }
+
       }
-   
-      
-      //  fuse = new Fuse(data, options);
 
-      // const searchText: any = [];
-      // for (const searchParam of parseSearchParams) {
-      //   const [key, value] = searchParam.split(':');
-      //   // TODO: Temp Solution
-      //   if (key !== 'slug') {
-      //     searchText.push({
-      //       [key]: value,
-      //     });
-      //   }
-      // }
-
- 
-      // data = fuse
-      // .search({
-      //   $and: searchText,
-      // })?.map(({ item }) => item)
-      
-      // console.log("searching....");
-      // console.log( fuse
-      //   .search({
-      //     $and: searchText,
-      //   })?.map(({ item }) => item));
-
-        // const [one, two] = searchText;
-
-      // data = await this._product.find( {$and:[two, one]} ).populate('type_id').populate('shop_id').populate('manufacturer_id').populate('categories').populate('author_id')
-      // data = await this._product.find({ shop_id: searchText[0].shop_id }).populate('type_id').populate('shop_id').populate('manufacturer_id')
     }else{
-      // data = await this._product.find({status:"publish"}).populate('type_id shop_id manufacturer_id author_id categories')
+      data = await this._product.find().populate('type_id shop_id manufacturer_id author_id categories user_id');
     }
 
     const results = data.slice(startIndex, endIndex);
@@ -188,6 +171,16 @@ export class ProductsService {
       ...product,
       related_products
     };
+
+  }
+
+
+  async getProductByIDs(ids: any): Promise<any> {
+    // const product = this.products.find((p) => p.slug === slug);
+    const Products = await this._product.find({ _id: { $in: ids }})
+    // .populate('shop_id author_id type_id')
+
+  return Products;
 
   }
 
