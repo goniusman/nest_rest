@@ -7,6 +7,7 @@ import {
   Param,
   Delete,
   Req,
+  Logger,
 } from '@nestjs/common';
 import { SettingsService } from './settings.service';
 import { CreateSettingDto } from './dto/create-setting.dto';
@@ -14,6 +15,7 @@ import { UpdateSettingDto } from './dto/update-setting.dto';
 
 @Controller('settings')
 export class SettingsController {
+  private readonly logger = new Logger();
   constructor(private readonly settingsService: SettingsService) {}
 
   @Post()
@@ -29,7 +31,14 @@ export class SettingsController {
 
   @Put()
   update(@Body('id') id , @Body() udpateSettingDto: UpdateSettingDto) {
-    return this.settingsService.update(id, udpateSettingDto);
+    try {
+      
+      return this.settingsService.update(id, udpateSettingDto);
+    } catch (error) {
+
+      this.logger.error(`settings/update failed: ${error}`)
+      throw error
+    }
   }
 
 

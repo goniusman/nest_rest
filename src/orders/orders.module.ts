@@ -16,6 +16,7 @@ import {
   OrdersController,
 } from './orders.controller';
 import { OrdersService } from './orders.service';
+import { ShopsModule } from 'src/shops/shops.module';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { OrdersService } from './orders.service';
     PaymentModule,
     SettingsModule,
     ProductsModule,
+    ShopsModule
   ],
   controllers: [
     OrdersController,

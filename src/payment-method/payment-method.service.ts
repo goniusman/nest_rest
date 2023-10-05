@@ -15,6 +15,8 @@ import { DefaultCart } from './dto/set-default-card.dto';
 import { UpdatePaymentMethodDto } from './dto/update-payment-method.dto';
 import { PaymentGateWay } from './entities/payment-gateway.entity';
 import { PaymentMethod } from './entities/payment-method.entity';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
 
 const paymentMethods = plainToClass(PaymentMethod, cards);
 const paymentGateways = plainToClass(PaymentGateWay, paymentGatewayJson);
@@ -22,6 +24,8 @@ const paymentGateways = plainToClass(PaymentGateWay, paymentGatewayJson);
 export class PaymentMethodService {
   private paymentMethods: PaymentMethod[] = paymentMethods;
   constructor(
+    @InjectModel('PaymentMethod') private paymentMethod : Model<PaymentMethod>,
+    @InjectModel('PaymentGateWay') private paymentGateWay : Model<PaymentGateWay>,
     private readonly authService: AuthService,
     private readonly stripeService: StripePaymentService,
     private readonly settingService: SettingsService,
@@ -56,7 +60,7 @@ export class PaymentMethodService {
     return this.paymentMethods;
   }
 
-  findOne(id: number) {
+  findOne(id: any) {
     return this.paymentMethods.find(
       (pm: PaymentMethod) => pm.id === Number(id),
     );
@@ -66,7 +70,7 @@ export class PaymentMethodService {
     return this.findOne(id);
   }
 
-  remove(id: number) {
+  remove(id: any) {
     const card: PaymentMethod = this.findOne(id);
     this.paymentMethods = [...this.paymentMethods].filter(
       (cards: PaymentMethod) => cards.id !== id,

@@ -34,7 +34,7 @@ export class AttributesService {
 
   async findByName(param: string) {
     try {
-      return await this._attr.findOne({ name: param });
+      return (await this._attr.findOne({ name: param })).populate('shop user');
 
     } catch (error) {
       throw error
@@ -43,14 +43,14 @@ export class AttributesService {
     //   (p) => p.id === Number(param) || p.slug === param,
     // );
   }
-
+ 
   async findAll({ page, limit, search }: GetAttributesArgs) {
 
       if (!page) page = 1;
       if (!limit) limit = 30;
       const startIndex = (page - 1) * limit;
       const endIndex = page * limit;
-      let data: Attribute[] = await this._attr.find();
+      let data = await this._attr.find().populate('shop');
       const fuse = new Fuse(data, options);
       if (search) {
         const parseSearchParams = search.split(';');
@@ -73,7 +73,7 @@ export class AttributesService {
 
   findOne(param: string) {
 
-    return this._attr.findOne({ slug: param });
+    return this._attr.findOne({ slug: param }).populate('shop');
     // return this.attributes.find(
     //   (p) => p.id === Number(param) || p.slug === param,
     // );
@@ -81,7 +81,7 @@ export class AttributesService {
 
   findById(id: string) {
     try {
-      return this._attr.findById(id);
+      return this._attr.findById(id).populate('shop');
     } catch (error) {
       throw error
     }

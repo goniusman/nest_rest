@@ -31,7 +31,8 @@ export class SettingsService {
   }
 
   async update(id, updateSettingDto) {
-    return await this._setting.findByIdAndUpdate(id, updateSettingDto)
+    // return await this._setting.findByIdAndUpdate(id, updateSettingDto)
+    return await this._setting.updateOne(updateSettingDto)
   }
 
   remove(id: number) {

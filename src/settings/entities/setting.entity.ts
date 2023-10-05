@@ -25,6 +25,25 @@ export class SettingsOptions extends mongoose.Document{
   contactDetails: ContactDetails;
   paymentGateway: string;
   maximumQuestionLimit: number;
+  currencyOptions: CurrencyOptions;
+  currencyToWalletRatio: number;
+  defaultAi: string;
+  defaultPaymentGateway: string;
+  emailEvent: EmailEvent;
+  freeShipping: boolean;
+  freeShippingAmount: any;
+  guestCheckout: boolean;
+  isProductReview: boolean;
+  maxShopDistance: number;
+  server_info: ServerInfo;
+  smsEvent: SmsEvent;
+  StripeCardOnly: boolean;
+  useAi: boolean;
+  useCashOnDelivery: boolean;
+  useEnableGateway: boolean;
+  useGoogleMap: boolean;
+  useMustVerifyEmail: boolean;
+
 }
 
 export class DeliveryTime extends mongoose.Document{
@@ -75,6 +94,71 @@ export class Location extends mongoose.Document  {
   country: string;
   zip?: string;
   formattedAddress: string;
+}
+
+
+export class SmsEvent {
+  admin: SmsAdmin;
+  vendor: SmsVendor;
+  customer: SmsCustomer;
+}
+export class SmsAdmin {
+  refundOrder: boolean;
+  paymentOrder: boolean;
+  statusChangeOrder: boolean;
+}
+
+export class SmsVendor {
+  refundOrder: boolean;
+  paymentOrder: boolean;
+  statusChangeOrder: boolean;
+}
+
+export class SmsCustomer {
+  refundOrder: boolean;
+  paymentOrder: boolean;
+  statusChangeOrder: boolean;
+}
+
+export class EmailEvent {
+  admin: EmailAdmin;
+  vendor: EmailVendor;
+  customer: EmailCustomer;
+}
+export class EmailAdmin {
+  refundOrder: boolean;
+  paymentOrder: boolean;
+  statusChangeOrder: boolean;
+}
+
+export class EmailVendor {
+  refundOrder: boolean;
+  createReview: boolean;
+  paymentOrder: boolean;
+  createQuestion: boolean;
+  statusChangeOrder: boolean;
+}
+
+export class EmailCustomer {
+  refundOrder: boolean;
+  paymentOrder: boolean;
+  answerQuestion: boolean;
+  statusChangeOrder: boolean;
+}
+export class ServerInfo {
+  memory_limit: string;
+  post_max_size: number;
+  max_input_time: string;
+  max_execution_time: string;
+  upload_max_filesize: number;
+}
+export class PaymentGateway {
+  name: string;
+  title: string;
+}
+export class CurrencyOptions {
+  formation: string;
+  fractions: number;
 }
 
 @Schema({timestamps: true})

@@ -43,6 +43,7 @@ import {
   PaymentGatewayType,
   PaymentStatusType,
 } from './entities/order.entity';
+import { ShopsService } from 'src/shops/shops.service';
 
 // const orders = plainToClass(Order, ordersJson);
 const orderStatus = plainToClass(OrderStatus, orderStatusJson);
@@ -82,6 +83,7 @@ export class OrdersService {
     private readonly stripeService: StripePaymentService,
     private readonly paypalService: PaypalPaymentService,
     private readonly productService: ProductsService,
+    private readonly shopService: ShopsService, 
     private readonly settingService: SettingsService, 
   ) {
     // console.log(setting);
@@ -151,10 +153,17 @@ export class OrdersService {
               createChildOrder = await this.processChildrenOrder(createOrderInput, shopId, parentOrderId);
               createdOrder.children.push(createChildOrder?._id) 
               await this._orders.findByIdAndUpdate(parentOrderId, createdOrder)
+              let shop = await this.shopService.getShopById(shopId)
+              shop?.orders_count.push(createChildOrder?._id) 
+              await this.shopService.update(shopId, shop)
           }
         }
       }else{
-        createdOrder.shop = objKeys[0];
+        let shopId = objKeys[0]
+        let shop = await this.shopService.getShopById(shopId)
+         shop?.orders_count.push(parentOrderId) 
+         await this.shopService.update(shopId, shop)
+        createdOrder.shop = shopId;
         this._orders.findByIdAndUpdate(createdOrder._id, createdOrder)
       }
 

@@ -145,9 +145,9 @@ export class ShopsService {
   }
 
 
-  getShopById(id: any) {
+  async getShopById(id: any) {
     // console.log(id);
-    return this._shop.findById(id);
+    return await this._shop.findById(id);
   }
 
 

@@ -31,12 +31,29 @@ export class QuestionController {
   // In product single page front-end all the questions apperaed. It should be based on product ID.
   @Get()
   findAll(@Query() query: GetQuestionDto) {
-    return this.questionService.findAllQuestions(query);
+    try {
+      
+      return this.questionService.findAllQuestions(query);
+    // }else{
+    //   throw new HttpException('ID Should not be emapty', HttpStatus.BAD_REQUEST)
+    // }
+
+    } catch (error) {
+      this.logger.error(`Question/findAll failed: ${error}`)
+      throw error
+    }
+
   }
   // show one
   @Get(':id')
   find(@Param('id') id: string) {
-    return this.questionService.findQuestion(id);
+    try {
+      return this.questionService.findQuestion(id);
+    } catch (error) {
+      this.logger.error(`Question/findAll failed: ${error}`)
+      throw error
+    }
+
   }
   // create
   @Post()
@@ -58,12 +75,25 @@ export class QuestionController {
     @Param('id') id: string,
     @Body() updateQuestionDto: UpdateQuestionDto,
   ) {
-    return this.questionService.update(id, updateQuestionDto);
+    try {
+      return this.questionService.update(id, updateQuestionDto);
+    } catch (error) {
+      this.logger.error(`Question/update failed: ${error}`)
+      throw error
+    }
+
+   
   }
 
   // delete
   @Delete(':id')
   delete(@Param('id') id: string) {
-    return this.questionService.delete(id);
+    try {
+      return this.questionService.delete(id);
+    } catch (error) {
+      this.logger.error(`Question/delete failed: ${error}`)
+      throw error
+    }
+
   }
 }

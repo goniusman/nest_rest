@@ -4,7 +4,7 @@
 
   // config related to code formatting
   "editor.defaultFormatter": "esbenp.prettier-vscode",
-  "editor.formatOnSave": true,
+  "editor.formatOnSave": false,
   "[javascript]": {
     "editor.formatOnSave": false,
     "editor.defaultFormatter": null
@@ -15,13 +15,13 @@
   },
   "javascript.validate.enable": false, //disable all built-in syntax checking
   "editor.codeActionsOnSave": {
-    "source.fixAll.eslint": true,
-    "source.fixAll.tslint": true,
-    "source.organizeImports": true
+    "source.fixAll.eslint": false,
+    "source.fixAll.tslint": false,
+    "source.organizeImports": false
   },
-  "eslint.alwaysShowStatus": true,
+  "eslint.alwaysShowStatus": false,
   // emmet
-  "emmet.triggerExpansionOnTab": true,
+  "emmet.triggerExpansionOnTab": false,
   "emmet.includeLanguages": {
     "javascript": "javascriptreact"
   }

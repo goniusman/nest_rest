@@ -7,6 +7,10 @@ import Fuse from 'fuse.js';
 import { paginate } from 'src/common/pagination/paginate';
 import { CreateStoreNoticeDto } from './dto/create-store-notice.dto';
 import { UpdateStoreNoticeDto } from './dto/update-store-notice.dto';
+import { GetUsersDto } from 'src/users/dto/get-users.dto';
+import { UsersService } from 'src/users/users.service';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
 
 const storeNotices = plainToClass(StoreNotice, storeNoticesJson);
 const options = {
@@ -19,16 +23,23 @@ const fuse = new Fuse(storeNotices, options);
 export class StoreNoticesService {
   private storeNotices: StoreNotice[] = storeNotices;
 
-  create(createStoreNoticeDto: CreateStoreNoticeDto) {
-    return this.storeNotices[0];
+
+  constructor(
+    @InjectModel('StoreNotice') private storeNotice: Model<StoreNotice>,
+    private readonly userService: UsersService
+    ) {}
+
+
+  async create(createStoreNoticeDto: CreateStoreNoticeDto) {
+    return await this.storeNotice.create(createStoreNoticeDto);
   }
 
-  getStoreNotices({ search, limit, page }: GetStoreNoticesDto) {
+  async getStoreNotices({ search, limit, page }: GetStoreNoticesDto) {
     if (!page) page = 1;
     if (!limit) limit = 12;
     const startIndex = (page - 1) * limit;
     const endIndex = page * limit;
-    let data: StoreNotice[] = this.storeNotices;
+    let data: StoreNotice[] = await this.storeNotice.find().populate('created_by received_by');
 
     if (search) {
       const parseSearchParams = search.split(';');
@@ -59,14 +70,18 @@ export class StoreNoticesService {
   }
 
   getStoreNotice(param: string, language: string) {
-    return this.storeNotices.find((p) => p.id === Number(param));
+    return this.storeNotice.findOne({_id: param}).populate('created_by received_by');
   }
 
-  update(id: number, updateStoreNoticeDto: UpdateStoreNoticeDto) {
-    return this.storeNotices[0];
+  async getUsersNotify({ limit }: GetUsersDto) {
+     return await this.userService.getUsersNotify();
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} store notice`;
+  update(id: any, updateStoreNoticeDto: UpdateStoreNoticeDto) {
+    return this.storeNotice.findByIdAndUpdate(id, updateStoreNoticeDto);
+  }
+
+  remove(id: any) {
+    return this.storeNotice.findByIdAndDelete(id);
   }
 }

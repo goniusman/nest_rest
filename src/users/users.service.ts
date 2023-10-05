@@ -140,9 +140,11 @@ export class UsersService {
   }
 
 
-  getUsersNotify({ limit }: GetUsersDto): User[] {
-    const data: any = this.users;
-    return data?.slice(0, limit);
+  async getUsersNotify() {
+    return await this.users.find({permissions: {
+      $in: [Permission.STAFF, Permission.STORE_OWNER, Permission.SUPER_ADMIN]
+    }});
+
   }
 
 

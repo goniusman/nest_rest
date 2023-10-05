@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory, raw } from '@nestjs/mongoose';
-import mongoose from 'mongoose';
+import mongoose, { Types } from 'mongoose';
 import { Attachment } from 'src/common/entities/attachment.entity';
 import { CoreEntity } from 'src/common/entities/core.entity';
 import { Order } from 'src/orders/entities/order.entity';
@@ -63,10 +63,9 @@ export class Shop extends CoreEntity {
   @Prop({ required: false, type: Boolean, default: false })
   is_active: boolean;
 
-  @Prop({  type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Order'}], default: [] })
-  orders_count: Order[] = [];
-  ;
-
+  @Prop({ type: [Types.ObjectId], required: false, default: [] })
+  orders_count: Types.ObjectId[] = [];
+  
   @Prop({type: [{type: mongoose.Schema.Types.ObjectId, ref: 'Product'}], required:false, default: []})
   products_count?: string[];
 

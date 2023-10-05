@@ -131,7 +131,7 @@ export class StaffsController {
         const createdStaff = await this.shopsService.createStaff(createStaffDto)
 
         if(createdStaff._id){
-          const shop = await this.shopsService.getShopById(createStaffDto.shop_id).exec()
+          const shop = await this.shopsService.getShopById(createStaffDto.shop_id)
           if(shop._id){
             shop.staffs.push(createdStaff._id)
             const shopUpdate = await this.shopsService.update(shop._id.toString(), shop)
