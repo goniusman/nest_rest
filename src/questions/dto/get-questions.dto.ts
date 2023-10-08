@@ -12,7 +12,7 @@ export class GetQuestionDto extends PaginationArgs {
   sortedBy?: SortOrder;
   search?: string;
   answer?: string;
-  product_id?: string;
+  product?: string;
 }
 
 export enum QueryReviewsOrderByColumn {

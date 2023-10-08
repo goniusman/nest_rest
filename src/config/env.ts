@@ -7,12 +7,12 @@ export default () => ({
   // Add your own properties here however you'd like
   // port: parseInt(process.env.PORT, 10) || 3000,
   db: {
-    host: process.env.MONGODB_URI || 'mongodb://127.0.0.1',
-    port: process.env.MONGODB_PORT || 27017
+    host: process.env.MONGODB_URI ,
+    port: process.env.MONGODB_PORT 
   },
   redis: {
-    host: process.env.REDIS_URI || 'localhost',
-    port: process.env.REDIS_PORT || 6379
+    host: process.env.REDIS_URI ,
+    port: process.env.REDIS_PORT 
   },
   mailer: {
     host: process.env.MAIL_HOST,

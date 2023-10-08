@@ -52,7 +52,7 @@ export class Review extends CoreEntity {
   negative_feedbacks_count: User[] = [];
 
   @Prop({type: [{type: mongoose.Schema.Types.ObjectId, ref: 'Report'}], default: []})
-  abusive_reports: Report[];
+  abusive_reports: Report[] = [];
 
   @Prop({ required: false, type: String })
   variation_option_id: string;

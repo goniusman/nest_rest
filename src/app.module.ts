@@ -99,7 +99,7 @@ const mongo = db.host ? `${db.host}:${db.port}` : 'mongodb://127.0.0.1:27018';
 
     // }),
 
-    MongooseModule.forRoot(mongo, {
+    MongooseModule.forRoot(`mongodb://pickbazar:OsmanGoni@36.255.70.224:27017?authSource=pickbazar`, {
       dbName: 'pickbazar',
       connectionFactory: (connection) => {
         // eslint-disable-next-line @typescript-eslint/no-var-requires

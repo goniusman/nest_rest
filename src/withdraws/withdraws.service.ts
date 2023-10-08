@@ -64,7 +64,7 @@ export class WithdrawsService {
     return await this._withdraw.findById(id);
   }
 
-  async update(id: string, updateWithdrawDto: ApproveWithdrawDto) {
+  async update(id: any, updateWithdrawDto: ApproveWithdrawDto) {
     return await this._withdraw.findByIdAndUpdate(id, updateWithdrawDto);
   }
 

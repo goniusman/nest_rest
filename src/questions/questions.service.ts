@@ -29,13 +29,13 @@ constructor (@InjectModel('Question') private _questions: Model<Question>) {}
     page,
     search,
     answer,
-    product_id,
+    product,
   }: GetQuestionDto) {
     if (!page) page = 1;
     if (!limit) limit = 10;
     const startIndex = (page - 1) * limit;
     const endIndex = page * limit;
-    let data: Question[] = await this._questions.find();
+    let data: Question[] = await this._questions.find().populate('user product');
 
     if (search) {
       const parseSearchParams = search.split(';');
@@ -45,7 +45,7 @@ constructor (@InjectModel('Question') private _questions: Model<Question>) {}
       }
     }
 
-    if (product_id) {
+    if (product) {
       // data = data.filter((p) => p.product_id === Number(product_id));
     }
 

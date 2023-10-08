@@ -29,7 +29,7 @@ export class ReviewService {
     if (!limit) limit = 30;
     const startIndex = (page - 1) * limit;
     const endIndex = page * limit;
-    let data = await this._reviews.find().populate('customer');
+    let data = await this._reviews.find().populate('customer product order shop');
     const fuse = new Fuse(data, options);
     if (search) {
       const parseSearchParams = search.split(';');

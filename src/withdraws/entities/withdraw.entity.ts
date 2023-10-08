@@ -4,11 +4,11 @@ import { CoreEntity } from 'src/common/entities/core.entity';
 import { Shop } from 'src/shops/entities/shop.entity';
 
 export enum WithdrawStatus {
-  APPROVED = 'Approved',
-  PENDING = 'Pending',
-  ON_HOLD = 'On hold',
-  REJECTED = 'Rejected',
-  PROCESSING = 'Processing',
+  APPROVED = 'approved',
+  PENDING = 'pending',
+  ON_HOLD = 'on_hold',
+  REJECTED = 'rejected',
+  PROCESSING = 'processing',
 }
 
 @Schema({timestamps: true})

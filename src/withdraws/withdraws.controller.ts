@@ -69,15 +69,16 @@ export class WithdrawsController {
     }
 
   }
-  @Post(':id/approve')
+  @Post('approve-withdraw')
   approveWithdraw(
     @Param('id') id: string,
     @Body() updateWithdrawDto: ApproveWithdrawDto,
   ) {
-
+// console.log(id);
+console.log(updateWithdrawDto);
     try {
       
-      return this.withdrawsService.update(id, updateWithdrawDto);
+      return this.withdrawsService.update(updateWithdrawDto.id, updateWithdrawDto);
 
     } catch (error) {
       this.logger.error(`Withdraws/approveWithdraw failed: ${error} user is ${id}`)
