@@ -129,7 +129,7 @@ export class OrdersService {
       // let fuse = new Fuse(products, productOptions);
       const obj = {}
       products.forEach(product => {
-        obj[product.shop_id._id] = obj[product.shop_id._id] ? obj[product.shop_id._id] + 1 : 1
+        obj[product?.shop?._id] = obj[product?.shop?._id] ? obj[product?.shop?._id] + 1 : 1
       })
       let createChildOrder;
       let objKeys = Object.keys(obj)
@@ -140,7 +140,7 @@ export class OrdersService {
             let shopId = key 
             createOrderInput.products = productsPrev
               const shopBaseProductIds = await products.filter((product) => { 
-                return product.shop_id.toString() === shopId
+                return product.shop.toString() === shopId
               }) 
               let ids = []
               shopBaseProductIds.forEach(product => ids.push(product?._id.toString()))

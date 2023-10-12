@@ -20,7 +20,7 @@ const options = {
     'type.slug',
     'categories.slug',
     'status',
-    'shop_id',
+    'shop',
     'author.slug',
     'tags',
     'manufacturer.slug',
@@ -45,24 +45,24 @@ export class ProductsService {
 
   async create(createProductDto: CreateProductDto, user: any) {
     try {
-      createProductDto.user_id = user.id;
+      createProductDto.user = user.id;
       const createdProduct = await this._product.create(createProductDto)
 
       if (createdProduct?._id) {
 
-        if(createProductDto?.author_id){
-             const author = await this.authorService.getAuthorById(createProductDto.author_id);
+        if(createProductDto?.author){
+             const author = await this.authorService.getAuthorById(createProductDto.author);
         author?.products_count.push(createdProduct._id.toString())
         this.authorService.updateAuthor(author?._id.toString(), author)
         }
      
-        if(createProductDto?.manufacturer_id){
-          const manufacturer = await this.manufacturerService.getManufacturesById(createProductDto.manufacturer_id);
+        if(createProductDto?.manufacturer){
+          const manufacturer = await this.manufacturerService.getManufacturesById(createProductDto.manufacturer);
           manufacturer?.products_count.push(createdProduct._id.toString())
           await this.manufacturerService.update(manufacturer?._id.toString(), manufacturer)
         }
-        if(createProductDto.shop_id){
-            const shopId = createProductDto.shop_id.toString()
+        if(createProductDto.shop){
+            const shopId = createProductDto.shop.toString()
           const shop = await this.shopService.getShopById(shopId);
           shop?.products_count.push(createdProduct._id.toString())
           await this.shopService.update(shop?._id.toString(), shop) 
@@ -76,7 +76,7 @@ export class ProductsService {
     }
   }
 
-  async getProducts({ limit, page, search, shop_id }: GetProductsDto, @Req() req:any = "test" ): Promise<ProductPaginator> {
+  async getProducts({ limit, page, search, shop }: GetProductsDto, @Req() req:any = "test" ): Promise<ProductPaginator> {
 
     if (!page) page = 1;
     if (!limit) limit = 30;
@@ -89,13 +89,17 @@ export class ProductsService {
 
       const parseSearchParams = search.split(';');
       for (const [i, searchParam] of parseSearchParams.entries()) {
-        console.log( searchParam);
+        // console.log( searchParam);
         if(searchParam.includes("type")){
           const typeStr = parseSearchParams[i]
           const [key, value] = typeStr.split(':');
-          console.log(typeStr);
+          // console.log(typeStr);
           let type = await this.typeService.getTypeBySlug(value)
-          data = await this._product.find({type_id: type?._id}).lean().populate('type_id manufacturer_id categories author_id shop_id')
+          data = await this._product.find({type: type?._id}).lean().populate({
+            path: 'categories',
+            model: 'Category'
+           }).populate('type shop manufacturer author user')
+          
 
         }else if(searchParam.includes("categories")){
           const categoryStr = parseSearchParams[i]
@@ -108,14 +112,20 @@ export class ProductsService {
                 $in: [category?._id] 
               }
             }
-          }).lean().populate('type_id manufacturer_id categories author_id shop_id')
+          }).lean().populate('type shop manufacturer author user') .populate({
+            path: 'categories',
+            model: 'Category'
+           })
           
-        }else if(searchParam.includes("shop_id")){
+        }else if(searchParam.includes("shop")){
 
           const shopStr = parseSearchParams[i]
           const [key, value] = shopStr.split(':');
           console.log(shopStr);
-          data = await this._product.find({shop_id: value}).lean().populate('type_id manufacturer_id categories author_id shop_id')
+          data = await this._product.find({shop: value}).lean().populate('type shop manufacturer author user').populate({
+            path: 'categories',
+            model: 'Category'
+           })
        
        
         }else if(searchParam.includes("name")){
@@ -127,7 +137,10 @@ export class ProductsService {
             {$or: [{name: re },{description: re}, {status: re}]}
           )
           .lean()
-          .populate('type_id manufacturer_id categories author_id shop_id')
+          .populate('type shop manufacturer author user').populate({
+            path: 'categories',
+            model: 'Category'
+           })
           .exec();
 
           // { $and: [ { $or: [{title: re },{description: re}] }, {category: value.category}, {city:value.city} ] } // working with multiple query
@@ -139,7 +152,8 @@ export class ProductsService {
       }
 
     }else{
-      data = await this._product.find().populate('type_id shop_id manufacturer_id author_id categories user_id');
+      // console.log('yes here');
+      data = await this._product.find().populate('type shop manufacturer author user categories tags')
     }
 
     const results = data.slice(startIndex, endIndex);
@@ -147,12 +161,12 @@ export class ProductsService {
     return {
       data: results,
       ...paginate(data.length, page, limit, data.length, url),
-    };
+    }; 
   }
 
   async getProductBySlug(slug: string): Promise<Product> {
     // const product = this.products.find((p) => p.slug === slug);
-    const test = (await this._product.findOne({ slug: slug }).populate('shop_id').populate('type_id')).populate('author_id');
+    const test = await this._product.findOne({ slug: slug }).populate('type shop manufacturer author user categories tags')
     // let product
     // if(test && test?._doc){
      const product = (await test)?._doc
@@ -162,8 +176,8 @@ export class ProductsService {
     //   .filter((p) => p.type.slug === product.type.slug)
     //   .slice(0, 20);
     const related_products = await this._product.find({
-      type_id: product?.type_id
-    }).limit(10)
+      type: product?.type
+    }).populate('type shop manufacturer author user categories tags').limit(10)
 
     // return product;
 
@@ -178,19 +192,24 @@ export class ProductsService {
   async getProductByIDs(ids: any): Promise<any> {
     // const product = this.products.find((p) => p.slug === slug);
     const Products = await this._product.find({ _id: { $in: ids }})
-    // .populate('shop_id author_id type_id')
+    .populate('type shop manufacturer author user categories tags')
 
   return Products;
 
   }
 
   async getPopularProducts({ limit, type_slug }: GetPopularProductsDto): Promise< Product[]> {
-    const data: any = await this._product.find({type: {slug: type_slug}}).populate('type_id').limit(limit);
+
+    // const data: any = await this._product.find({type: {slug: type_slug}}).populate({
+    //   path: 'categories',
+    //   model: 'Category'
+    //  }).populate('type shop manufacturer author user').limit(limit);
     // const fuse = new Fuse(data, options);
     // if (type_slug) {
     //   data = fuse.search(type_slug)?.map(({ item }) => item);
     // }
-    return data;
+    return await this._product.find().populate('type shop manufacturer author user');
+    
   }
 
   update(id: string, updateProductDto: UpdateProductDto) {

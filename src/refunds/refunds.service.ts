@@ -22,10 +22,10 @@ export class RefundsService {
     try {
          let refunds = []
     if(user_id){
-      refunds =  await this._refund.find({customer:user_id}).populate('order_id customer')
+      refunds =  await this._refund.find({customer:user_id}).populate('order customer')
 
     }else{
-      refunds =  await this._refund.find().populate('order_id customer')
+      refunds =  await this._refund.find().populate('order customer')
 
     }
     return refunds;

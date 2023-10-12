@@ -3,6 +3,9 @@ import {
   Controller,
   Delete,
   Get,
+  HttpCode,
+  HttpException,
+  HttpStatus,
   Logger,
   Param,
   Post,
@@ -19,6 +22,7 @@ import { CreateWishlistDto } from './dto/create-wishlists.dto';
 import { GetWishlistDto } from './dto/get-wishlists.dto';
 import { UpdateWishlistDto } from './dto/update-wishlists.dto';
 import { WishlistsService } from './wishlists.service';
+import { Exception } from 'handlebars';
 @Controller('wishlists')
 // @HasRoles(Role.STORE_OWNER, Role.SUPER_ADMIN, Role.CUSTOMER)
 // @UseGuards(JwtAuthGuard, RolesGuard)
@@ -40,13 +44,14 @@ export class WishlistsController {
     // }
 
     } catch (error) {
-      this.logger.error(`wishlists/create failed: ${error} user is ${createWishlistDto?.user}`)
+      this.logger.error(`wishlists/create failed: ${error} user is ${createWishlistDto?.customer}`)
       throw error
     }
   }
 
   // Get All
   @Get()
+
   findAll(@Query() query: GetWishlistDto) {
     try {
       
@@ -107,7 +112,7 @@ export class WishlistsController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   toggle(@Body() CreateWishlistDto: CreateWishlistDto, @Req() req) {
     try {
-     return this.wishlistService.toggle(CreateWishlistDto, req.user);
+     return this.wishlistService.toggle(CreateWishlistDto, req?.user);
     } catch (error) {
       this.logger.error(`wishlists/toggle failed: ${error}`)
       throw error
@@ -117,9 +122,15 @@ export class WishlistsController {
 
   // /in_wishlist/{product_id}
   @Get('/in_wishlist/:product_id')
-  inWishlist(@Param('product_id') id: any) {
+  @HasRoles(Role.STORE_OWNER, Role.SUPER_ADMIN, Role.CUSTOMER)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  inWishlist(@Param('product_id') id: any, @Req() req: any) {
     try {
-      return this.wishlistService.isInWishlist(id);
+      if(req?.user){
+        return this.wishlistService.isInWishlist( id, req?.user);
+      }else{
+        throw new HttpException("You are not login", HttpStatus.BAD_GATEWAY)
+      }
     } catch (error) {
       this.logger.error(`wishlists/in_wishlist/:product_id failed: ${error}`)
       throw error

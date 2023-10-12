@@ -21,6 +21,7 @@ import { HasRoles } from 'src/auth/gurd/has-roles.decorator';
 import { JwtAuthGuard } from 'src/auth/gurd/jwt-auth.guard';
 import { Role } from 'src/auth/gurd/role.enum';
 import { RolesGuard } from 'src/auth/gurd/roles.guard';
+import { cli } from 'winston/lib/winston/config';
 
 
 @Controller('store-notices')
@@ -52,7 +53,7 @@ export class StoreNoticesController {
   @Get()
   getStoreNotices(@Query() query: GetStoreNoticesDto) {
 
-
+  console.log(query)
     try {
       
       return this.storeNoticesService.getStoreNotices(query);

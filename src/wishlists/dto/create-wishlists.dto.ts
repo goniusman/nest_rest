@@ -5,5 +5,5 @@ import {Wishlist} from '../entities/wishlist.entity';
 
 export class CreateWishlistDto extends PartialType(Wishlist) {
   product_id?: Product;
-  user?: User;
+  customer?: User;
 }

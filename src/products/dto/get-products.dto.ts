@@ -10,7 +10,7 @@ export class ProductPaginator extends Paginator<Product> {
 export class GetProductsDto extends PaginationArgs {
   orderBy?: string;
   sortedBy?: string;
-  shop_id?: string;
+  shop?: string;
   searchJoin?: string;
   search?: string;
   date_range?: string;

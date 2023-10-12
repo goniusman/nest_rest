@@ -32,15 +32,15 @@ export class AttributesController {
   @Post()
   async create(@Body() createAttributeDto: CreateAttributeDto) {
     try {
-
-      const existAttribute = await this.attributesService.findByName(createAttributeDto.name)
-      if (!existAttribute) {
+ 
+      // const existAttribute = await this.attributesService.findByName(createAttributeDto.name)
+      // if (!existAttribute) {
 
         return await this.attributesService.create(createAttributeDto);
-      } else {
-        throw new HttpException('User Already Exists', HttpStatus.BAD_REQUEST)
+      // } else {
+      //   throw new HttpException('Attributes Already Exists', HttpStatus.BAD_REQUEST)
 
-      }
+      // }
 
     } catch (error) {
 
@@ -54,7 +54,7 @@ export class AttributesController {
 
   @Get()
   async findAll(@Query() query: GetAttributesArgs): Promise<AttributePaginator> {
-
+console.log(query);
     try {
 
       return await this.attributesService.findAll(query);

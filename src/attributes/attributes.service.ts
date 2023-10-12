@@ -44,7 +44,7 @@ export class AttributesService {
     // );
   }
  
-  async findAll({ page, limit, search }: GetAttributesArgs) {
+  async findAll({ page, limit, search, shop }: GetAttributesArgs) {
 
       if (!page) page = 1;
       if (!limit) limit = 30;
@@ -52,6 +52,12 @@ export class AttributesService {
       const endIndex = page * limit;
       let data = await this._attr.find().populate('shop');
       const fuse = new Fuse(data, options);
+
+      if(shop){
+        data = await this._attr.find({shop}).populate('shop');
+      }
+
+
       if (search) {
         const parseSearchParams = search.split(';');
         for (const searchParam of parseSearchParams) {
@@ -61,6 +67,7 @@ export class AttributesService {
           // data = await this._attr.find({ name: value }).exec()
         }
       }
+
       const results = data.slice(startIndex, endIndex);
       const url = `/attributes?search=${search}&limit=${limit}`;
       return {

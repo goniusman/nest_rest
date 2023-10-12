@@ -40,7 +40,7 @@ export class StoreNotice extends CoreEntity {
   users?: User[];
 
   @Prop({type: [{type: mongoose.Schema.Types.ObjectId, ref: "User", required: false}], default: []})
-  received_by?: User;
+  received_by: User;
 
   @Prop({type: mongoose.Schema.Types.ObjectId, ref: "User", required: false})
   created_by: string;

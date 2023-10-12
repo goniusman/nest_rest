@@ -4,11 +4,11 @@ import { CoreEntity } from 'src/common/entities/core.entity';
 import { Shop } from 'src/shops/entities/shop.entity';
 
 export enum WithdrawStatus {
-  APPROVED = 'approved',
   PENDING = 'pending',
+  PROCESSING = 'processing',
+  APPROVED = 'approved',
   ON_HOLD = 'on_hold',
   REJECTED = 'rejected',
-  PROCESSING = 'processing',
 }
 
 @Schema({timestamps: true})
@@ -17,7 +17,7 @@ export class Withdraw extends CoreEntity {
   @Prop({type: Number, required: true})
   amount: number;
 
-  @Prop({type: String, required: true, enum: WithdrawStatus, default: WithdrawStatus.APPROVED})
+  @Prop({type: String, required: true, enum: WithdrawStatus, default: WithdrawStatus.PENDING})
   status: WithdrawStatus;
 
   @Prop({type:  mongoose.Schema.Types.ObjectId, ref: 'Shop'})

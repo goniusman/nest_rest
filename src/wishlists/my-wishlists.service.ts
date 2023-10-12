@@ -34,13 +34,13 @@ export class MyWishlistService {
     }
   }
 
-  async findAMyWishlists({ limit, page, search }: GetWishlistDto) {
+  async findAMyWishlists({ limit, page, search }: GetWishlistDto, user) {
     if (!page) page = 1;
     if (!limit) limit = 30;
     const startIndex = (page - 1) * limit;
     const endIndex = page * limit;
 
-    let data: Wishlist[] = await this._wishlist.find().populate('products_id').populate('user');
+    let data: Wishlist[] = await this._wishlist.find({user: user.id}).populate('products_id').populate('user');
     const results = data.slice(startIndex, endIndex);
     const url = `/my-wishlists?with=shop&orderBy=created_at&sortedBy=desc`;
     return {

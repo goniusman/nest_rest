@@ -6,10 +6,9 @@ import { User } from 'src/users/entities/user.entity';
 
 @Schema({ timestamps: true })
 export class Wishlist extends CoreEntity {
-  @Prop({
-    type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Product' }],
-    default: [],
-  })
+
+
+  @Prop({type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Product' }],default: []})
   products_id: Product[] = [];
 
   // @Prop({
@@ -18,11 +17,11 @@ export class Wishlist extends CoreEntity {
   // })
   // product_id: Product;
 
-  @Prop({
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-  })
-  user: User;
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User' })
+  // @Prop({type: String, required: true})
+  customer: User;
+
+
 }
 
 const WishlistSchema = SchemaFactory.createForClass(Wishlist);

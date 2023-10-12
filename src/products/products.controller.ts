@@ -23,6 +23,7 @@ import { GetProductsDto, ProductPaginator } from './dto/get-products.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { Product } from './entities/product.entity';
 import { ProductsService } from './products.service';
+import { cli } from 'winston/lib/winston/config';
 
 @Controller('products')
 // @HasRoles(Role.STORE_OWNER, Role.SUPER_ADMIN, Role.STAFF)
@@ -121,8 +122,11 @@ export class ProductsController {
 @Controller('popular-products')
 export class PopularProductsController {
   constructor(private readonly productsService: ProductsService) {}
+
   @Get()
   async getProducts(@Query() query: GetPopularProductsDto): Promise<Product[]> {
+    console.log(query);
     return this.productsService.getPopularProducts(query);
   }
+  
 }

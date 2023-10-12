@@ -11,7 +11,7 @@ export class AttributePaginator extends Paginator<Attribute> {
 }
 export class GetAttributesArgs extends PaginationArgs {
   orderBy?: QueryAttributesOrderByOrderByClause[];
-  shop?: number;
+  shop?: any;
   search?: string;
   language?: string;
 }

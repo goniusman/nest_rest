@@ -64,22 +64,22 @@ export class Product extends CoreEntity {
   slug: string;
 
   @Prop({  type: mongoose.Schema.Types.ObjectId, ref: 'Type' , required: false})
-  type_id: Type;
+  type: Type;
 
   @Prop({ required: false, type: mongoose.Schema.Types.ObjectId, ref: 'Author' })
-  author_id: Author; 
+  author: Author; 
   
   @Prop({ required: false, type: mongoose.Schema.Types.ObjectId, ref: 'Manufacturer' })
-  manufacturer_id: Manufacturer;
+  manufacturer: Manufacturer;
 
   // @Prop({ required: false, type: String})
   // shop: string; 
 
   @Prop({ required: true, type: mongoose.Schema.Types.ObjectId, ref: 'Shop' })
-  shop_id: Shop;
+  shop: Shop;
 
   @Prop({ required: false, type: mongoose.Schema.Types.ObjectId, ref: 'User' })
-  user_id: User;
+  user: User;
 
   @Prop({ required: false, type: String , enum: ProductType })
   product_type: ProductType;

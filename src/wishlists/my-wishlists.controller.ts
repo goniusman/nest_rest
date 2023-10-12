@@ -7,8 +7,14 @@ import {
   Param,
   Post,
   Put,
-  Query
+  Query,
+  Req,
+  UseGuards
 } from '@nestjs/common';
+import { HasRoles } from 'src/auth/gurd/has-roles.decorator';
+import { JwtAuthGuard } from 'src/auth/gurd/jwt-auth.guard';
+import { Role } from 'src/auth/gurd/role.enum';
+import { RolesGuard } from 'src/auth/gurd/roles.guard';
 import { CreateWishlistDto } from './dto/create-wishlists.dto';
 import { GetWishlistDto } from './dto/get-wishlists.dto';
 import { UpdateWishlistDto } from './dto/update-wishlists.dto';
@@ -34,17 +40,19 @@ export class MyWishlistsController {
     // }
 
     } catch (error) {
-      this.logger.error(`my-wishlists/create failed: ${error} user is ${createWishlistDto?.user}`)
+      this.logger.error(`my-wishlists/create failed: ${error} user is ${createWishlistDto?.customer}`)
       throw error
     }
   }
 
   // Get All
   @Get()
-  findAll(@Query() query: GetWishlistDto) {
+  @HasRoles(Role.STORE_OWNER, Role.SUPER_ADMIN, Role.CUSTOMER)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  findAll(@Query() query: GetWishlistDto, @Req() req: any) {
     try {
       
-      return this.myWishlistService.findAMyWishlists(query);
+      return this.myWishlistService.findAMyWishlists(query, req?.user);
     } catch (error) {
       this.logger.error(`my-wishlists/findAll failed: ${error}`)
       throw error

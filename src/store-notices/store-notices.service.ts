@@ -39,26 +39,52 @@ export class StoreNoticesService {
     if (!limit) limit = 12;
     const startIndex = (page - 1) * limit;
     const endIndex = page * limit;
-    let data: StoreNotice[] = await this.storeNotice.find().populate('created_by received_by');
+    let data = await this.storeNotice.find().populate('created_by received_by');
 
     if (search) {
       const parseSearchParams = search.split(';');
-      const searchText: any = [];
-      for (const searchParam of parseSearchParams) {
-        const [key, value] = searchParam.split(':');
-        // TODO: Temp Solution
-        if (key !== 'slug') {
-          searchText.push({
-            [key]: value,
-          });
+      // const searchText: any = [];
+      // for (const searchParam of parseSearchParams) {
+      //   const [key, value] = searchParam.split(':');
+      //   // TODO: Temp Solution
+      //   if (key !== 'slug') {
+      //     searchText.push({
+      //       [key]: value,
+      //     });
+      //   }
+      // }
+
+      // data = fuse
+      //   .search({
+      //     $and: searchText,
+      //   })
+      //   ?.map(({ item }) => item);
+
+      for (const [i, searchParam] of parseSearchParams.entries()) {
+        // console.log( searchParam);
+        if(searchParam.includes("shop_id")){
+          const typeStr = parseSearchParams[i]
+          const [key, value] = typeStr.split(':');
+          // console.log(typeStr);
+          //  data = await this.storeNotice.find({received_by: {"$in":[value]} })
+          data = await this.storeNotice.find().exec();
+
+        //  data = await data?.received_by.filter(item => item === value)
+
+
+        }else if(searchParam.includes("notice")){
+          const categoryStr = parseSearchParams[i]
+          const [key, value] = categoryStr.split(':');
+ 
+          data = await this.storeNotice.find({notice: {"$elemMatch":{'notice':value}}})
+       
+          
         }
+
       }
 
-      data = fuse
-        .search({
-          $and: searchText,
-        })
-        ?.map(({ item }) => item);
+
+
     }
 
     const results = data.slice(startIndex, endIndex);
