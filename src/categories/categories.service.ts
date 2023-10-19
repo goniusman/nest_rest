@@ -132,7 +132,7 @@ export class CategoriesService {
     if (!page) page = 1;
     const startIndex = (page - 1) * limit;
     const endIndex = page * limit;
-    let data: Category[] = await this._cat.find().populate('type');
+    let data: Category[] = await this._cat.find().populate('type children');
     if (search) {
       const parseSearchParams = search.split(';');
       for (const searchParam of parseSearchParams) {
@@ -161,14 +161,14 @@ export class CategoriesService {
 
 
   async getCategory(param: string, language: string): Promise< Category> {
-    const category = (await this._cat.findById(param).exec()).populate('type');
+    const category = (await this._cat.findById(param).exec()).populate('type children');
     return category;
     //   (p) => p.id === Number(param) || p.slug === param,
     // );
   }
 
   async getCategoryBySlug(param: string): Promise< any> {
-    const category = (await this._cat.findOne({slug: param}).exec()).populate('type');
+    const category = (await this._cat.findOne({slug: param}).exec()).populate('type children');
     return category;
     //   (p) => p.id === Number(param) || p.slug === param,
     // );
@@ -180,7 +180,6 @@ export class CategoriesService {
 
   remove(id: string) {
     try {
-      
       return this._cat.findByIdAndDelete(id).exec();
     } catch (error) {
       console.error(error);
