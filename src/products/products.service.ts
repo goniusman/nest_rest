@@ -152,7 +152,7 @@ export class ProductsService {
       }
 
     }else{
-      // console.log('yes here');
+      console.log('yes here');
       data = await this._product.find().populate('type shop manufacturer author user categories tags')
     }
 

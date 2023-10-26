@@ -21,5 +21,13 @@ export default () => ({
     password: process.env.MAIL_PASSWORD,
     from: process.env.MAIL_FROM,
     transport: process.env.MAIL_TRANSPORT
+  },
+  otp: {
+    OTP_URL : process.env.OTP_URL,
+    OTP_ApiKey: process.env.OTP_ApiKey,
+    OTP_ClientId: process.env.OTP_ClientId,
+    OTP_SenderID: process.env.OTP_SenderID,
   }
 });
+
+

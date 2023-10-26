@@ -27,6 +27,7 @@ export class Profile extends mongoose.Document{
   bio?: string;
   contact?: string;
   avatar?: Avartar;
+  otp: string;
 }
 
 
@@ -44,7 +45,10 @@ export class User extends CoreEntity {
   password: string;
 
   @Prop({ required: false, type: Boolean, default:false })
-  email_verified_at: boolean = false; 
+  email_verified_at: boolean = false;   
+  
+  @Prop({ required: false, type: Boolean, default:false })
+  number_verified_at: boolean = false; 
 
   @Prop({ required: false, type: [String], enum: Permission, default: [Permission.CUSTOMER] }) 
   permissions: Permission[] = [];
