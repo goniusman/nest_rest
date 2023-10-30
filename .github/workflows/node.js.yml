@@ -26,7 +26,7 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
     - run: |
-        npm i
+        npm i --force
         pm2 stop 0
         pm2 start 0
         pm2 save 
