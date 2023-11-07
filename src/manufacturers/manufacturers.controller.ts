@@ -27,8 +27,8 @@ import { Manufacturer } from './entities/manufacturer.entity';
 import { ManufacturersService } from './manufacturers.service';
 
 @Controller('manufacturers')
-@HasRoles(Role.STORE_OWNER, Role.SUPER_ADMIN)
-@UseGuards(JwtAuthGuard, RolesGuard)
+// @HasRoles(Role.STORE_OWNER, Role.SUPER_ADMIN)
+// @UseGuards(JwtAuthGuard, RolesGuard)
 export class ManufacturersController {
   private readonly logger = new Logger() 
   constructor(private readonly manufacturersService: ManufacturersService) {}
