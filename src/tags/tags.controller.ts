@@ -22,8 +22,8 @@ import {UpdateTagDto} from './dto/update-tag.dto';
 import {TagsService} from './tags.service';
 
 @Controller('tags')
-@HasRoles(Role.STORE_OWNER, Role.SUPER_ADMIN, Role.STAFF)
-@UseGuards(JwtAuthGuard, RolesGuard)
+// @HasRoles(Role.STORE_OWNER, Role.SUPER_ADMIN, Role.STAFF)
+// @UseGuards(JwtAuthGuard, RolesGuard)
 export class TagsController {
 
   private readonly logger = new Logger() 
@@ -31,6 +31,8 @@ export class TagsController {
   constructor(private readonly tagsService: TagsService) {}
 
   @Post()
+  @HasRoles(Role.STORE_OWNER, Role.SUPER_ADMIN, Role.CUSTOMER, Role.STAFF)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   async create(@Body() createTagDto: CreateTagDto) {
      
     try {
@@ -74,6 +76,8 @@ export class TagsController {
   }
 
   @Put(':id')
+  @HasRoles(Role.STORE_OWNER, Role.SUPER_ADMIN, Role.CUSTOMER, Role.STAFF)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   update(@Param('id') id: string, @Body() updateTagDto: UpdateTagDto) {
     try {
       
@@ -85,6 +89,8 @@ export class TagsController {
   }
 
   @Delete(':id')
+  @HasRoles(Role.STORE_OWNER, Role.SUPER_ADMIN, Role.CUSTOMER, Role.STAFF)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   remove(@Param('id') id: string) {
     try {
       

@@ -19,8 +19,8 @@ import {GetShippingsDto} from './dto/get-shippings.dto';
 import {UpdateShippingDto} from './dto/update-shipping.dto';
 import {ShippingsService} from './shippings.service';
 @Controller('shippings')
-@HasRoles(Role.STORE_OWNER, Role.SUPER_ADMIN, Role.CUSTOMER)
-@UseGuards(JwtAuthGuard, RolesGuard)
+// @HasRoles(Role.STORE_OWNER, Role.SUPER_ADMIN, Role.CUSTOMER)
+// @UseGuards(JwtAuthGuard, RolesGuard)
 export class ShippingsController {
   
   private readonly logger = new Logger();
@@ -28,6 +28,8 @@ export class ShippingsController {
   constructor(private readonly shippingsService: ShippingsService) {}
 
   @Post()
+  @HasRoles(Role.STORE_OWNER, Role.SUPER_ADMIN, Role.CUSTOMER, Role.STAFF)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   create(@Body() createShippingDto: CreateShippingDto) {
     
     try {
@@ -64,6 +66,8 @@ export class ShippingsController {
   }
 
   @Put(':id')
+  @HasRoles(Role.STORE_OWNER, Role.SUPER_ADMIN, Role.CUSTOMER, Role.STAFF)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   update(
     @Param('id') id: string,
     @Body() updateShippingDto: UpdateShippingDto,
@@ -75,10 +79,12 @@ export class ShippingsController {
     } catch (error) {
       this.logger.error(`shippings/update failed: ${error}`)
       throw error
-    }}
+  }}
 
 
   @Delete(':id')
+  @HasRoles(Role.STORE_OWNER, Role.SUPER_ADMIN, Role.CUSTOMER, Role.STAFF)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   remove(@Param('id') id: string) {
     try {
 

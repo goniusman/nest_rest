@@ -19,8 +19,8 @@ import {GetWithdrawsDto,WithdrawPaginator} from './dto/get-withdraw.dto';
 import {WithdrawsService} from './withdraws.service';
 
 @Controller('withdraws')
-@HasRoles(Role.STORE_OWNER, Role.SUPER_ADMIN, Role.CUSTOMER)
-@UseGuards(JwtAuthGuard, RolesGuard)
+// @HasRoles(Role.STORE_OWNER, Role.SUPER_ADMIN, Role.CUSTOMER)
+// @UseGuards(JwtAuthGuard, RolesGuard)
 export class WithdrawsController {
 
   private readonly logger = new Logger(); 
@@ -28,6 +28,8 @@ export class WithdrawsController {
   constructor(private readonly withdrawsService: WithdrawsService) {}
 
   @Post()
+  @HasRoles(Role.STORE_OWNER, Role.SUPER_ADMIN, Role.CUSTOMER, Role.STAFF)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   createWithdraw(@Body() createWithdrawDto: CreateWithdrawDto) {
     try {
       
@@ -69,13 +71,14 @@ export class WithdrawsController {
     }
 
   }
+
   @Post('approve-withdraw')
   approveWithdraw(
     @Param('id') id: string,
     @Body() updateWithdrawDto: ApproveWithdrawDto,
   ) {
 // console.log(id);
-console.log(updateWithdrawDto);
+// console.log(updateWithdrawDto);
     try {
       
       return this.withdrawsService.update(updateWithdrawDto.id, updateWithdrawDto);
@@ -88,6 +91,8 @@ console.log(updateWithdrawDto);
   }
 
   @Delete(':id')
+  @HasRoles(Role.STORE_OWNER, Role.SUPER_ADMIN, Role.CUSTOMER, Role.STAFF)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   deleteWithdraw(@Param('id') id: string) {
     try {
       

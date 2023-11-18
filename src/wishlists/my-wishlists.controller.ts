@@ -30,6 +30,8 @@ export class MyWishlistsController {
 
   // create
   @Post()
+  @HasRoles(Role.STORE_OWNER, Role.SUPER_ADMIN, Role.CUSTOMER, Role.STAFF)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   create(@Body() createWishlistDto: CreateWishlistDto) {
     try {
       

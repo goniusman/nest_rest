@@ -20,8 +20,8 @@ import { UpdateRefundDto } from './dto/update-refund.dto';
 import { RefundsService } from './refunds.service';
 
 @Controller('refunds')
-@HasRoles(Role.STORE_OWNER, Role.SUPER_ADMIN, Role.CUSTOMER)
-@UseGuards(JwtAuthGuard, RolesGuard)
+// @HasRoles(Role.STORE_OWNER, Role.SUPER_ADMIN, Role.CUSTOMER)
+// @UseGuards(JwtAuthGuard, RolesGuard)
 export class RefundsController {
 
   private readonly logger = new Logger();
@@ -29,6 +29,8 @@ export class RefundsController {
   constructor(private readonly refundsService: RefundsService) {}
 
   @Post()
+  @HasRoles(Role.STORE_OWNER, Role.SUPER_ADMIN, Role.CUSTOMER)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   create(@Body() createRefundDto: CreateRefundDto, @Req() req: any) {
     try {
 
@@ -65,6 +67,8 @@ export class RefundsController {
   }
 
   @Patch(':id')
+  @HasRoles(Role.STORE_OWNER, Role.SUPER_ADMIN, Role.CUSTOMER)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   update(@Param('id') id: any, @Body() updateRefundDto: UpdateRefundDto) {
     try {
 
@@ -77,6 +81,8 @@ export class RefundsController {
   }
 
   @Delete(':id')
+  @HasRoles(Role.STORE_OWNER, Role.SUPER_ADMIN, Role.CUSTOMER)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   remove(@Param('id') id: any) {
     try {
 

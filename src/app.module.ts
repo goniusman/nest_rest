@@ -61,7 +61,7 @@ const { db, redis } = env();
 
 const mongo = db.host ? `${db.host}:${db.port}` : 'mongodb://127.0.0.1:27018';
 
-// console.log(database.port);
+console.log(db.url);
 @Module({
   imports: [
     HttpModule.register({
@@ -99,7 +99,7 @@ const mongo = db.host ? `${db.host}:${db.port}` : 'mongodb://127.0.0.1:27018';
 
     // }),
 
-    MongooseModule.forRoot(`mongodb://pickbazar:OsmanGoni@36.255.70.224:27017?authSource=pickbazar`, {
+    MongooseModule.forRoot(db.url, {
       dbName: 'pickbazar',
       connectionFactory: (connection) => {
         // eslint-disable-next-line @typescript-eslint/no-var-requires
