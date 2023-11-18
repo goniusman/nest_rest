@@ -1,5 +1,5 @@
 
-import {HttpException,HttpStatus,Injectable,Logger,Req} from '@nestjs/common';
+import {HttpException,HttpStatus,Injectable,Logger,Req, HttpServer } from '@nestjs/common';
 // import * as bcrypt from '@types/bcrypt'; 
 import {JwtService} from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
@@ -26,8 +26,8 @@ import {User} from 'src/users/entities/user.entity';
 import {jwtConstants} from './gurd/constants';
 // import { TransformInterceptor } from 'src/utils/Response.Interceptor';
 // const users = plainToClass(User, usersJson);
-
-
+import env from '../config/env';
+import axios from 'axios';
 @Injectable()
 // @UseInterceptors(TransformInterceptor)
 export class AuthService {
@@ -38,7 +38,8 @@ export class AuthService {
     // @InjectModel('User') private _user: Model<User>, 
     private usersService: UsersService,
     private jwtService: JwtService,
-    private shopService: ShopsService,
+    // private readonly httpService: HttpServer,
+    private shopService: ShopsService, 
     private mailService: MailService
   ) { }
 
@@ -227,34 +228,86 @@ export class AuthService {
     };
   }
 
-  async verifyOtpCode(verifyOtpInput: VerifyOtpDto, user: any): Promise<CoreResponse> {
+
+  async sendOtpCode(otpInput: OtpDto, user:any): Promise<OtpResponse> {
+    
+    const { otp } = env();
+    try {
+      const otpCode = this.generateOTP();
+      const contactNumber = otpInput.phone_number.replace(/[&\/\\#,+()$~%.'":*?<>{}]/g, '');
+      const data : any = {
+        "senderId" : otp.OTP_SenderID,
+        "is_Unicode" :  false,
+        "is_Flash" :  false,
+        "groupId" :  "",
+        "message" : otpCode,
+        "mobileNumbers" : contactNumber,
+        "apiKey" : otp.OTP_ApiKey,
+        "clientId" : otp.OTP_ClientId
+      }
+      
+      const response = await axios.post(otp.OTP_URL, data);
+      // return response.data;
+
+
+      let customer = await this.usersService.findById(user.id);
+
+      customer.profile.otp = otpCode.toString();;
+      customer.profile.contact = contactNumber;
+      await this.usersService.updateWithOtp(user.id, customer)
+
+      const resMes = response.data.Data[0]
+      // return response.data;
+      return {
+        message: resMes.MessageErrorDescription,
+        success: true,
+        id: resMes.MessageId,
+        provider: 'Cloud',
+        phone_number: resMes.MobileNumber,
+        is_contact_exist: true,
+      };
+
+    } catch (err) {
+      throw err;
+    }
    
-    const usr = await this.usersService.findById(user.id)
+  }
 
-    usr.profile.contact = verifyOtpInput.phone_number
-    await this.usersService.updatePhoneNumber(user.id, usr)
+   async verifyOtpCode(verifyOtpInput: VerifyOtpDto, user: any): Promise<any> {
+   
+    try { 
+        const usr = await this.usersService.findById(user.id)
 
-    return {
-      ...usr,
-      message: 'success',
-      success: true,
-    };
+        if(usr.profile.otp === verifyOtpInput.code){
+            usr.number_verified_at = true
+            await this.usersService.updatePhoneNumber(user.id, usr)
+        }else{
+          throw new HttpException('OTP not correct', HttpStatus.CONFLICT)
+        }
+            
+        return {
+          ...usr,
+          message: 'success',
+          success: true,
+        };
+      
+    } catch (error) {
+      // return {
+      //   // ...usr,
+      //   message: error.message,
+      //   success: false,
+      // };
+      throw error
+    }
+   
     
   }
 
-  async sendOtpCode(otpInput: OtpDto, user:any): Promise<OtpResponse> {
-    // console.log(otpInput);
-    return {
-      message: 'success',
-      success: true,
-      id: '1',
-      provider: 'google',
-      phone_number: '+919494949494',
-      is_contact_exist: true,
-    };
+
+  // Generate a random number between 100000 and 999999
+  generateOTP() {
+    return Math.floor(100000 + Math.random() * 900000);
   }
-
- 
-
+  
 
 }

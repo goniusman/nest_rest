@@ -71,6 +71,20 @@ export class UsersController {
   }
 
 
+  @Post('update-email')
+  @HasRoles(Role.STORE_OWNER, Role.CUSTOMER)
+  @UseGuards(JwtAuthGuard)
+  updateEmail( @Body() updateUserDto: UpdateUserDto, @Req() req:any) {
+    try {
+      return this.usersService.updateEmail( updateUserDto, req.user);
+      // throw new HttpException('No user found', HttpStatus.NOT_FOUND)
+    } catch (error) {
+      this.logger.error(`users/updateEmail failed: ${error} user is ${req.user.id}`)
+      throw error
+    }
+  }
+
+
   @Delete(':id')
   @UseGuards(JwtAuthGuard)
   async removeUser(@Param('id') id: any) {

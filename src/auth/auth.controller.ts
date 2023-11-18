@@ -332,7 +332,12 @@ export class AuthController {
   @HasRoles(Role.SUPER_ADMIN, Role.CUSTOMER, Role.STORE_OWNER)
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   sendOtpCode(@Body() otpDto: OtpDto, @Req() req) {
-    return this.authService.sendOtpCode(otpDto, req?.user);
+    try {
+      return this.authService.sendOtpCode(otpDto, req?.user);
+    } catch (error) {
+      this.logger.error(`authController/send-otp-code error: ${error.message}`);
+      throw error;
+    }
   }
 
 
@@ -340,7 +345,12 @@ export class AuthController {
   @HasRoles(Role.SUPER_ADMIN, Role.CUSTOMER, Role.STORE_OWNER)
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   verifyOtpCode(@Body() verifyOtpDto: VerifyOtpDto, @Req() req) {
-    return this.authService.verifyOtpCode(verifyOtpDto, req?.user);
+    try {
+      return this.authService.verifyOtpCode(verifyOtpDto, req?.user);
+    } catch (error) {
+      this.logger.error(`authController/verify-otp-code error: ${error.message}`);
+      throw error;
+    }
   }
 
 
@@ -350,7 +360,6 @@ export class AuthController {
   ) {
     return this.authService.verifyForgetPasswordToken(verifyForgetPasswordDto);
   }
-
 
 
 

@@ -231,6 +231,17 @@ export class UsersService {
 
   }
 
+  async updateEmail(body: any, customer:any){
+    try {
+      return this.users.findByIdAndUpdate(customer.id, body)
+    } catch (error) {
+      throw error
+    }
+  } 
+  
+  async updateWithOtp(id:any, customer:any){
+    return this.users.findByIdAndUpdate(id, customer)
+  }
 
   updatePhoneNumber(id: string, updateContent){
     return this.users.findByIdAndUpdate(id, updateContent)
