@@ -5,7 +5,7 @@ events {
 }
 
 http {
-  upstream nestapp_upstream {
+  upstream rest_bazar_upstream {
     least_conn;
     server ${ACTIVE_APP}:5000;
   }
@@ -21,7 +21,7 @@ http {
     }
 
     location / {
-      proxy_pass http://nestapp_upstream;
+      proxy_pass http://rest_bazar_upstream;
       proxy_http_version 1.1;
       proxy_set_header Upgrade $http_upgrade;
       proxy_set_header Connection 'upgrade';

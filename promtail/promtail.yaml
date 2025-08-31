@@ -14,7 +14,7 @@ scrape_configs:
     static_configs:
       - targets: ['redis_exporter:9121']
       
-  - job_name: nestapp-logs
+  - job_name: rest_bazar-logs
 
     static_configs:
       # - targets:
@@ -25,13 +25,13 @@ scrape_configs:
       #     service_name: seenyor
       #     severity: seenyor
       #     __path__: /logs/**/*.log
-          # __path__: /var/lib/docker/volumes/nestapp-logs/_data/**/*.log
+          # __path__: /var/lib/docker/volumes/rest_bazar-logs/_data/**/*.log
 
       - targets:
           - localhost
         labels:
-          job: nestapp-api-error
-          service_name: nestapp-api-error
+          job: rest_bazar-api-error
+          service_name: rest_bazar-api-error
           severity: error
           environment: production
           __path__: /logs/error/*
@@ -39,8 +39,8 @@ scrape_configs:
       - targets:
           - localhost
         labels:
-          job: nestapp-api-info
-          service_name: nestapp-api-info
+          job: rest_bazar-api-info
+          service_name: rest_bazar-api-info
           severity: info
           environment: production
           __path__: /logs/info/*
@@ -63,8 +63,8 @@ scrape_configs:
 #       - targets:
 #           - localhost
 #         labels:
-#           job: nestapp
-#           service_name: nestapp-api-error
+#           job: rest_bazar
+#           service_name: rest_bazar-api-error
 #           severity: error
 #           environment: production
 #           __path__: /app/logs/error/*-error.log
@@ -72,8 +72,8 @@ scrape_configs:
 #       - targets:
 #           - localhost
 #         labels:
-#           job: nestapp
-#           service_name: nestapp-api-info
+#           job: rest_bazar
+#           service_name: rest_bazar-api-info
 #           severity: info
 #           environment: production
 #           __path__: /app/logs/info/*-info.log
@@ -81,7 +81,7 @@ scrape_configs:
 #       - targets:
 #           - localhost
 #         labels:
-#           job: nestapp
+#           job: rest_bazar
 #           service_name: access
 #           severity: access
 #           environment: production
@@ -90,7 +90,7 @@ scrape_configs:
 #       - targets:
 #           - localhost
 #         labels:
-#           job: nestapp
+#           job: rest_bazar
 #           service_name: error
 #           severity: accesserror
 #           environment: production

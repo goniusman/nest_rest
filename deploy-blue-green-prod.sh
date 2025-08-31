@@ -9,12 +9,12 @@ if [ -z "$IMAGE_TAG" ]; then
 fi
 
 # Determine active and inactive service
-if docker ps | grep -q nestapp_blue; then
-  ACTIVE="nestapp_blue"
-  INACTIVE="nestapp_green"
+if docker ps | grep -q rest_bazar_blue; then
+  ACTIVE="rest_bazar_blue"
+  INACTIVE="rest_bazar_green"
 else
-  ACTIVE="nestapp_green"
-  INACTIVE="nestapp_blue"
+  ACTIVE="rest_bazar_green"
+  INACTIVE="rest_bazar_blue"
 fi
 
 echo "🔁 Active: $ACTIVE"
