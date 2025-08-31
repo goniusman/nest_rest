@@ -15,9 +15,9 @@
   },
   "javascript.validate.enable": false, //disable all built-in syntax checking
   "editor.codeActionsOnSave": {
-    "source.fixAll.eslint": false,
-    "source.fixAll.tslint": false,
-    "source.organizeImports": false
+    "source.fixAll.eslint": "never",
+    "source.fixAll.tslint": "never",
+    "source.organizeImports": "never"
   },
   "eslint.alwaysShowStatus": false,
   // emmet

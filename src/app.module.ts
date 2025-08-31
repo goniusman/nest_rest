@@ -61,7 +61,7 @@ const { db, redis } = env();
 
 const mongo = db.host ? `${db.host}:${db.port}` : 'mongodb://127.0.0.1:27018';
 
-console.log(db.url);
+// console.log(db.url);
 @Module({
   imports: [
     HttpModule.register({
