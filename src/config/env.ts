@@ -5,14 +5,14 @@ require('dotenv').config()
 // env.ts
 export default () => ({
   // Add your own properties here however you'd like
-  // port: parseInt(process.env.PORT, 10) || 3000,
+  // port: parseInt(process.env.PORT, 10) || 5000,
   db: {
     host: process.env.MONGODB_URI,
     port: process.env.MONGODB_PORT,
     url: process.env.MONGODBURL
   },
   redis: {
-    host: process.env.REDIS_URI ,
+    host: process.env.REDIS_HOST ,
     port: process.env.REDIS_PORT 
   },
   mailer: {
