@@ -123,8 +123,8 @@ export class UsersService {
     const url = `/users?limit=${limit}`;
 
     return {
-      data: results,
       ...paginate(userData.length, page, limit, results.length, url),
+      data: results
     };
 
   }else{

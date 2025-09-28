@@ -6,7 +6,9 @@ import {HasRoles} from 'src/auth/gurd/has-roles.decorator';
 import {Role} from 'src/auth/gurd/role.enum';
 import {JwtAuthGuard} from 'src/auth/gurd/jwt-auth.guard';
 import {RolesGuard} from 'src/auth/gurd/roles.guard';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags("Contactus")
 @Controller('contactus')
 export class ContactusController {
   constructor(private readonly contactusService: ContactusService) {}

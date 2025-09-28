@@ -22,8 +22,9 @@ import { JwtAuthGuard } from 'src/auth/gurd/jwt-auth.guard';
 import { Role } from 'src/auth/gurd/role.enum';
 import { RolesGuard } from 'src/auth/gurd/roles.guard';
 import { cli } from 'winston/lib/winston/config';
+import { ApiTags } from '@nestjs/swagger';
 
-
+@ApiTags("Store-notices")
 @Controller('store-notices')
 export class StoreNoticesController {
 

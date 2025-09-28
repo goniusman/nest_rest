@@ -11,7 +11,9 @@ import {
 import { CreateReportDto } from './dto/create-report.dto';
 import { UpdateReportDto } from './dto/update-report.dto';
 import { AbusiveReportService } from './reports.service';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags("Abusive_reports")
 @Controller('abusive_reports')
 // @HasRoles(Role.STORE_OWNER, Role.SUPER_ADMIN, Role.CUSTOMER, Role.STAFF)
 // @UseGuards(JwtAuthGuard, RolesGuard)

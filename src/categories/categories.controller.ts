@@ -23,13 +23,13 @@ import { CategoriesService } from './categories.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { GetCategoriesDto } from './dto/get-categories.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
-import {ApiConsumes,ApiBody} from '@nestjs/swagger';
+import {ApiConsumes,ApiBody, ApiTags} from '@nestjs/swagger';
 import {diskStorage} from 'multer';
 import { Category } from './entities/category.entity';
 // import { Category } from './interface/category.interface';
 // import { CloudinaryMiddleware } from 'src/providers/CloudinaryMiddleware';
 
-
+@ApiTags("Categories")
 @Controller('categories')
 export class CategoriesController {
 

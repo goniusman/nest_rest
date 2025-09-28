@@ -23,6 +23,9 @@ import { GetWishlistDto } from './dto/get-wishlists.dto';
 import { UpdateWishlistDto } from './dto/update-wishlists.dto';
 import { WishlistsService } from './wishlists.service';
 import { Exception } from 'handlebars';
+import { ApiTags } from '@nestjs/swagger';
+
+@ApiTags("Wishlists")
 @Controller('wishlists')
 // @HasRoles(Role.STORE_OWNER, Role.SUPER_ADMIN, Role.CUSTOMER)
 // @UseGuards(JwtAuthGuard, RolesGuard)

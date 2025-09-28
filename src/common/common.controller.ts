@@ -4,7 +4,9 @@ import {CommonService} from './common.service';
 import {CreateAttachmentDto} from './dto/create-attachment.dto';
 import { GetAttachmentDto } from './dto/get-attachment.dto';
 import {Request} from 'express'
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags("Common")
 @Controller('common')
 export class CommonController {
    

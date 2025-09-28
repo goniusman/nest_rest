@@ -14,8 +14,10 @@ import { TaxesService } from './taxes.service';
 import { CreateTaxDto } from './dto/create-tax.dto';
 import { UpdateTaxDto } from './dto/update-tax.dto';
 import { GetTaxesDto } from './dto/get-taxes.dto';
+import { ApiTags } from '@nestjs/swagger';
 // import { TransformInterceptor } from 'src/utils/Response.Interceptor';
 
+@ApiTags("Taxes")
 @Controller('taxes')
 // @UseInterceptors(TransformInterceptor)
 export class TaxesController {

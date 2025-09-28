@@ -10,7 +10,9 @@ import { UploadsService } from './uploads.service';
 import {CloudinaryService} from 'src/cloudinary/cloudinary.service';
 import {Attachment} from 'src/common/entities/attachment.entity';
 import {Uploads} from './schema/Uploads';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags("Attachments")
 @Controller('attachments')
 export class UploadsController {
   constructor(

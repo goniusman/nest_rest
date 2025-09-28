@@ -20,7 +20,9 @@ import {CreateTagDto} from './dto/create-tag.dto';
 import {GetTagsDto,TagPaginator} from './dto/get-tags.dto';
 import {UpdateTagDto} from './dto/update-tag.dto';
 import {TagsService} from './tags.service';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags("Tags")
 @Controller('tags')
 // @HasRoles(Role.STORE_OWNER, Role.SUPER_ADMIN, Role.STAFF)
 // @UseGuards(JwtAuthGuard, RolesGuard)

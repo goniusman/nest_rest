@@ -12,7 +12,9 @@ import { CreateQuestionDto } from './dto/create-question.dto';
 import { GetQuestionDto } from './dto/get-questions.dto';
 import { UpdateQuestionDto } from './dto/update-question.dto';
 import { MyQuestionsService } from './my-questions.service';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags("My-questions")
 @Controller('my-questions')
 export class MyQuestionsController {
   constructor(private myQuestionService: MyQuestionsService) {}

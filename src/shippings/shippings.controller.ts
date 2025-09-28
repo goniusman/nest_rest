@@ -18,6 +18,9 @@ import {CreateShippingDto} from './dto/create-shipping.dto';
 import {GetShippingsDto} from './dto/get-shippings.dto';
 import {UpdateShippingDto} from './dto/update-shipping.dto';
 import {ShippingsService} from './shippings.service';
+import { ApiTags } from '@nestjs/swagger';
+
+@ApiTags("Shippings")
 @Controller('shippings')
 // @HasRoles(Role.STORE_OWNER, Role.SUPER_ADMIN, Role.CUSTOMER)
 // @UseGuards(JwtAuthGuard, RolesGuard)

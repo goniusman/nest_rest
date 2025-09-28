@@ -28,7 +28,9 @@ import { UpdateOrderDto } from './dto/update-order.dto';
 import { CheckoutVerificationDto } from './dto/verify-checkout.dto';
 import { Order } from './entities/order.entity';
 import { OrdersService } from './orders.service';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags("Orders")
 @Controller('orders')
 // @HasRoles(Role.STORE_OWNER, Role.SUPER_ADMIN, Role.STAFF, Role.CUSTOMER)
 // @UseGuards(JwtAuthGuard, RolesGuard)

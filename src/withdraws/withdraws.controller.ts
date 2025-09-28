@@ -17,7 +17,9 @@ import {ApproveWithdrawDto} from './dto/approve-withdraw.dto';
 import {CreateWithdrawDto} from './dto/create-withdraw.dto';
 import {GetWithdrawsDto,WithdrawPaginator} from './dto/get-withdraw.dto';
 import {WithdrawsService} from './withdraws.service';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags("Withdraws")
 @Controller('withdraws')
 // @HasRoles(Role.STORE_OWNER, Role.SUPER_ADMIN, Role.CUSTOMER)
 // @UseGuards(JwtAuthGuard, RolesGuard)

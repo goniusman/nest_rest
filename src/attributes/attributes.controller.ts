@@ -20,7 +20,9 @@ import { AttributesService } from './attributes.service';
 import { CreateAttributeDto } from './dto/create-attribute.dto';
 import { AttributePaginator, GetAttributesArgs } from './dto/get-attributes.dto';
 import { UpdateAttributeDto } from './dto/update-attribute.dto';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags("Attributes")
 @Controller('attributes')
 @HasRoles(Role.STORE_OWNER, Role.SUPER_ADMIN, Role.STAFF)
 @UseGuards(JwtAuthGuard, RolesGuard)
