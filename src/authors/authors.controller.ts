@@ -19,7 +19,9 @@ import {AuthorPaginator,GetAuthorDto} from './dto/get-author.dto';
 import {GetTopAuthorsDto} from './dto/get-top-authors.dto';
 import {UpdateAuthorDto} from './dto/update-author.dto';
 import {Author} from './entities/author.entity';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags("Authors")
 // @UseInterceptors(TransformInterceptor)
 @Controller('authors')
 export class AuthorsController {

@@ -26,9 +26,9 @@ import { GetStaffsDto } from './dto/get-staffs.dto';
 import { UpdateShopDto } from './dto/update-shop.dto';
 import { ShopsService } from './shops.service';
 
+@ApiTags("Shops")  
 @Controller('shops')
 @ApiBearerAuth()
-@ApiTags("Shops")  
 // @HasRoles(Role.STORE_OWNER, Role.SUPER_ADMIN, Role.STAFF)
 // @UseGuards(JwtAuthGuard, RolesGuard)
 export class ShopsController {

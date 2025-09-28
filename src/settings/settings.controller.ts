@@ -12,7 +12,9 @@ import {
 import { SettingsService } from './settings.service';
 import { CreateSettingDto } from './dto/create-setting.dto';
 import { UpdateSettingDto } from './dto/update-setting.dto';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags("Settings")
 @Controller('settings')
 export class SettingsController {
   private readonly logger = new Logger();

@@ -5,7 +5,10 @@ import {
   ConversationPaginator,
   GetConversationsDto,
 } from './dto/get-conversations.dto';
+import { ApiTags } from '@nestjs/swagger';
 
+
+@ApiTags("Conversations")
 @Controller('conversations')
 export class ConversationsController {
   constructor(private readonly conversationsService: ConversationsService) {}

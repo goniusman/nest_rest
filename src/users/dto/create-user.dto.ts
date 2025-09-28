@@ -31,18 +31,19 @@ export enum Permission {
 
 export class CreateUserDto extends PickType(User, ['email', 'password']) {
   
-  // @IsString()
-  // @MaxLength(20)
+  @IsString()
+  @MaxLength(50)
   name?: string; 
 
   @IsEmail()
   @IsNotEmpty()
   email: string
 
-  // @IsNotEmpty()
-  password: string;
 
   @IsNotEmpty()
+  password: string;
+
+  // @IsNotEmpty()
   permissions: Permission[];
 
   managed_shop?: Shop;

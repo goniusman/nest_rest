@@ -10,7 +10,9 @@ import {
 import { CreateFeedBackDto } from './dto/create-feedback.dto';
 import { UpdateFeedBackDto } from './dto/update-feedback.dto';
 import { FeedbackService } from './feedbacks.service';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags("Feedbacks")
 @Controller('feedbacks')
 export class FeedbackController {
   constructor(private feedbackService: FeedbackService) {}

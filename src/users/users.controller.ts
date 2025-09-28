@@ -28,8 +28,10 @@ import {Role} from 'src/auth/gurd/role.enum';
 import {RolesGuard} from 'src/auth/gurd/roles.guard';
 import {CreateProfileDto} from './dto/create-profile.dto';
 import {UpdateProfileDto} from './dto/update-profile.dto';
+import { ApiTags } from '@nestjs/swagger';
 // import { IUser } from '../interface/user.interface';
 
+@ApiTags("Users")
 @Controller('users')
 // @HasRoles(Role.STORE_OWNER, Role.SUPER_ADMIN, Role.CUSTOMER)
 // @UseGuards(JwtAuthGuard, RolesGuard)

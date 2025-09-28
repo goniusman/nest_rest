@@ -18,7 +18,9 @@ import { RolesGuard } from 'src/auth/gurd/roles.guard';
 import { CreateRefundDto } from './dto/create-refund.dto';
 import { UpdateRefundDto } from './dto/update-refund.dto';
 import { RefundsService } from './refunds.service';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags("Refunds")
 @Controller('refunds')
 // @HasRoles(Role.STORE_OWNER, Role.SUPER_ADMIN, Role.CUSTOMER)
 // @UseGuards(JwtAuthGuard, RolesGuard)

@@ -24,7 +24,9 @@ import { UpdateProductDto } from './dto/update-product.dto';
 import { Product } from './entities/product.entity';
 import { ProductsService } from './products.service';
 import { cli } from 'winston/lib/winston/config';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags("Products")
 @Controller('products')
 // @HasRoles(Role.STORE_OWNER, Role.SUPER_ADMIN, Role.STAFF)
 // @UseGuards(JwtAuthGuard, RolesGuard)

@@ -14,7 +14,9 @@ import { GetPaymentMethodsDto } from './dto/get-payment-methods.dto';
 import { DefaultCart } from './dto/set-default-card.dto';
 import { UpdatePaymentMethodDto } from './dto/update-payment-method.dto';
 import { PaymentMethodService } from './payment-method.service';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags("Cards")
 @Controller('cards')
 export class PaymentMethodController {
   

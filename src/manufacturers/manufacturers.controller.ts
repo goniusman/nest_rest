@@ -25,7 +25,9 @@ import { GetTopManufacturersDto } from './dto/get-top-manufacturers.dto';
 import { UpdateManufacturerDto } from './dto/update-manufacturer.dto';
 import { Manufacturer } from './entities/manufacturer.entity';
 import { ManufacturersService } from './manufacturers.service';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags("Manufacturers")
 @Controller('manufacturers')
 // @HasRoles(Role.STORE_OWNER, Role.SUPER_ADMIN)
 // @UseGuards(JwtAuthGuard, RolesGuard)
