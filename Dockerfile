@@ -2,7 +2,7 @@
 FROM node:20
 
 # Install build tools
-# RUN apk add --no-cache python3 make g++ 
+RUN apk add --no-cache python3 make g++ 
 
 # Set work directory
 WORKDIR /app
