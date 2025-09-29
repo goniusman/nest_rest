@@ -1,5 +1,5 @@
 # Base image
-FROM node:2
+FROM node:20
 
 # Set work directory
 WORKDIR /app
@@ -8,7 +8,7 @@ WORKDIR /app
 COPY package*.json ./
 
 # Install dependencies
-RUN npm install --legacy-peer-deps --no-audit --no-fund
+RUN npm ci --legacy-peer-deps --no-audit --no-fund
 
 # Copy app files
 COPY . .
