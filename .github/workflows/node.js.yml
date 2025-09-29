@@ -3,9 +3,9 @@ name: Node.js CI
 
 on:
   push:
-    branches: [on_hold]  #[master]
+    branches: [onhold]
   pull_request: 
-    branches: [on_hold]  #[master]
+    branches: [onhold]
 
 jobs:
   build:
