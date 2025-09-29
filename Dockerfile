@@ -1,5 +1,8 @@
 # Base image
-FROM node:20-alpine
+FROM node:20
+
+# Install build tools
+# RUN apk add --no-cache python3 make g++ 
 
 # Set work directory
 WORKDIR /app
@@ -8,7 +11,7 @@ WORKDIR /app
 COPY package*.json ./
 
 # Install dependencies
-RUN npm install --legacy-peer-deps
+RUN npm install --legacy-peer-deps --no-audit --no-fund
 
 # Copy app files
 COPY . .
@@ -16,11 +19,11 @@ COPY . .
 # Build app
 RUN npm run build
 
-# Expose NestJS port (adjust if needed)
+# Expose NestJS port
 EXPOSE 5000
 
 # Start app
-CMD ["npm", "run", "start"]
+CMD ["npm", "run", "start"]"npm", "run", "start"]
 
 
 
