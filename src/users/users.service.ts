@@ -7,7 +7,7 @@ import { Cache } from 'cache-manager';
 import { CreateUserDto } from './dto/create-user.dto';
 // import {  UserPaginator } from './dto/get-users.dto';
 import { InjectModel } from '@nestjs/mongoose';
-import * as bcrypt from 'bcrypt';
+import * as bcrypt from 'bcryptjs';;
 import Fuse from 'fuse.js';
 import { Model } from 'mongoose';
 import { CloudinaryService } from '../cloudinary/cloudinary.service';

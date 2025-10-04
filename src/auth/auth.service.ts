@@ -2,7 +2,7 @@
 import {HttpException,HttpStatus,Injectable,Logger,Req, HttpServer } from '@nestjs/common';
 // import * as bcrypt from '@types/bcrypt'; 
 import {JwtService} from '@nestjs/jwt';
-import * as bcrypt from 'bcrypt';
+import * as bcrypt from 'bcryptjs';;
 
 import {UsersService} from '../users/users.service';
 import {
