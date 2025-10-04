@@ -22,7 +22,7 @@ WORKDIR /app
 COPY --from=builder /app/dist ./dist
 COPY package*.json ./
 
-RUN npm ci --omit=dev
+RUN npm ci --omit=dev --legacy-peer-deps
 
 EXPOSE 5000
 CMD ["node", "dist/main.js"]
