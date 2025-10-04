@@ -1,26 +1,30 @@
 FROM debian:bullseye-slim
 
-# Install dependencies
+# Install required dependencies
 RUN apt-get update && apt-get install -y \
     wget \
     tar \
     gettext \
-    iproute2 \    
+    iproute2 \
     ca-certificates \
+    && update-ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Prometheus manually
+# Set Prometheus version
 ENV PROM_VERSION=2.52.0
 
-RUN wget https://github.com/prometheus/prometheus/releases/download/v${PROM_VERSION}/prometheus-${PROM_VERSION}.linux-amd64.tar.gz && \
+# Download and install Prometheus
+RUN wget -q --show-progress --https-only --tries=3 \
+    https://github.com/prometheus/prometheus/releases/download/v${PROM_VERSION}/prometheus-${PROM_VERSION}.linux-amd64.tar.gz && \
     tar -xzf prometheus-${PROM_VERSION}.linux-amd64.tar.gz && \
     mv prometheus-${PROM_VERSION}.linux-amd64/prometheus /bin/prometheus && \
     mv prometheus-${PROM_VERSION}.linux-amd64/promtool /bin/promtool && \
     mkdir -p /etc/prometheus /prometheus && \
     mv prometheus-${PROM_VERSION}.linux-amd64/consoles /etc/prometheus/ && \
     mv prometheus-${PROM_VERSION}.linux-amd64/console_libraries /etc/prometheus/ && \
-    rm -rf prometheus-${PROM_VERSION}*
+    rm -rf prometheus-${PROM_VERSION}* 
 
+# Copy entrypoint script
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 

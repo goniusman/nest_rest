@@ -25,4 +25,4 @@ COPY package*.json ./
 RUN npm ci --omit=dev --legacy-peer-deps
 
 EXPOSE 5000
-CMD ["node", "dist/main.js"]
+CMD ["npm", "run", "start:prod"]
