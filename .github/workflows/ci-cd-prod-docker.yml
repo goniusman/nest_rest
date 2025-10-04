@@ -35,6 +35,9 @@ jobs:
       - name: Set dynamic image tag
         run: echo "IMAGE_TAG=production-$(date +%Y%m%d%H%M%S)" >> $GITHUB_ENV
 
+      - name: Prepare Docker cache
+        run: mkdir -p /tmp/.buildx-cache
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
@@ -44,7 +47,9 @@ jobs:
             --build-arg BUILDKIT_INLINE_CACHE=1 \
             --cache-from=type=local,src=/tmp/.buildx-cache \
             --cache-to=type=local,dest=/tmp/.buildx-cache,mode=max \
+            --load \
             -t rest_bazar:$IMAGE_TAG -f Dockerfile .
+
 
 
           # SERVICES=("redis" "elasticsearch" "grafana" "prometheus" "kibana" "logstash")

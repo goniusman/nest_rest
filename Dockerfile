@@ -1,12 +1,15 @@
 # Use faster base image
 FROM node:20-slim AS builder
 
+# Install build tools (Debian version)
+RUN apt-get update && apt-get install -y python3 make g++ bash && rm -rf /var/lib/apt/lists/*
+
+
 WORKDIR /app
 
 COPY package*.json ./
 
-RUN npm ci --verbose
-
+RUN npm ci --verbose --legacy-peer-deps --no-audit --no-fund
 # --legacy-peer-deps --no-audit --no-fund
 
 COPY . .
