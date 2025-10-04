@@ -1,6 +1,9 @@
 # Base image
 FROM node:20-slim
 
+# Install build tools for native modules
+RUN apk add --no-cache python3 make g++ bash
+
 # Set work directory
 WORKDIR /app
 
@@ -8,6 +11,7 @@ WORKDIR /app
 COPY package*.json ./
 
 # Install dependencies
+# RUN npm ci --verbose #for debug
 RUN npm ci --legacy-peer-deps --no-audit --no-fund
 
 # Copy app files
