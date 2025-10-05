@@ -42,7 +42,7 @@ jobs:
         uses: docker/setup-buildx-action@v3
 
       - name: Build Docker image
-        run: docker build --network=host -t my-prometheus .
+        run: docker build --network=host -t prometheus .
 
       - name: Build new app image
         run: |
