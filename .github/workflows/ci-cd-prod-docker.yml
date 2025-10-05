@@ -41,8 +41,9 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Build Docker image
-        run: docker build --network=host -t prometheus .
+      # When prometheus image is not created than uncomment it.
+      # - name: Build Docker image
+      #   run: docker build --network=host -t prometheus .
 
       - name: Build new app image
         run: |
