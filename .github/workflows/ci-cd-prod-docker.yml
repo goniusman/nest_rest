@@ -43,7 +43,7 @@ jobs:
 
       # When prometheus image is not created than uncomment it.
       # - name: Build Docker image
-      #   run: docker build --network=host -t prometheus .
+      #   run: docker build --network=host -t prometheus . 
 
       - name: Build new app image
         run: |
