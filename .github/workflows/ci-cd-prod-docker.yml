@@ -41,6 +41,9 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
+      - name: Build Docker image
+        run: docker build --network=host -t my-prometheus .
+
       - name: Build new app image
         run: |
           docker buildx build \
@@ -49,8 +52,6 @@ jobs:
             --cache-to=type=local,dest=/tmp/.buildx-cache,mode=max \
             --load \
             -t rest_bazar:$IMAGE_TAG -f Dockerfile .
-
-
 
           # SERVICES=("redis" "elasticsearch" "grafana" "prometheus" "kibana" "logstash")
       
