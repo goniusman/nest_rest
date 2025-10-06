@@ -90,8 +90,8 @@ docker compose -f docker-compose.production.yml -p rest_bazar stop $ACTIVE
 docker compose -f docker-compose.production.yml -p rest_bazar rm -f $ACTIVE
 
 # Switch Prometheus Storage
-echo "🔄 Switching Prometheus to $INACTIVE "
-docker compose -f docker-compose.infra.yml -p rest_bazar stop prometheus || true
-ACTIVE_APP=$INACTIVE docker compose -f docker-compose.infra.yml -p rest_bazar up -d prometheus
+# echo "🔄 Switching Prometheus to $INACTIVE "
+# docker compose -f docker-compose.infra.yml -p rest_bazar stop prometheus || true
+# ACTIVE_APP=$INACTIVE docker compose -f docker-compose.infra.yml -p rest_bazar up -d prometheus
 
 echo "✅ Blue-Green Deployment Complete. Live: $INACTIVE"
