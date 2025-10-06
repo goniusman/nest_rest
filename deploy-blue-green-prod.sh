@@ -64,7 +64,8 @@ done
 
 echo "🔄 Ensuring infra services are running (start only if not already up)..."
 PROJECT="rest_bazar"
-INFRA_SERVICES=(redis prometheus grafana loki promtail redis_exporter node_exporter nginx_exporter cadvisor alertmanager)
+# INFRA_SERVICES=(redis prometheus grafana loki promtail redis_exporter node_exporter nginx_exporter cadvisor alertmanager)
+INFRA_SERVICES=(redis)
 for SERVICE in "${INFRA_SERVICES[@]}"; do
   CONTAINER_NAME="${PROJECT}_${SERVICE}_1"
   
