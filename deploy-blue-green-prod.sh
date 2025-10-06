@@ -64,7 +64,8 @@ done
 
 echo "🔄 Ensuring infra services are running (start only if not already up)..."
 PROJECT="rest_bazar"
-INFRA_SERVICES=(redis prometheus grafana loki promtail redis_exporter node_exporter nginx_exporter cadvisor alertmanager)
+# INFRA_SERVICES=(redis prometheus grafana loki promtail redis_exporter node_exporter nginx_exporter cadvisor alertmanager)
+INFRA_SERVICES=(redis)
 for SERVICE in "${INFRA_SERVICES[@]}"; do
   CONTAINER_NAME="${PROJECT}_${SERVICE}_1"
   
@@ -89,8 +90,8 @@ docker compose -f docker-compose.production.yml -p rest_bazar stop $ACTIVE
 docker compose -f docker-compose.production.yml -p rest_bazar rm -f $ACTIVE
 
 # Switch Prometheus Storage
-echo "🔄 Switching Prometheus to $INACTIVE "
-docker compose -f docker-compose.infra.yml -p rest_bazar stop prometheus || true
-ACTIVE_APP=$INACTIVE docker compose -f docker-compose.infra.yml -p rest_bazar up -d prometheus
+# echo "🔄 Switching Prometheus to $INACTIVE "
+# docker compose -f docker-compose.infra.yml -p rest_bazar stop prometheus || true
+# ACTIVE_APP=$INACTIVE docker compose -f docker-compose.infra.yml -p rest_bazar up -d prometheus
 
 echo "✅ Blue-Green Deployment Complete. Live: $INACTIVE"
